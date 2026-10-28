@@ -76,6 +76,10 @@ struct JobRow: View {
             }
             Text(job.recipe.name).foregroundStyle(.secondary)
             Text(job.message).font(.caption).textSelection(.enabled)
+            if let bytes=job.sourceBytes {
+                let output=job.outputs.filter {!$0.url.lastPathComponent.hasPrefix("metatron-")}.reduce(Int64(0)) {$0+$1.bytes}
+                Text("Entrada: \(ByteCountFormatter.string(fromByteCount:bytes,countStyle:.file)) · salida: \(ByteCountFormatter.string(fromByteCount:output,countStyle:.file))").font(.caption).foregroundStyle(.secondary)
+            }
             if job.duration > 0 { Text("\(job.duration, format: .number.precision(.fractionLength(2))) s · \(job.outputs.count) resultados").font(.caption.monospaced()).foregroundStyle(.secondary) }
             HStack {
                 if job.state == .completed {

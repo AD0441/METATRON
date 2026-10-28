@@ -12,3 +12,5 @@ docs/diagnostic-*
 
 docs/local-validation/
 docs/ai-smoke-test.txt
+
+.engines/

@@ -15,6 +15,36 @@ import MetatronWorkflow
                 print("Metal: \(HardwareProfile.current().deviceName)\nFFmpeg: \(engines.ffmpeg?.path ?? "no instalado")\nLibreOffice: \(engines.soffice?.path ?? "no instalado")\nGhostscript: \(engines.ghostscript?.path ?? "no instalado")\nWebP: \(engines.cwebp?.path ?? "no instalado")")
                 return
             }
+            if command == "run" || command == "goal" || command == "document" {
+                let flags:Set<String>=["--recipe","--goal","--engine","--engine-path","-o"]
+                var paths:[URL]=[];var index=1
+                while index<args.count {
+                    if flags.contains(args[index]) {index += 2;continue}
+                    if args[index] == "--json" {index += 1;continue}
+                    paths.append(URL(fileURLWithPath:args[index]));index += 1
+                }
+                var recipe:Recipe
+                if command == "run" {
+                    guard let file=option("--recipe") else {throw WorkflowError.invalid("Usa --recipe receta.metatron.json")}
+                    recipe=try JSONDecoder().decode(Recipe.self,from:Data(contentsOf:URL(fileURLWithPath:file)))
+                } else if command == "document" {
+                    guard let engine=DocumentEngineID(rawValue:option("--engine") ?? "native") else {throw WorkflowError.invalid("Motor desconocido. Usa native, markitdown o docling.")}
+                    recipe=Recipe(name:"Documento para análisis",steps:[.init(action:"documentAdvanced",text:engine.rawValue)])
+                } else {
+                    guard ["web","analysis"].contains(option("--goal") ?? "") else {throw WorkflowError.invalid("Elige --goal web o --goal analysis.")}
+                    let name=option("--goal") == "web" ? "Preparar para la web" : "Documento para análisis"
+                    guard let preset=Recipe.builtIns.first(where:{$0.name == name}) else {throw WorkflowError.emptyResult}
+                    recipe=preset
+                }
+                guard !paths.isEmpty else {throw WorkflowError.invalid("Añade uno o más archivos.")}
+                if let output=option("-o") {recipe.folderPath=output}
+                recipe.documentEnginePath=option("--engine-path") ?? recipe.documentEnginePath
+                let result=try await RecipeExecutor.execute(inputs:paths,recipe:recipe)
+                if args.contains("--json") {
+                    let data=try JSONEncoder().encode(result.files);print(String(decoding:data,as:UTF8.self))
+                } else {result.files.forEach {print($0.url.path)}}
+                return
+            }
             if command == "assist" {
                 guard #available(macOS 26, *), SystemLanguageModel.default.availability == .available else { throw WorkflowError.invalid("El modelo local de Apple no está disponible.") }
                 let prompt = args.dropFirst().joined(separator: " ")
@@ -70,6 +100,9 @@ import MetatronWorkflow
         tool compress|resize|stripMetadata|extractText|zip <archivo> [--size 1920]
         ocr <archivo> | research <pdf> | simulate <archivo> --to png
         formats <archivo> | engines | watch <carpeta> --to jpg
+        run <archivos…> --recipe receta.metatron.json [-o carpeta] [--json]
+        goal <archivos…> --goal web|analysis [-o carpeta]
+        document <archivo> --engine native|markitdown|docling [--engine-path ejecutable] [-o carpeta]
         benchmark | assist <pregunta>
         """)
     }

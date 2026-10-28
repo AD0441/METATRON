@@ -57,6 +57,11 @@ struct RecipeStepRow: View {
                 Button { move(1) } label: { Image(systemName: "arrow.down") }.accessibilityLabel("Bajar paso")
                 Button(role: .destructive, action: remove) { Image(systemName: "minus.circle") }.accessibilityLabel("Quitar paso")
             }
+            if step.action == "documentAdvanced" {
+                Picker("Motor documental",selection:Binding(get:{step.text.isEmpty ? "native" : step.text},set:{var copy=step;copy.text=$0;update(copy)})) {
+                    ForEach(DocumentEngineID.allCases,id:\.self) {Text($0.title).tag($0.rawValue)}
+                }
+            }
             if ["resize","targetSize"].contains(step.action) {
                 TextField(step.action == "resize" ? "Lado mayor (px)" : "Máximo (KB)", value: Binding(get: { step.number }, set: { var copy = step; copy.number = $0; update(copy) }), format: .number)
             }

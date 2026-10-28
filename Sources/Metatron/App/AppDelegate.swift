@@ -1,23 +1,59 @@
 import AppKit
 import Combine
 import MetatronCore
+import MetatronWorkflow
 import SwiftUI
+import os
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
+    static weak var current:AppDelegate?
+    private let logger=Logger(subsystem:"local.metatron.app",category:"lifecycle")
     private let monitor = DragMonitor()
+    private var instanceLease: InstanceLease?
+    private var duplicateLaunch = false
+    private var reopenObserver: NSObjectProtocol?
     private var statusItem: NSStatusItem?
     private var cancellables: Set<AnyCancellable> = []
     private let settings = SettingsStore.shared
     private let statusDrop = StatusDropTarget()
 
+    func applicationWillFinishLaunching(_ notification:Notification) {
+        Self.current=self
+        claimInstance()
+    }
+    private func claimInstance() {
+        guard instanceLease == nil,!duplicateLaunch else {return}
+        do { instanceLease=try InstanceLease(url:URL.applicationSupportDirectory.appendingPathComponent("METATRON/instance.lock")) }
+        catch {
+            duplicateLaunch=true
+            DistributedNotificationCenter.default().postNotificationName(.init("local.metatron.reopen"),object:nil,userInfo:nil,deliverImmediately:true)
+            NSRunningApplication.runningApplications(withBundleIdentifier:Bundle.main.bundleIdentifier ?? "local.metatron.app")
+                .first { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }?.activate()
+            NSApp.terminate(nil)
+        }
+    }
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication)->Bool {false}
+    func applicationWillTerminate(_ notification:Notification) {if !duplicateLaunch {WorkspaceStore.shared.persist()}}
+    func menuNeedsUpdate(_ menu:NSMenu) {
+        guard menu === statusItem?.menu else{return}
+        let current=makeMenu()
+        menu.removeAllItems()
+        for entry in current.items {current.removeItem(entry);menu.addItem(entry)}
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
-        NSApp.setActivationPolicy(.regular)
+        Self.current=self
+        claimInstance()
+        guard !duplicateLaunch else { NSApp.terminate(nil);return }
+        NSApp.setActivationPolicy(settings.showDockIcon ? .regular : .accessory)
+        reopenObserver=DistributedNotificationCenter.default().addObserver(forName:.init("local.metatron.reopen"),object:nil,queue:.main) { _ in MainActor.assumeIsolated { WorkbenchPresentation.show() } }
         // Look for optional engines early, off the main thread.
         DispatchQueue.global(qos: .utility).async { _ = Engines.current }
         setUpStatusItem()
         setUpMonitor()
         NSApp.servicesProvider = self
         NSUpdateDynamicServices()
+        if #available(macOS 15, *) {MetatronShortcuts.updateAppShortcutParameters()}
 
         WatchService.shared.start()
         RingController.shared.prepare()
@@ -33,7 +69,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        NotificationCenter.default.post(name: .metatronShowWorkbench, object: nil)
+        WorkbenchPresentation.show()
         return true
     }
 
@@ -87,6 +123,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     private func makeMenu() -> NSMenu {
         let menu = NSMenu()
+        menu.delegate=self
         let header = NSMenuItem(title: settings.paused ? L("Metatron is paused") : L("Drag a file a little, then tap %@", settings.triggerKey.symbol), action: nil, keyEquivalent: "")
         header.isEnabled = false
         menu.addItem(header)
@@ -98,6 +135,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             menu.addItem(.separator())
         }
         menu.addItem(item("Abrir METATRON", #selector(openWorkbench), "1"))
+        menu.addItem(item("Recetas…", #selector(openRecipes), "r"))
+        menu.addItem(item("Actividad…", #selector(openActivity), ""))
+        let jobs=WorkspaceStore.shared.jobs.count { $0.state == .queued || $0.state == .running }
+        if jobs > 0 { let summary=NSMenuItem(title:"\(jobs) trabajos en curso o pendientes",action:nil,keyEquivalent:"");summary.isEnabled=false;menu.addItem(summary) }
         menu.addItem(item(L("Convert a File…"), #selector(chooseFile), "o"))
         menu.addItem(item(L("Convert Finder Selection") + (settings.hotkeyEnabled ? "  " + Hotkey.display : ""), #selector(convertSelection), ""))
         let recent = NSMenuItem(title: L("Recent"), action: nil, keyEquivalent: "")
@@ -122,13 +163,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
         recent.submenu = sub
         menu.addItem(recent)
-        menu.addItem(item(settings.paused ? L("Resume") : L("Pause"), #selector(togglePause), "p"))
+        menu.addItem(item(settings.paused ? "Reanudar automatizaciones" : "Pausar automatizaciones", #selector(togglePause), "p"))
         menu.addItem(.separator())
+        menu.addItem(item("Dejar en segundo plano (ocultar Dock)",#selector(background),""))
+        menu.addItem(item(settings.showDockIcon ? "Ocultar icono del Dock" : "Mostrar icono en el Dock",#selector(toggleDock),""))
         menu.addItem(item(L("Settings…"), #selector(openSettings), ","))
         menu.addItem(item(L("Welcome Screen"), #selector(openWelcome), ""))
         menu.addItem(item(L("Check for Updates…"), #selector(checkUpdates), ""))
         menu.addItem(.separator())
-        menu.addItem(item(L("Quit Metatron"), #selector(quit), "q"))
+        menu.addItem(item("Salir METATRON completamente", #selector(quit), "q"))
         return menu
     }
 
@@ -148,7 +191,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         RingController.shared.show(files: panel.urls, at: NSEvent.mouseLocation, mode: .click)
     }
 
-    @objc private func openWorkbench() { NotificationCenter.default.post(name: .metatronShowWorkbench, object: nil) }
+    func showStatusMenu() {
+        logger.notice("Status controls requested; status item available: \(self.statusItem != nil)")
+        let menu=makeMenu()
+        let frame=statusItem?.button?.window?.frame
+        let point=frame.map {NSPoint(x:$0.minX,y:$0.minY)} ?? NSEvent.mouseLocation
+        // Finish tracking the application menu before opening the status controls.
+        DispatchQueue.main.async {menu.popUp(positioning:nil,at:point,in:nil)}
+    }
+
+    @objc private func openWorkbench() { WorkbenchPresentation.show() }
+    @objc private func openRecipes() { WorkbenchPresentation.show(section:"recipes") }
+    @objc private func openActivity() { WorkbenchPresentation.show(section:"activity") }
+    @objc private func background() { WorkbenchPresentation.enterBackground() }
+    @objc private func toggleDock() { settings.showDockIcon.toggle();NSApp.setActivationPolicy(settings.showDockIcon ? .regular : .accessory) }
     @objc private func togglePause() { settings.paused.toggle() }
     @objc private func openSettings() { SettingsWindowController.shared.show() }
     @objc private func openWelcome() { OnboardingWindow.show() }

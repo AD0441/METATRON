@@ -7,13 +7,16 @@ import MetatronWorkflow
     @State private var workspace = WorkspaceStore.shared
     @State private var settingsSelection = SettingsSelection()
     var body: some Scene {
-        WindowGroup("METATRON", id: "workbench") {
+        Window("METATRON", id: "workbench") {
             WorkspaceView(store: workspace)
                 .frame(minWidth: 1000, minHeight: 680)
                 .tint(preferences.interfaceAccent)
         }
         .defaultSize(width: 1220, height: 820)
         .commands {
+            CommandGroup(after:.appVisibility) {
+                Button("Controles de la barra de menús…") {AppDelegate.current?.showStatusMenu()}.keyboardShortcut("m",modifiers:[.command,.control,.option])
+            }
             CommandGroup(after: .help) {
                 if DemoCapture.directory != nil { Button("Guardar captura de demostración") { DemoCapture.take() }.keyboardShortcut("s", modifiers: [.command,.shift,.option]) }
             }

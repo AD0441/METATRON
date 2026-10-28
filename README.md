@@ -61,7 +61,7 @@ Elige en **Ajustes → General → Presentación**. Todas comparten las acciones
 | **Cubo de Metatrón** | Círculos flotantes sobre el entorno, con el archivo en el centro y las conexiones geométricas. Sin marco, barra de título ni fondo rectangular. |
 | **Ruleta clásica** | Sectores radiales para quienes prefieren el gesto tradicional. |
 | **Menú compacto** | Acciones agrupadas en una lista, con nombres completos. |
-| **Panel flotante** | Pestañas de conversión, herramientas, acciones y destinos. |
+| **Panel flotante** | Pestañas de conversión, herramientas, acciones, destinos, recetas y documentos. |
 | **Paleta de comandos** | Buscar `md`, `Markdown`, un formato, una herramienta o una carpeta y pulsar Enter. |
 | **Burbujas** | Burbujas distribuidas en órbita alrededor del archivo y del cursor, sobre una superficie transparente. |
 
@@ -77,7 +77,19 @@ Durante un arrastre, los modificadores permiten abrir las categorías:
 | **Option** | Destinos favoritos |
 | **Control + Option** | Destinos incluso si Option es el disparador principal |
 
-El cubo, Burbujas y la ruleta muestran hasta doce acciones por categoría. En los tres, pulsa el centro, Tab o espacio para cambiar de categoría; Escape o un clic fuera los cierra. El círculo central muestra el icono del archivo. Solo los círculos de acción aceptan el archivo soltado; los huecos entre ellos no activan operaciones. Las listas y la paleta permiten acceder al catálogo completo. Los iconos tienen ayuda contextual con el nombre completo.
+El cubo, Burbujas y la ruleta muestran hasta doce acciones por categoría. En los tres, pulsa el centro, Tab o espacio para cambiar de categoría; Escape o un clic fuera los cierra. El círculo central muestra el icono del archivo. Solo los círculos de acción aceptan el archivo soltado; los huecos entre ellos no activan operaciones. Las listas y la paleta permiten buscar las acciones disponibles de las seis familias. Los iconos tienen ayuda contextual con el nombre completo.
+
+## Recetas, documentos y automatización
+
+Ejecuta tus recetas desde los círculos de **Recetas** y **Documentos**, desde la CLI. También se incluyen tres acciones App Intents para Atajos: aparecen en su buscador, pero **esta compilación ad hoc no puede ejecutarlas porque carece de un Team ID Apple**. La ejecución nativa debe validarse tras firmar con una identidad Apple. «Preparar para la web» y «Documento para análisis» son secuencias explícitas que puedes editar; no necesitan un modelo de lenguaje.
+
+La simulación muestra el peso de entrada, resolución y posibles pérdidas. Actividad muestra los tamaños reales después de verificar las salidas. El procesamiento documental incluye OCR, Markdown con procedencia, imágenes raster incrustadas compatibles y combinación de imágenes, PDF y documentos en un PDF final. MarkItDown y Docling son motores opcionales configurables: consulta [Documentos](docs/DOCUMENTS.md) y los [límites antes de publicar](docs/PREPUBLICATION.md).
+
+## Barra superior y segundo plano
+
+METATRON mantiene **una sola instancia**. Cerrar la ventana conserva la app en la barra de menús. Su símbolo permite abrir la ventana, acceder a Recetas o Actividad, pausar automatizaciones, ocultar o mostrar el Dock, abrir Ajustes y **salir completamente**. «Dejar en segundo plano» oculta ventana y Dock; «Iniciar en segundo plano» controla el próximo inicio. La integración utiliza la barra de menús de macOS, junto a los controles del sistema.
+
+Pausar detiene los nuevos accesos contextuales y la recepción de carpetas vigiladas. El trabajo ya activo termina su paso; no se borran originales.
 
 ## Apariencia y organización
 
@@ -91,7 +103,7 @@ Deshacer una salida comprueba que no haya cambiado y la archiva para recuperaci�
 
 [Descargar METATRON para Apple Silicon](https://github.com/AD0441/METATRON/releases/latest) · [Compilar desde el código](#empezar)
 
-Requiere macOS 14+ y Xcode con Swift 6.2 o posterior para compilar. La validación local se realizó en un M1 de 8 GB con Swift 6.4. Apple Intelligence requiere macOS 26+ y disponibilidad del modelo en el sistema.
+Requiere macOS 14+ y Xcode con Swift 6.2 o posterior para compilar. La validación local se realizó en un M1 de 8 GB con Swift 6.4. Las acciones de archivos de Atajos requieren macOS 15+. Apple Intelligence requiere macOS 26+ y disponibilidad del modelo en el sistema.
 
 ```sh
 git clone https://github.com/AD0441/METATRON.git
@@ -99,7 +111,7 @@ cd METATRON
 ./script/build_and_run.sh
 ```
 
-El script crea **`dist/METATRON.app`** y **`metatron-cli`**, con compilación release y firma local ad hoc. Usa Xcode mediante `DEVELOPER_DIR` sin cambiar la configuración global. La firma local no equivale a notarización de Apple.
+El script crea **`dist/METATRON.app`** con **`metatron-cli`** dentro del paquete, con compilación release y firma local ad hoc. El proyecto Xcode genera los metadatos de App Intents; SwiftPM mantiene el núcleo, la CLI y las pruebas. La compilación usa una copia temporal para evitar bloqueos de coordinación de Escritorio/iCloud. Usa Xcode mediante `DEVELOPER_DIR` sin cambiar la configuración global. La firma local no equivale a notarización de Apple.
 
 ```sh
 ./script/test.sh

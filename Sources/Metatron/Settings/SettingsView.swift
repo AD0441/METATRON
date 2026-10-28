@@ -4,7 +4,7 @@ import MetatronWorkflow
 import SwiftUI
 
 enum SettingsPane: String, CaseIterable, Identifiable {
-    case general, appearance, organization, actions, output, quality, automation, engines, about
+    case general, appearance, organization, actions, output, quality, automation, engines, documents, about
     var id: String { rawValue }
 
     var title: String {
@@ -17,6 +17,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .quality: return L("Quality")
         case .automation: return L("Automation")
         case .engines: return L("Engines")
+        case .documents: return "Documentos"
         case .about: return L("About")
         }
     }
@@ -31,6 +32,7 @@ enum SettingsPane: String, CaseIterable, Identifiable {
         case .quality: return "slider.horizontal.3"
         case .automation: return "bolt.fill"
         case .engines: return "shippingbox.fill"
+        case .documents: return "doc.text.magnifyingglass"
         case .about: return "info.circle.fill"
         }
     }
@@ -43,6 +45,8 @@ final class SettingsWindowController {
     static let shared = SettingsWindowController()
     private var window: NSWindow?
     let selection = SettingsSelection()
+
+    func hide() { window?.orderOut(nil) }
 
     func show(_ pane: SettingsPane? = nil) {
         if let pane { selection.pane = pane }
@@ -90,6 +94,7 @@ struct SettingsView: View {
                     case .quality: QualityPane()
                     case .automation: AutomationPane()
                     case .engines: EnginesPane()
+                    case .documents: DocumentEnginesPane()
                     case .about: AboutPane()
                     }
                 }
@@ -162,6 +167,11 @@ private struct GeneralPane: View {
 
     var body: some View {
         Form {
+            Section("Ventana y segundo plano") {
+                Toggle("Iniciar en segundo plano", isOn: $settings.startInBackground)
+                Text("Cerrar la ventana conserva METATRON en la barra de menús. Desde el símbolo superior puedes abrirla, pausar o salir completamente.").font(.caption).foregroundStyle(.secondary)
+                Button("Dejar en segundo plano ahora") { WorkbenchPresentation.enterBackground() }
+            }
             Section("Acceso a las acciones") {
                 Picker("Presentación", selection: $settings.quickAccessStyle) {
                     ForEach(QuickAccessStyle.allCases) { Text($0.title).tag($0) }
@@ -196,7 +206,6 @@ private struct GeneralPane: View {
                 Toggle(L("Show icon in the Dock"), isOn: $settings.showDockIcon)
                     .onChange(of: settings.showDockIcon) { _, show in
                         NSApp.setActivationPolicy(show ? .regular : .accessory)
-                        SettingsWindowController.shared.show()
                     }
                 Toggle(L("Haptic feedback on trackpad"), isOn: $settings.haptics)
                 Toggle(L("Play a sound when done"), isOn: $settings.playSound)
@@ -669,6 +678,11 @@ private struct AutomationPane: View {
             } footer: {
                 Text(L("Only files that fit the action are converted; results are saved next to them."))
                     .foregroundStyle(.secondary)
+            }
+
+            Section("Atajos de macOS") {
+                Text("Preparar archivos · Ejecutar receta · Abrir METATRON")
+                Text("Las acciones se pueden buscar en Atajos. Su ejecución requiere una firma Apple con Team ID; las copias con firma local ad hoc no pueden registrarse para ejecutarlas. La CLI sigue disponible para automatización.").font(.caption).foregroundStyle(.secondary)
             }
 
             Section {

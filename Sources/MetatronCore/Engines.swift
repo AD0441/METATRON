@@ -89,11 +89,12 @@ public struct Engines: Sendable, Equatable {
 
     /// Runs a command and throws with its last error lines if it fails.
     @discardableResult
-    public static func run(_ tool: URL, _ arguments: [String], currentDirectory: URL? = nil, timeout: TimeInterval = 600) async throws -> String {
+    public static func run(_ tool: URL, _ arguments: [String], currentDirectory: URL? = nil, timeout: TimeInterval = 600, environment: [String:String] = [:]) async throws -> String {
         try await withCheckedThrowingContinuation { (cont: CheckedContinuation<String, Error>) in
             let process = Process()
             process.executableURL = tool
             process.arguments = arguments
+            process.environment = ProcessInfo.processInfo.environment.merging(environment) { _,new in new }
             if let currentDirectory { process.currentDirectoryURL = currentDirectory }
             let out = Pipe(), err = Pipe()
             process.standardOutput = out
@@ -126,7 +127,7 @@ public struct Engines: Sendable, Equatable {
 final class LockedData: @unchecked Sendable {
     private let lock = NSLock()
     private var storage = Data()
-    func append(_ d: Data) { lock.lock(); storage.append(d); lock.unlock() }
+    func append(_ d: Data) { lock.lock(); storage.append(d); if storage.count > 1_048_576 { storage.removeFirst(storage.count-1_048_576) }; lock.unlock() }
     var data: Data { lock.lock(); defer { lock.unlock() }; return storage }
 }
 

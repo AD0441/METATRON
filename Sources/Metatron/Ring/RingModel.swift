@@ -7,12 +7,14 @@ struct RingItem: Identifiable, Equatable {
     let action: KQAction?
     let fileAction: FileActionID?
     let destination: SavedDestination?
-    init(action: KQAction) { self.action = action; fileAction = nil; destination = nil }
-    init(fileAction: FileActionID) { action = nil; self.fileAction = fileAction; destination = nil }
-    init(destination: SavedDestination) { action = nil; fileAction = nil; self.destination = destination }
-    var id: String { destination.map { "destination." + $0.id.uuidString } ?? action?.id ?? "file." + (fileAction?.rawValue ?? "") }
-    var title: String { destination.map { $0.name.isEmpty ? $0.folder.lastPathComponent : $0.name } ?? action?.title ?? fileAction?.title ?? "" }
-    var symbol: String { destination != nil ? "folder" : action?.symbol ?? fileAction?.symbol ?? "doc" }
+    let recipe: Recipe?
+    init(action: KQAction) { self.action = action; fileAction = nil; destination = nil; recipe = nil }
+    init(fileAction: FileActionID) { action = nil; self.fileAction = fileAction; destination = nil; recipe = nil }
+    init(destination: SavedDestination) { action = nil; fileAction = nil; self.destination = destination; recipe = nil }
+    init(recipe:Recipe) {action=nil;fileAction=nil;destination=nil;self.recipe=recipe}
+    var id: String { recipe.map {"recipe."+$0.id.uuidString} ?? destination.map { "destination." + $0.id.uuidString } ?? action?.id ?? "file." + (fileAction?.rawValue ?? "") }
+    var title: String { recipe?.name ?? destination.map { $0.name.isEmpty ? $0.folder.lastPathComponent : $0.name } ?? action?.title ?? fileAction?.title ?? "" }
+    var symbol: String { recipe != nil ? "square.stack.3d.up" : destination != nil ? "folder" : action?.symbol ?? fileAction?.symbol ?? "doc" }
 }
 
 /// State shared by the ring view (drawing) and the drop view (hit testing).
@@ -20,6 +22,7 @@ final class RingModel: ObservableObject {
     enum Mode { case drag, click }
 
     @Published var pages: [[RingItem]] = [[], []]
+    private(set) var allPages:[[RingItem]] = [[],[]]
     @Published var page = 0
     @Published var hovered: Int?
     @Published var files: [URL] = []
@@ -31,6 +34,8 @@ final class RingModel: ObservableObject {
     @Published var finished: Bool?
     var mode: Mode = .drag
 
+    static let pageNames=["Convertir","Herramientas","Acciones","Destinos","Recetas","Documentos"]
+    var pageTitle:String {Self.pageNames.indices.contains(page) ? Self.pageNames[page] : "Acciones"}
     var items: [RingItem] { pages.indices.contains(page) ? pages[page] : [] }
     var hasTools: Bool { pages.count > 1 && !pages[1].isEmpty }
 
@@ -40,7 +45,12 @@ final class RingModel: ObservableObject {
         var tools = settings.ordered(ActionCatalog.toolActions(for: files).filter(settings.isEnabled)).map(RingItem.init)
         // ZIP is hidden for images by default, but a ring with no tools at all is never useful.
         if tools.isEmpty, let zip = ActionCatalog.toolActions(for: files).first(where: { $0 == .tool(.zip) }) { tools = [RingItem(action: zip)] }
-        pages = [Array(convert.prefix(12)), Array(tools.prefix(12)), FileActionID.allCases.filter { $0 != .configureDestinations && ($0 != .annotate || (files.count == 1 && FileKind.of(files[0]) == .image)) }.map { RingItem(fileAction: $0) }, settings.savedDestinations.isEmpty ? [RingItem(fileAction: .configureDestinations)] : Array(settings.savedDestinations.prefix(12)).map { RingItem(destination: $0) }]
+        pages = [convert, tools, FileActionID.allCases.filter { $0 != .configureDestinations && ($0 != .annotate || (files.count == 1 && FileKind.of(files[0]) == .image)) }.map { RingItem(fileAction: $0) }, settings.savedDestinations.isEmpty ? [RingItem(fileAction: .configureDestinations)] : settings.savedDestinations.map { RingItem(destination: $0) }]
+        let recipes=WorkspaceStore.shared.recipes
+        pages.append(Array(recipes.filter {!$0.steps.contains { ["documentAdvanced","bundlePDF","research","pdfTables"].contains($0.action) }}).map {RingItem(recipe:$0)})
+        pages.append(Array(recipes.filter {$0.steps.contains { ["documentAdvanced","bundlePDF","research","pdfTables"].contains($0.action) }}).map {RingItem(recipe:$0)})
+        allPages=pages
+        pages=allPages.map {Array($0.prefix(12))}
         page = convert.isEmpty && !tools.isEmpty ? 1 : 0
         hovered = nil
         chosen = nil

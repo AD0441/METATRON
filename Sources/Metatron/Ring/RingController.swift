@@ -38,6 +38,7 @@ final class RingController {
 
     /// Room around the disc for the shadow and the hint pill.
     private var margin: CGFloat { max(60, geometry.diameter * (RingGeometry.canvasScale - 1) / 2 + 10) }
+    var documentationWindow: NSWindow? { panel?.isVisible == true && model.shown ? panel : nil }
     var isVisible: Bool { (panel?.isVisible == true && model.shown) || QuickAccessController.shared.isVisible }
 
     var isOrbit: Bool { [.metatron,.bubbles].contains(SettingsStore.shared.quickAccessStyle) }
@@ -63,6 +64,8 @@ final class RingController {
         }
         QuickAccessController.shared.hide()
         let panel = makePanelIfNeeded()
+        panel.title = SettingsStore.shared.quickAccessStyle.title
+        panel.acceptsMouseMovedEvents = true
         let side = isOrbit ? orbit.side : geometry.diameter + margin * 2
         var frame = NSRect(x: point.x - side / 2, y: point.y - side / 2, width: side, height: side)
         if let screen = NSScreen.screens.first(where: { NSMouseInRect(point, $0.frame, false) }) ?? NSScreen.main {
@@ -125,6 +128,7 @@ final class RingController {
         if case .slice(let i) = hit { index = i } else { index = nil }
         guard index != model.hovered else { return }
         model.hovered = index
+        dropView?.toolTip = index.map { model.items[$0].title }
         if index != nil { haptic() }
     }
 
@@ -133,6 +137,7 @@ final class RingController {
         let item = model.items[index]
         if let destination = item.destination { hide(); FileActions.move(files.isEmpty ? model.files : files, to: destination.folder); return }
         if let fileAction = item.fileAction { hide(); fileAction.perform(files.isEmpty ? model.files : files); return }
+        if let recipe=item.recipe {hide();WorkspaceStore.shared.enqueue(inputs:files.isEmpty ? model.files : files,recipe:recipe);ToastCenter.shared.showInfo("Receta en cola",detail:recipe.name,actionTitle:"Ver actividad",action:{WorkbenchPresentation.show(section:"activity")});return}
         guard let action = item.action else { return }
         let files = files.isEmpty ? model.files : files
         model.chosen = index

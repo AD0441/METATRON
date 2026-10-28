@@ -4,6 +4,7 @@ import MetatronCore
 
 public struct RecipeResult: Sendable {
     public let files: [PublishedFile]
+    public let inputBytes:Int64
     public let elapsed: Double
     public let warnings: [String]
 }
@@ -13,6 +14,7 @@ public enum RecipeExecutor {
         guard !inputs.isEmpty, !recipe.steps.isEmpty else { throw WorkflowError.invalid("Añade archivos y pasos.") }
         guard recipe.quality.isFinite, (0...1).contains(recipe.quality) else { throw WorkflowError.invalid("La calidad debe estar entre 0 y 1.") }
         let start = Date()
+        let sourceBytes=inputs.reduce(Int64(0)) {$0+FileIntegrity.bytes($1)}
         let fm = FileManager.default
         let staging = fm.temporaryDirectory.appendingPathComponent("metatron-job-" + id.uuidString, isDirectory: true)
         try fm.createDirectory(at: staging, withIntermediateDirectories: true)
@@ -27,7 +29,19 @@ public enum RecipeExecutor {
             await progress("\(index + 1)/\(recipe.steps.count) · \(step.title)")
             let folder = staging.appendingPathComponent("step-\(index)", isDirectory: true)
             try fm.createDirectory(at: folder, withIntermediateDirectories: true)
-            if step.action == "imageMarkup" {
+            if step.action == "documentAdvanced" {
+                let engine=DocumentEngineID(rawValue:step.text) ?? .native
+                var structured:[URL]=[]
+                for (part,input) in current.enumerated() {
+                    let destination=folder.appendingPathComponent("documento-\(part+1)",isDirectory:true)
+                    structured.append(try await DocumentProcessing.structured(input,engine:engine,customPath:recipe.documentEnginePath,into:destination))
+                }
+                current=structured
+                warnings.append("Revisa la estructura documental y consulta procedencia.json en la salida.")
+            } else if step.action == "bundlePDF" {
+                current=[try await DocumentProcessing.combinePDF(current,into:folder)]
+                warnings.append("Los documentos editables pueden cambiar de diseño al convertirse a PDF; verifica la combinación.")
+            } else if step.action == "imageMarkup" {
                 let strokes = try JSONDecoder().decode([MarkStroke].self, from: Data(step.text.utf8))
                 current = try current.map { source in
                     let image = try ImageMarkup.render(Images.load(source).image, strokes: strokes)
@@ -96,7 +110,7 @@ public enum RecipeExecutor {
             let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
             try encoder.encode(published).write(to: receipt, options: .atomic)
             published.append(PublishedFile(url: receipt, digest: try FileIntegrity.digest(receipt), bytes: FileIntegrity.bytes(receipt)))
-            return RecipeResult(files: published, elapsed: Date().timeIntervalSince(start), warnings: warnings)
+            return RecipeResult(files: published, inputBytes:sourceBytes, elapsed: Date().timeIntervalSince(start), warnings: warnings)
         } catch {
             // Only outputs just created by this transaction are removed on a publication failure.
             for item in published { try? fm.removeItem(at: item.url) }

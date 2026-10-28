@@ -9,8 +9,8 @@ final class WatchService {
     private var watchers: [UUID: FolderWatcher] = [:]
     private var cancellable: AnyCancellable?
     func start() {
-        apply(SettingsStore.shared.watchRules)
-        cancellable = SettingsStore.shared.$watchRules.removeDuplicates().sink { [weak self] in self?.apply($0) }
+        cancellable = Publishers.CombineLatest(SettingsStore.shared.$watchRules.removeDuplicates(),SettingsStore.shared.$paused.removeDuplicates())
+            .sink { [weak self] rules,paused in self?.apply(paused ? [] : rules) }
     }
     private func apply(_ rules: [WatchRule]) {
         watchers.values.forEach { $0.stop() }; watchers = [:]
@@ -22,7 +22,7 @@ final class WatchService {
     static func watcher(for rule: WatchRule, log: @escaping @Sendable (String) -> Void) -> FolderWatcher {
         FolderWatcher(folder: URL(fileURLWithPath: rule.folder, isDirectory: true)) { url in
             Task { @MainActor in
-                guard FileKind.of(url) != .folder else { return }
+                guard !SettingsStore.shared.paused, FileKind.of(url) != .folder else { return }
                 let recipe: Recipe
                 if rule.action.hasPrefix("recipe."), let id = UUID(uuidString: String(rule.action.dropFirst(7))), let found = WorkspaceStore.shared.recipes.first(where: { $0.id == id }) { recipe = found }
                 else if let action = rule.applies(to: url) { recipe = Recipe(name: "Carpeta · " + action.title, steps: [.init(action: action.id)]) }

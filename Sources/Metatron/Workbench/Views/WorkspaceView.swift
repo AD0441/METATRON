@@ -5,7 +5,6 @@ import MetatronWorkflow
 
 struct WorkspaceView: View {
     @Bindable var store: WorkspaceStore
-    @Environment(\.openWindow) private var openWindow
     @ObservedObject private var preferences = SettingsStore.shared
     var body: some View {
         NavigationSplitView {
@@ -48,6 +47,7 @@ struct WorkspaceView: View {
             }
             .safeAreaInset(edge: .bottom) { StatusStrip(store: store) }
         }
+        .background(WorkbenchWindowCapture().frame(width:0,height:0))
         .toolbar {
             ToolbarItemGroup {
                 Button { RingController.shared.show(files: store.files, at: NSEvent.mouseLocation, mode: .click) } label: { Label("Acciones", systemImage: "slider.horizontal.3") }.disabled(store.files.isEmpty)
@@ -60,7 +60,7 @@ struct WorkspaceView: View {
             Button("Aceptar", role: .cancel) { store.notice = nil }
         } message: { Text(store.notice ?? "") }
         .onChange(of: preferences.activityRetentionDays) { _, _ in store.applyRetention() }
-        .onReceive(NotificationCenter.default.publisher(for: .metatronShowWorkbench)) { _ in openWindow(id: "workbench"); NSApp.activate(ignoringOtherApps: true) }
+        .onReceive(NotificationCenter.default.publisher(for: .metatronShowWorkbench)) { _ in WorkbenchPresentation.show() }
     }
 }
 struct StatusStrip: View {
@@ -167,6 +167,7 @@ struct SimulationView: View {
             ForEach(rows) { row in
                 VStack(alignment: .leading, spacing: 5) {
                     Text(row.name).bold()
+                    ForEach(row.facts,id:\.self) {Text($0).font(.caption).foregroundStyle(.secondary)}
                     Text(row.destination).font(.caption.monospaced()).textSelection(.enabled)
                     ForEach(row.warnings, id: \.self) { Text("· " + $0).font(.caption).foregroundStyle(.secondary) }
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(12).background(.quaternary.opacity(0.3), in: RoundedRectangle(cornerRadius: 8))

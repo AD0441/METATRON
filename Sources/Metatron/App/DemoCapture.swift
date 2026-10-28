@@ -7,7 +7,7 @@ enum DemoCapture {
         return URL(fileURLWithPath:CommandLine.arguments[i+1],isDirectory:true)
     }
     static func take() {
-        guard let directory, let window=NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }),
+        guard let directory, let window=RingController.shared.documentationWindow ?? NSApp.keyWindow ?? NSApp.windows.first(where: { $0.isVisible }),
               window.contentView != nil else{return}
         guard !(window is NSOpenPanel), !(window is NSSavePanel) else { return }
         let data: Data?

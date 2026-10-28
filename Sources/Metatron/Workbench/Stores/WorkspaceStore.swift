@@ -57,7 +57,7 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
             if FileManager.default.fileExists(atPath: file.path) {
                 let saved = try JSONDecoder().decode(WorkspaceSnapshot.self, from: Data(contentsOf: file))
                 recipes = saved.recipes.isEmpty ? Recipe.builtIns : saved.recipes
-                if !recipes.contains(where: { $0.steps.contains(where: { $0.action == "convert.md" }) }) { recipes.append(Recipe.builtIns.first { $0.name == "Documento a Markdown" }!) }
+                for preset in Recipe.builtIns where !recipes.contains(where: {$0.name == preset.name}) {recipes.append(preset)}
                 jobs = saved.jobs.map { job in var copy = job; if [.queued,.running].contains(copy.state) { copy.state = .interrupted; copy.message = "Interrumpido al cerrar. Puedes reintentar." }; return copy }
                 library = saved.library
             }
@@ -94,21 +94,42 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
         simulation = []
     }
     func simulate() {
-        do { simulation = try Simulation.plan(inputs: files, recipe: selectedRecipe); activity = "Simulación lista · no se han cambiado archivos" }
-        catch { notice = error.localizedDescription }
+        let inputs=files,recipe=selectedRecipe
+        Task {
+            do {
+                let rows=try await Simulation.inspect(inputs:inputs,recipe:recipe)
+                guard inputs == files,recipe == selectedRecipe else {return}
+                simulation=rows;activity="Simulación lista · no se han cambiado archivos"
+            } catch {notice=error.localizedDescription}
+        }
     }
     func enqueue() { enqueue(inputs: files, recipe: selectedRecipe) }
     func enqueue(inputs: [URL], recipe: Recipe, parameters: ToolParameters = .none, completion: ((Result<RecipeResult, Error>) -> Void)? = nil) {
         guard !inputs.isEmpty, !recipe.steps.isEmpty else { notice = "Añade archivos y al menos un paso."; return }
         let groups = recipe.groupsInputs ? [inputs] : inputs.map { [$0] }
         for group in groups {
-            let job = WorkJob(inputs: group, recipe: recipe)
+            var configured=recipe
+            if let engine=recipe.steps.first(where: {$0.action == "documentAdvanced"}), let id=DocumentEngineID(rawValue:engine.text), id != .native {configured.documentEnginePath=UserDefaults.standard.string(forKey:"documentEngine."+id.rawValue)}
+            let job = WorkJob(inputs: group, recipe: configured)
             transientParameters[job.id] = parameters
             if let completion { completions[job.id] = completion }
             jobs.insert(job, at: 0)
         }
         simulation = []
         persist(); startQueue()
+    }
+    func runRecipe(inputs:[URL],recipe:Recipe) async throws ->[PublishedFile] {
+        guard !inputs.isEmpty,!recipe.steps.isEmpty else {throw WorkflowError.invalid("Añade archivos y pasos.")}
+        return try await withCheckedThrowingContinuation { continuation in
+            var remaining=recipe.groupsInputs ? 1 : inputs.count
+            var outputs:[PublishedFile]=[]
+            var failure:Error?
+            enqueue(inputs:inputs,recipe:recipe) {result in
+                switch result {case .success(let value):outputs.append(contentsOf:value.files);case .failure(let error):if failure == nil {failure=error}}
+                remaining -= 1
+                if remaining == 0 {if let failure {continuation.resume(throwing:failure)} else {continuation.resume(returning:outputs)}}
+            }
+        }
     }
     private func startQueue() {
         guard queueTask == nil else { return }
@@ -122,7 +143,7 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
                     let result = try await RecipeExecutor.execute(inputs: job.inputs, recipe: job.recipe, id: job.id, parameters: parameters) { [weak self] message in
                         await self?.progress(job.id, message: message)
                     }
-                    update(job.id) { $0.outputs = result.files; $0.duration = result.elapsed; $0.state = .completed; $0.message = result.warnings.isEmpty ? "Salida verificada" : result.warnings.joined(separator: " · ") }
+                    update(job.id) { $0.sourceBytes=result.inputBytes; $0.outputs = result.files; $0.duration = result.elapsed; $0.state = .completed; $0.message = result.warnings.isEmpty ? "Salida verificada" : result.warnings.joined(separator: " · ") }
                     if copyAfterRun { copyResult(result.files) }
                     completions.removeValue(forKey: job.id)?(.success(result))
                     logger.notice("Job completed in \(result.elapsed) seconds")

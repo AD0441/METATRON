@@ -165,7 +165,7 @@ struct RingView: View {
                                 .offset(x: 6 * scale, y: -3 * scale)
                         }
                     }
-                    Text(model.page == 0 ? L("Convert") : model.page == 1 ? L("Tools") : model.page == 2 ? "Acciones" : "Destinos")
+                    Text(model.pageTitle)
                         .font(.system(size: 10 * scale, weight: .heavy, design: .rounded))
                         .textCase(.uppercase)
                         .foregroundStyle(theme.gradient)
@@ -185,10 +185,9 @@ struct RingView: View {
                 .font(.system(size: 11 * scale, weight: .bold, design: .rounded))
                 .padding(.horizontal, 5 * scale).padding(.vertical, 1 * scale)
                 .background(RoundedRectangle(cornerRadius: 4 * scale).strokeBorder(.secondary.opacity(0.6)))
-            ForEach(0..<4) { i in
-                Text(i == 0 ? L("Convert") : i == 1 ? L("Tools") : i == 2 ? "Acciones" : "Destinos")
-                    .font(.system(size: 10.5 * scale, weight: i == model.page ? .heavy : .medium, design: .rounded))
-                    .foregroundStyle(i == model.page ? AnyShapeStyle(theme.gradient) : AnyShapeStyle(.secondary))
+            Text(model.pageTitle).font(.system(size:10.5*scale,weight:.semibold))
+            ForEach(model.pages.indices,id:\.self) { i in
+                Circle().fill(i == model.page ? Color.primary : Color.secondary.opacity(0.35)).frame(width:4*scale,height:4*scale)
             }
         }
         .padding(.horizontal, 10 * scale).padding(.vertical, 5 * scale)

@@ -37,7 +37,8 @@ final class QuickAccessController {
     func hide() { panel?.orderOut(nil); panel?.contentView = nil; panel = nil }
     static func perform(_ item: RingItem, files: [URL]) {
         shared.hide(); RingController.shared.hide()
-        if let destination = item.destination { FileActions.move(files, to: destination.folder) }
+        if let recipe=item.recipe {WorkspaceStore.shared.enqueue(inputs:files,recipe:recipe)}
+        else if let destination = item.destination { FileActions.move(files, to: destination.folder) }
         else if let fileAction = item.fileAction { fileAction.perform(files) }
         else if let action = item.action { ActionRunner.shared.start(action, files: files) }
     }
@@ -50,15 +51,10 @@ struct QuickAccessView: View {
     @State private var selected: String?
     @FocusState private var searchFocused: Bool
     @ObservedObject private var preferences = SettingsStore.shared
-    private let titles = ["Convertir", "Herramientas", "Acciones", "Mover a"]
-    private var groups: [[RingItem]] {
-        [preferences.ordered(ActionCatalog.convertActions(for: model.files).filter(preferences.isEnabled)).map { RingItem(action: $0) },
-         preferences.ordered(ActionCatalog.toolActions(for: model.files).filter(preferences.isEnabled)).map { RingItem(action: $0) },
-         FileActionID.allCases.filter { $0 != .configureDestinations && ($0 != .annotate || (model.files.count == 1 && FileKind.of(model.files[0]) == .image)) }.map { RingItem(fileAction: $0) },
-         preferences.savedDestinations.isEmpty ? [RingItem(fileAction: .configureDestinations)] : preferences.savedDestinations.map { RingItem(destination: $0) }]
-    }
+    private let titles=RingModel.pageNames
+    private var groups:[[RingItem]] {model.allPages}
     private var visible: [RingItem] {
-        let source = style == .panel ? groups[min(model.page, 3)] : groups.flatMap { $0 }
+        let source = style == .panel ? groups[min(model.page, groups.count-1)] : groups.flatMap { $0 }
         return source.filter { query.isEmpty || $0.title.localizedCaseInsensitiveContains(query) || ($0.action?.id.localizedCaseInsensitiveContains(query) ?? false) || ($0.destination?.folder.path.localizedCaseInsensitiveContains(query) ?? false) }
     }
     var body: some View {
@@ -70,7 +66,7 @@ struct QuickAccessView: View {
                 Button { QuickAccessController.shared.hide(); SettingsWindowController.shared.show(.general) } label: { Image(systemName: "gearshape") }.buttonStyle(.plain).help("Cambiar presentación")
             }.padding(16)
             if style == .panel {
-                Picker("Categoría", selection: $model.page) { ForEach(0..<4) { Text(titles[$0]).tag($0) } }.pickerStyle(.segmented).padding(.horizontal, 16).padding(.bottom, 12)
+                Picker("Categoría", selection: $model.page) { ForEach(0..<groups.count,id:\.self) { Text(titles[$0]).tag($0) } }.pickerStyle(.segmented).padding(.horizontal, 16).padding(.bottom, 12)
             }
             if style == .commands {
                 TextField("Buscar formato, herramienta o destino", text: $query).textFieldStyle(.roundedBorder).focused($searchFocused)
@@ -84,7 +80,7 @@ struct QuickAccessView: View {
                 ScrollViewReader { proxy in
                     List {
                         if style == .compact {
-                            ForEach(0..<4) { group in
+                            ForEach(0..<groups.count,id:\.self) { group in
                                 if !groups[group].isEmpty { Section(titles[group]) { ForEach(groups[group]) { item in row(item) } } }
                             }
                         } else { ForEach(visible) { item in row(item) } }

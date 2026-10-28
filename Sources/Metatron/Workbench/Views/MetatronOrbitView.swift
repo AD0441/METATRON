@@ -6,7 +6,6 @@ struct MetatronOrbitView: View {
     @ObservedObject var model: RingModel
     @ObservedObject private var settings = SettingsStore.shared
     @Environment(\.colorScheme) private var systemScheme
-    private let categories=["Convertir","Herramientas","Acciones","Destinos"]
     private var geo: OrbitGeometry { OrbitGeometry(size:settings.ringSize,layout:settings.quickAccessStyle == .bubbles ? .bubbles : .metatron) }
     private var dark: Bool { (settings.theme.colorScheme ?? systemScheme) == .dark }
     private var theme: Theme { var t=settings.theme;t.drawsBackdrop=false;return t }
@@ -21,7 +20,7 @@ struct MetatronOrbitView: View {
                 }
             }
             if model.progress == nil {
-                Text("\(categories[min(model.page,3)]) · \(model.items.count) acciones · Tab para cambiar")
+                Text("\(model.pageTitle) · \(model.items.count) acciones · Tab para cambiar")
                     .font(.system(size:10*geo.scale,weight:.medium)).foregroundStyle(.primary)
                     .padding(.horizontal,10).padding(.vertical,5)
                     .background(Color(nsColor:.controlBackgroundColor).opacity(0.94),in:Capsule())
@@ -59,7 +58,7 @@ struct MetatronOrbitView: View {
                 } else {
                     VStack(spacing:3*geo.scale) {
                         FileIcon(urls:model.files).frame(width:32*geo.scale,height:32*geo.scale)
-                        Text(categories[min(model.page,3)]).font(.system(size:9*geo.scale,weight:.semibold))
+                        Text(model.pageTitle).font(.system(size:9*geo.scale,weight:.semibold))
                         if model.files.count > 1 {Text("\(model.files.count) archivos").font(.system(size:8*geo.scale))}
                     }.foregroundStyle(.primary)
                 }

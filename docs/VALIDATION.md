@@ -34,3 +34,16 @@ Se corrigieron el primer clic de paneles, Escape, el cierre diferido de presenta
 Cubo y Burbujas se trasladaron al panel transparente y sin bordes de la ruleta clásica, anclado al punto de activación. El material nativo se recorta en cada círculo. El icono del archivo permanece en el centro. La capa acepta acciones solamente dentro de los círculos; los huecos no son destinos de arrastre. Las pruebas de geometría incluyen 1 a 12 burbujas, separación entre objetivos y detección de huecos.
 
 Se simplificó una expresión de la prueba de anonimización que agotaba el comprobador de tipos de Swift en GitHub, conservando la misma comprobación de píxeles.
+
+## Revisión local 2.2 · 28 de octubre de 2026
+
+- Paquete release arm64 compilado con Xcode; CLI y núcleo conservan SwiftPM.
+- 50 pruebas XCTest, una omitida por faltar Ghostscript, cero fallos; 33 pruebas Swift Testing en 13 suites, cero fallos.
+- Casos nuevos: bloqueo de instancia, Markdown con procedencia, extracción de imagen raster incrustada con perfil ICC, PDF combinado conservando originales, adaptador documental explícito y simulación de resolución sin crear salidas.
+- MarkItDown 0.1.9 ejecutado realmente desde la CLI sobre un CSV sintético; produjo Markdown y recibo verificado. Su entorno aislado está excluido del repositorio y del paquete.
+- Segundo plano probado desde Ajustes: mismo proceso, política de activación accessory (sin Dock), proceso no terminado y reapertura sin duplicación.
+- Capturas Cubo y Burbujas: alfa cero en las esquinas; Burbujas también conserva alfa cero en el hueco entre botones.
+- Las tres acciones aparecen en el buscador de Atajos. Ejecución bloqueada por Team ID ausente en firma ad hoc, confirmada por el registro linkd. No hay identidad Apple de desarrollo disponible en el Mac.
+- Docling dispone de adaptador; no se instalaron ni validaron sus modelos. Tablas y orden de lectura requieren revisión.
+- La revisión independiente anterior quedó incompleta por el límite de uso de los revisores; las comprobaciones de esta sección son locales.
+- Esta revisión no se ha enviado ni publicado en GitHub.

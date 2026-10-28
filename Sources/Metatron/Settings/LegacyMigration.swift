@@ -16,7 +16,12 @@ enum LegacyMigration {
     static func workspace(to directory: URL) throws {
         let legacy = URL.applicationSupportDirectory.appendingPathComponent("Citrino", isDirectory: true)
         let fm = FileManager.default
-        guard directory.lastPathComponent == "METATRON", !fm.fileExists(atPath: directory.path), fm.fileExists(atPath: legacy.path) else { return }
-        try fm.copyItem(at: legacy, to: directory)
+        guard directory.lastPathComponent == "METATRON", !fm.fileExists(atPath: directory.appendingPathComponent("workspace.json").path), fm.fileExists(atPath: legacy.appendingPathComponent("workspace.json").path) else { return }
+        try fm.createDirectory(at:directory,withIntermediateDirectories:true)
+        let children=try fm.contentsOfDirectory(at:legacy,includingPropertiesForKeys:nil).sorted { $0.lastPathComponent == "workspace.json" ? false : $1.lastPathComponent == "workspace.json" }
+        for source in children where source.lastPathComponent != "instance.lock" {
+            let target=directory.appendingPathComponent(source.lastPathComponent)
+            if !fm.fileExists(atPath:target.path) {try fm.copyItem(at:source,to:target)}
+        }
     }
 }
