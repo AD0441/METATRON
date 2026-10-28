@@ -56,7 +56,6 @@ public enum ExtendedMedia {
         guard let session = AVAssetExportSession(asset: asset, presetName: AVAssetExportPresetHighestQuality) else { throw MetatronError.unsupported("Vídeo") }
         session.outputURL = output; session.outputFileType = .mp4; session.shouldOptimizeForNetworkUse = true
         if let range { session.timeRange = range }
-        await session.export()
-        if session.status != .completed { throw session.error ?? MetatronError.writeFailed(output) }
+        try await Media.finishExport(session, output: output)
     }
 }

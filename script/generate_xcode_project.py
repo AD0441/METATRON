@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Recreate the app project; SwiftPM remains the core, CLI and test entry point."""
 from pathlib import Path
-import hashlib,json
+import hashlib,json,plistlib
 root=Path(__file__).resolve().parent.parent
+info=plistlib.loads((root/"Resources/Info.plist").read_bytes())
 objects={}
 def uid(name):return hashlib.sha1(name.encode()).hexdigest()[:24].upper()
 def add(identity,isa,**fields):
@@ -28,7 +29,7 @@ libs=add("frameworks","PBXFrameworksBuildPhase",buildActionMask="2147483647",fil
 projectConfigs=[];targetConfigs=[]
 for config in ["Debug","Release"]:
  projectConfigs.append(add("project:"+config,"XCBuildConfiguration",buildSettings={"MACOSX_DEPLOYMENT_TARGET":"14.0","SDKROOT":"macosx","SWIFT_VERSION":"6.0"},name=config))
- settings={"ONLY_ACTIVE_ARCH":"YES","ALWAYS_SEARCH_USER_PATHS":"NO","CLANG_ENABLE_MODULES":"YES","PRODUCT_BUNDLE_IDENTIFIER":"local.metatron.app","PRODUCT_NAME":"METATRON","PRODUCT_MODULE_NAME":"Metatron","INFOPLIST_FILE":"Resources/Info.plist","GENERATE_INFOPLIST_FILE":"NO","SWIFT_DEFAULT_ACTOR_ISOLATION":"MainActor","SWIFT_UPCOMING_FEATURE_NONISOLATED_NONSENDING_BY_DEFAULT":"YES","CODE_SIGNING_ALLOWED":"NO","ENABLE_APP_SANDBOX":"NO","SWIFT_OPTIMIZATION_LEVEL":"-O" if config=="Release" else "-Onone","MARKETING_VERSION":"2.2.0","CURRENT_PROJECT_VERSION":"4","LD_RUNPATH_SEARCH_PATHS":["$(inherited)","@executable_path/../Frameworks"]}
+ settings={"ONLY_ACTIVE_ARCH":"YES","ALWAYS_SEARCH_USER_PATHS":"NO","CLANG_ENABLE_MODULES":"YES","PRODUCT_BUNDLE_IDENTIFIER":"local.metatron.app","PRODUCT_NAME":"METATRON","PRODUCT_MODULE_NAME":"Metatron","INFOPLIST_FILE":"Resources/Info.plist","GENERATE_INFOPLIST_FILE":"NO","SWIFT_DEFAULT_ACTOR_ISOLATION":"MainActor","SWIFT_UPCOMING_FEATURE_NONISOLATED_NONSENDING_BY_DEFAULT":"YES","CODE_SIGNING_ALLOWED":"NO","ENABLE_APP_SANDBOX":"NO","SWIFT_OPTIMIZATION_LEVEL":"-O" if config=="Release" else "-Onone","MARKETING_VERSION":info["CFBundleShortVersionString"],"CURRENT_PROJECT_VERSION":info["CFBundleVersion"],"LD_RUNPATH_SEARCH_PATHS":["$(inherited)","@executable_path/../Frameworks"]}
  targetConfigs.append(add("target:"+config,"XCBuildConfiguration",buildSettings=settings,name=config))
 projectList=add("projectConfig","XCConfigurationList",buildConfigurations=projectConfigs,defaultConfigurationIsVisible="0",defaultConfigurationName="Release")
 targetList=add("targetConfig","XCConfigurationList",buildConfigurations=targetConfigs,defaultConfigurationIsVisible="0",defaultConfigurationName="Release")

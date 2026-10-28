@@ -32,8 +32,7 @@ public enum Media {
         session.outputURL = output
         session.outputFileType = fileType
         session.shouldOptimizeForNetworkUse = true
-        await session.export()
-        if session.status != .completed { throw session.error ?? MetatronError.writeFailed(output) }
+        try await finishExport(session, output: output)
     }
 
     /// Turns a clip into an animated GIF.
@@ -53,6 +52,7 @@ public enum Media {
         CGImageDestinationSetProperties(dest, [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFLoopCount: 0]] as CFDictionary)
         let frameProps = [kCGImagePropertyGIFDictionary: [kCGImagePropertyGIFDelayTime: 1.0 / Double(fps)]] as CFDictionary
         for i in 0..<frameCount {
+            try Task.checkCancellation()
             let time = CMTime(seconds: Double(i) / Double(fps), preferredTimescale: 600)
             if let image = try? await generator.image(at: time).image {
                 CGImageDestinationAddImage(dest, image, frameProps)
@@ -100,16 +100,15 @@ public enum Media {
     }
 
     static func run(_ tool: String, _ arguments: [String]) async throws {
-        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Void, Error>) in
-            let process = Process()
-            process.executableURL = URL(fileURLWithPath: tool)
-            process.arguments = arguments
-            process.standardOutput = FileHandle.nullDevice
-            process.standardError = FileHandle.nullDevice
-            process.terminationHandler = { p in
-                if p.terminationStatus == 0 { cont.resume() } else { cont.resume(throwing: MetatronError.unsupported("This audio file")) }
-            }
-            do { try process.run() } catch { cont.resume(throwing: error) }
-        }
+        try await Engines.run(URL(fileURLWithPath: tool), arguments)
+    }
+
+    static func finishExport(_ session: AVAssetExportSession, output: URL) async throws {
+        try await withTaskCancellationHandler {
+            try Task.checkCancellation()
+            await session.export()
+            try Task.checkCancellation()
+            if session.status != .completed { throw session.error ?? MetatronError.writeFailed(output) }
+        } onCancel: { session.cancelExport() }
     }
 }

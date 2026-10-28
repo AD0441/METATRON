@@ -1,7 +1,15 @@
 import Foundation
 import Darwin
 
-public enum InstanceLeaseError: Error, Equatable { case alreadyRunning, unavailable }
+public enum InstanceLeaseError: LocalizedError, Equatable {
+    case alreadyRunning, unavailable
+    public var errorDescription: String? {
+        switch self {
+        case .alreadyRunning: "METATRON ya está abierto."
+        case .unavailable: "No se pudo crear o bloquear el archivo de instancia. Revisa los permisos de Soporte de aplicaciones."
+        }
+    }
+}
 /// The immutable descriptor owns an advisory lock; the kernel releases it on exit or crash.
 public final class InstanceLease: @unchecked Sendable {
     private let descriptor:Int32
