@@ -9,7 +9,7 @@
     <img alt="Apple Silicon" src="https://img.shields.io/badge/Apple_Silicon-M1_ready-476957">
     <a href="LICENSE"><img alt="Licencia MIT" src="https://img.shields.io/badge/license-MIT-58616B"></a>
   </p>
-  <p><a href="#empezar">Empezar</a> · <a href="#seis-formas-de-trabajar">Presentaciones</a> · <a href="docs/FEATURES.md">Alcance</a> · <a href="CONTRIBUTING.md">Contribuir</a> · <a href="https://ko-fi.com/C0C51WQ1T0">Apoyar</a></p>
+  <p><a href="#empezar">Empezar</a> · <a href="#seis-formas-de-trabajar">Presentaciones</a> · <a href="docs/FEATURES.md">Alcance</a> · <a href="docs/COMPARISON.md">Comparativa</a> · <a href="CONTRIBUTING.md">Contribuir</a> · <a href="https://ko-fi.com/C0C51WQ1T0">Apoyar</a></p>
 </div>
 
 ![METATRON — identidad geométrica original](docs/assets/brand/cover.png)
@@ -17,6 +17,14 @@
 **METATRON** reúne conversiones de archivos, recetas de varios pasos, carpetas favoritas y una cola con resultados verificables. Su identidad parte del cubo de Metatrón: círculos y conexiones, con una interpretación gráfica propia y sin figuras antropomórficas.
 
 **Creado por Sebastián Pastén F.** Construido sobre [Kumquat](https://github.com/iandifilippo/Kumquat), bajo MIT, e inspirado en el flujo de trabajo de Tangerine. Se conserva la atribución de la base en [UPSTREAM.md](UPSTREAM.md).
+
+## Mejoras respecto a Kumquat y Tangerine
+
+METATRON amplía la base MIT de Kumquat con un espacio de trabajo, recetas encadenadas, destinos predefinidos, actividad exportable y publicación de salidas con hashes y recibos. Tangerine es la referencia del gesto contextual; su código propietario no forma parte del proyecto.
+
+La [comparativa con Kumquat, Tangerine y las versiones anteriores](docs/COMPARISON.md) distingue funciones heredadas, mejoras propias y limitaciones. El procesamiento local, OCR y Markdown no se presentan como novedades exclusivas.
+
+**Estado de las versiones:** la descarga publicada sigue siendo METATRON 2.0; el código público incluye la corrección de círculos transparentes. La revisión local 2.2 continúa en preparación. Sus nuevas funciones y el bloqueo de ejecución de Atajos por falta de firma Apple se describen expresamente en la comparativa.
 
 ## En uso
 
