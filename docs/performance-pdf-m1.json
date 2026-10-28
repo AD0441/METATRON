@@ -1,0 +1,20 @@
+{
+  "device": "Apple M1, 8 GB",
+  "configuration": "release",
+  "method": "One process per run, /usr/bin/time -l, 24 synthetic vector pages at 200 DPI requested",
+  "before": {
+    "seconds": 2.52,
+    "maxRSSBytes": 524075008,
+    "peakFootprintBytes": 994281080,
+    "width": 1030,
+    "height": 31992
+  },
+  "after": {
+    "seconds": 1.18,
+    "maxRSSBytes": 116588544,
+    "peakFootprintBytes": 100860624,
+    "width": 861,
+    "height": 26736
+  },
+  "limits": "New canvas is capped at 24 million pixels and 32000 px high. Output resolution differs; this is not an equal-resolution speed comparison or a whole-app claim."
+}

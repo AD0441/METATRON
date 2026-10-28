@@ -1,0 +1,14 @@
+.build/
+dist/
+.DS_Store
+*.trace
+Research/
+.codex/
+.impeccable/
+Resources/*.iconset/
+docs/*.log
+docs/*.stderr
+docs/diagnostic-*
+
+docs/local-validation/
+docs/ai-smoke-test.txt

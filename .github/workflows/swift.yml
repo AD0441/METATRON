@@ -1,0 +1,16 @@
+name: Native Swift checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  workflow-tests:
+    runs-on: macos-26
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain
+        run: swift --version
+      - name: Native workflow and geometry tests
+        run: ./script/test.sh --filter MetatronWorkflowTests

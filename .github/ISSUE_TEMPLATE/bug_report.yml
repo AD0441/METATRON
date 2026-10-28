@@ -1,0 +1,21 @@
+name: Error de funcionamiento
+description: Un problema reproducible con METATRON
+title: '[Error] '
+body:
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Qué ocurrió y qué esperabas
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      description: Usa archivos sintéticos o anonimizados; no adjuntes información privada.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Versión de macOS, chip y motores disponibles
