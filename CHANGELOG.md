@@ -1,5 +1,14 @@
 # Historial de cambios
 
+## 2.3.0 · en desarrollo
+
+- Audio a TXT y Markdown mediante SpeechAnalyzer/SpeechTranscriber de Apple, con macOS 26+ y hardware compatible.
+- Acción contextual «Audio a texto · Apple local», dos recetas y uso desde carpetas vigiladas y terminal.
+- Idioma configurable y consulta del modelo instalado. La descarga solo se inicia desde el botón o comando explícito; sin reconocimiento remoto ni resumen.
+- Progreso por tiempo reconocido, cancelación del análisis y conservación del audio incluso si está activado enviar originales a la Papelera tras convertir.
+- Compatible con las opciones JSON de recetas previas. Idioma opcional por receta/CLI; el valor predeterminado de la app es español de Chile.
+
+
 ## 2.2.1 · en preparación
 
 Mantenimiento de estabilidad, sin nuevas capacidades de conversión.

@@ -130,6 +130,9 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
         for group in groups {
             var configured=recipe
             if let engine=recipe.steps.first(where: {$0.action == "documentAdvanced"}), let id=DocumentEngineID(rawValue:engine.text), id != .native {configured.documentEnginePath=UserDefaults.standard.string(forKey:"documentEngine."+id.rawValue)}
+            var options = configured.conversionOptions ?? ConversionOptions()
+            if options.speechLocale == nil { options.speechLocale = UserDefaults.standard.string(forKey: "speech.locale") ?? "es-CL" }
+            configured.conversionOptions = options
             let job = WorkJob(inputs: group, recipe: configured)
             ids.append(job.id)
             if let batch { batches[job.id] = batch }

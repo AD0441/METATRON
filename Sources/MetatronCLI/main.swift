@@ -22,13 +22,19 @@ import MetatronWorkflow
         let args = Array(CommandLine.arguments.dropFirst())
         guard let command = args.first, command != "help" else { help(); return }
         func option(_ flag: String) -> String? { args.firstIndex(of: flag).flatMap { $0 + 1 < args.count ? args[$0 + 1] : nil } }
+        if command == "speech-status" || command == "speech-install" {
+            let locale = option("--locale") ?? "es-CL"
+            if command == "speech-install" { try await AppleSpeech.installLanguage(locale) }
+            let state = await AppleSpeech.languageStatus(locale)
+            print(String(decoding: try JSONEncoder().encode(state), as: UTF8.self)); return
+        }
         if command == "engines" {
             let engines = Engines.current
             print("Metal: \(HardwareProfile.current().deviceName)\nFFmpeg: \(engines.ffmpeg?.path ?? "no instalado")\nLibreOffice: \(engines.soffice?.path ?? "no instalado")\nGhostscript: \(engines.ghostscript?.path ?? "no instalado")\nWebP: \(engines.cwebp?.path ?? "no instalado")")
             return
         }
         if command == "run" || command == "goal" || command == "document" {
-            let flags:Set<String>=["--recipe","--goal","--engine","--engine-path","-o"]
+            let flags:Set<String>=["--recipe","--goal","--engine","--engine-path","--locale","-o"]
             var paths:[URL]=[];var index=1
             while index<args.count {
                 if flags.contains(args[index]) {index += 2;continue}
@@ -51,6 +57,7 @@ import MetatronWorkflow
             guard !paths.isEmpty else {throw WorkflowError.invalid("Añade uno o más archivos.")}
             if let output=option("-o") {recipe.folderPath=output}
             recipe.documentEnginePath=option("--engine-path") ?? recipe.documentEnginePath
+            if let locale = option("--locale") { var options = recipe.conversionOptions ?? ConversionOptions(); options.speechLocale = locale; recipe.conversionOptions = options }
             let result=try await RecipeExecutor.execute(inputs:paths,recipe:recipe)
             if args.contains("--json") {
                 let data=try JSONEncoder().encode(result.files);print(String(decoding:data,as:UTF8.self))
@@ -82,13 +89,18 @@ import MetatronWorkflow
         let format = option("--to") ?? "jpg"
         let action: String
         switch command {
+        case "transcribe":
+            let selected = option("--to") ?? "txt"
+            guard ["txt", "md"].contains(selected) else { throw WorkflowError.invalid("Transcribe usa --to txt o --to md.") }
+            action = "convert." + selected
         case "research": action = "research"
         case "ocr": action = FileKind.of(input) == .pdf ? "tool.extractPDFText" : "tool.extractText"
         case "tool": action = args[1] == "resize" ? "resize" : "tool." + args[1]
         case "convert", "simulate", "watch": action = "convert." + format
         default: throw WorkflowError.invalid("Comando desconocido: \(command)")
         }
-        let recipe = Recipe(name: "CLI", steps: [.init(action: action, number: Double(option("--size") ?? "1920") ?? 1920)], quality: Double(option("--quality") ?? "0.85") ?? 0.85, folderPath: option("-o"))
+        var recipe = Recipe(name: "CLI", steps: [.init(action: action, number: Double(option("--size") ?? "1920") ?? 1920)], quality: Double(option("--quality") ?? "0.85") ?? 0.85, folderPath: option("-o"))
+        if let locale = option("--locale") { var options = ConversionOptions(); options.speechLocale = locale; recipe.conversionOptions = options }
         if command == "simulate" { for row in try Simulation.plan(inputs: [input], recipe: recipe) { print(row.destination); row.warnings.forEach { print("· " + $0) } }; return }
         if command == "watch" {
             if let output = recipe.folderPath,
@@ -121,6 +133,8 @@ import MetatronWorkflow
         run <archivos…> --recipe receta.metatron.json [-o carpeta] [--json]
         goal <archivos…> --goal web|analysis [-o carpeta]
         document <archivo> --engine native|markitdown|docling [--engine-path ejecutable] [-o carpeta]
+        transcribe <audio> [--to txt|md] [--locale es-CL] [-o carpeta]
+        speech-status [--locale es-CL] | speech-install [--locale es-CL]
         benchmark | assist <pregunta>
         """)
     }

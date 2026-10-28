@@ -8,6 +8,7 @@ public enum ToolID: String, CaseIterable, Sendable, Codable, Hashable {
     case merge, split, rotatePDF, protect, compressPDF, extractPDFText, longImage
     // Video
     case compressVideo, mute, frames
+    case transcribeAudio
     // Any file
     case zip, extract
 
@@ -38,6 +39,7 @@ public enum ToolID: String, CaseIterable, Sendable, Codable, Hashable {
         case .mute: return "speaker.slash"
         case .longImage: return "rectangle.portrait.on.rectangle.portrait"
         case .frames: return "film.stack"
+        case .transcribeAudio: return "waveform.and.mic"
         case .zip: return "doc.zipper"
         case .extract: return "archivebox"
         }
@@ -129,6 +131,7 @@ public enum ActionCatalog {
         case .audio:
             guard FileKind.isNativeMedia(first) || ffmpeg else { return [] }
             formats = ffmpeg ? [.mp3, .m4a, .wav, .flac, .aiff, .ogg, .opus, .caf] : [.m4a, .wav, .aiff, .flac, .caf]
+            if AppleSpeech.isSupported { formats = [.txt, .md] + formats }
         case .archive:
             formats = [.zip, .tgz]
         case .folder, .other:
@@ -156,6 +159,8 @@ public enum ActionCatalog {
         case .video:
             let usable = urls.allSatisfy(FileKind.isNativeMedia) || engines.ffmpeg != nil
             tools = usable ? [.compressVideo, .mute, .frames, .zip] : [.zip]
+        case .audio:
+            tools = AppleSpeech.isSupported ? [.transcribeAudio, .zip] : [.zip]
         case .archive:
             tools = [.extract]
         default:

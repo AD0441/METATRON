@@ -62,6 +62,10 @@ struct RecipeStepRow: View {
                     ForEach(DocumentEngineID.allCases,id:\.self) {Text($0.title).tag($0.rawValue)}
                 }
             }
+            if step.action == "tool.transcribeAudio" {
+                TextField("Idioma del audio (vacío = Ajustes; ej. es-CL)", text: Binding(get: { step.text }, set: { var copy = step; copy.text = $0; update(copy) }))
+                Text("Apple Speech · macOS 26+ · modelo instalado. El audio se procesa en este Mac.").font(.caption).foregroundStyle(.secondary)
+            }
             if ["resize","targetSize"].contains(step.action) {
                 TextField(step.action == "resize" ? "Lado mayor (px)" : "Máximo (KB)", value: Binding(get: { step.number }, set: { var copy = step; copy.number = $0; update(copy) }), format: .number)
             }

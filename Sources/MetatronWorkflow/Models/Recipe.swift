@@ -12,6 +12,7 @@ public struct RecipeStep: Codable, Hashable, Identifiable, Sendable {
     public var title: String {
         switch action {
         case "documentAdvanced": return "Documento estructurado · " + (text.isEmpty ? "nativo" : text)
+        case "tool.transcribeAudio": return "Audio a texto · Apple local"
         case "bundlePDF": return "Combinar documentos en un PDF"
         case "convert.md": return "Convertir a Markdown"
         case "imageMarkup": return "Anotar imagen"
@@ -31,7 +32,7 @@ public struct RecipeStep: Codable, Hashable, Identifiable, Sendable {
             return names[action.replacingOccurrences(of: "tool.", with: "")] ?? action
         }
     }
-    public static let choices: [RecipeStep] = ["convert.jpg","convert.png","convert.webp","convert.heic","convert.pdf","convert.docx","convert.txt","convert.md","convert.html","convert.epub","convert.xlsx","convert.csv","convert.json","convert.mp4","convert.mp3","convert.wav","convert.m4a","resize","targetSize","tool.compress","tool.stripMetadata","tool.removeBackground","tool.grayscale","tool.extractText","tool.extractPDFText","tool.merge","tool.split","tool.compressPDF","tool.compressVideo","tool.mute","tool.rotate","tool.rotatePDF","tool.flip","tool.zip","tool.extract","tool.frames","research","documentAdvanced","bundlePDF","pdfTables","reorderPDF","redactPDF","trimVideo","normalizeAudio","monoAudio","joinVideo"].map { RecipeStep(action: $0, number: $0 == "targetSize" ? 500 : 1920) }
+    public static let choices: [RecipeStep] = ["convert.jpg","convert.png","convert.webp","convert.heic","convert.pdf","convert.docx","convert.txt","convert.md","convert.html","convert.epub","convert.xlsx","convert.csv","convert.json","convert.mp4","convert.mp3","convert.wav","convert.m4a","resize","targetSize","tool.compress","tool.stripMetadata","tool.removeBackground","tool.grayscale","tool.extractText","tool.extractPDFText","tool.merge","tool.split","tool.compressPDF","tool.compressVideo","tool.mute","tool.rotate","tool.rotatePDF","tool.flip","tool.zip","tool.extract","tool.frames","research","documentAdvanced","bundlePDF","pdfTables","reorderPDF","redactPDF","trimVideo","normalizeAudio","monoAudio","joinVideo","tool.transcribeAudio"].map { RecipeStep(action: $0, number: $0 == "targetSize" ? 500 : 1920) }
 }
 
 public struct Recipe: Codable, Hashable, Identifiable, Sendable {
@@ -58,6 +59,8 @@ public struct Recipe: Codable, Hashable, Identifiable, Sendable {
         Recipe(name: "Paquete de investigación", steps: [.init(action: "research")]),
         Recipe(name: "Compartir vídeo", steps: [.init(action: "convert.mp4"), .init(action: "tool.compressVideo")]),
         Recipe(name: "Tabla para Excel", steps: [.init(action: "convert.xlsx")]),
+        Recipe(name: "Audio a texto · Apple local", steps: [.init(action: "tool.transcribeAudio")]),
+        Recipe(name: "Audio a Markdown · Apple local", steps: [.init(action: "convert.md")]),
         Recipe(name: "Copia de archivo ZIP", steps: [.init(action: "tool.zip")])
     ]
     public var groupsInputs: Bool { steps.first.map { ["tool.merge", "tool.zip", "joinVideo", "bundlePDF"].contains($0.action) } ?? false }

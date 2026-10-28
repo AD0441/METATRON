@@ -28,6 +28,10 @@ La [comparativa con Kumquat, Tangerine y las versiones anteriores](docs/COMPARIS
 
 La rama de mantenimiento prepara **2.2.1**. Su alcance, pruebas y pendientes están en el [informe de estabilización](docs/STABILITY-2.2.1.md); la release pública continúa siendo 2.2.0.
 
+## Audio a texto · próxima versión 2.3
+
+La rama 2.3 incorpora transcripción de archivos de audio con **Apple Speech local**, a TXT o Markdown. Requiere macOS 26 y un Mac compatible; el idioma se elige en **Ajustes → Documentos → Audio a texto**. La descarga del modelo es explícita; no hay reconocimiento en la nube ni resumen. Conserva el audio original e integra recetas, carpetas vigiladas y CLI. [Guía y validación](docs/AUDIO-TRANSCRIPTION.md).
+
 ## En uso
 
 Las imágenes siguientes son capturas de la aplicación con archivos sintéticos de demostración.

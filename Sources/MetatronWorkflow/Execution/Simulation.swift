@@ -33,7 +33,10 @@ public enum Simulation {
 
             for step in recipe.steps {
                 if step.action.hasPrefix("convert.") { ext = String(step.action.dropFirst(8)) }
-                if ["tool.extractText", "tool.extractPDFText"].contains(step.action) { ext = "txt" }
+                if ["tool.extractText", "tool.extractPDFText", "tool.transcribeAudio"].contains(step.action) { ext = "txt" }
+                if step.action == "tool.transcribeAudio" || (FileKind.of(input) == .audio && ["convert.txt", "convert.md"].contains(step.action)) {
+                    warnings.append("Apple Speech local · macOS 26+ · requiere el idioma instalado. Revisa la transcripción automática.")
+                }
                 if step.action == "resize" {
                     ext = "png"
                     if let w=width,let h=height,step.number.isFinite,step.number>0 {

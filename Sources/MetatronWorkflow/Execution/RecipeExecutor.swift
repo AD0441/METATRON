@@ -77,9 +77,13 @@ public enum RecipeExecutor {
                 current = try await ExtendedMedia.run(step.action, inputs: current, value: step.number, text: step.text, directory: folder)
             } else {
                 guard let action = KQAction(id: step.action) else { throw WorkflowError.unsupportedStep(step.action) }
-                let engine = Engine(options: options, planner: OutputPlanner(location: .folder(folder)))
+                if step.action == "tool.transcribeAudio", !step.text.isEmpty { options.speechLocale = step.text }
+                let engine = Engine(options: options, planner: OutputPlanner(location: .folder(folder)), speechProgress: progress)
                 let result = try await engine.run(action, on: current, parameters: index == 0 ? parameters : .none)
                 current = result.outputs
+                if step.action == "tool.transcribeAudio" || (inputs.contains { FileKind.of($0) == .audio } && ["convert.txt", "convert.md"].contains(step.action)) {
+                    warnings.append("Transcripción automática local de Apple. Revisa nombres, cifras y puntuación.")
+                }
             }
             guard !current.isEmpty else { throw WorkflowError.emptyResult }
         }
