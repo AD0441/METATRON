@@ -42,9 +42,11 @@ Comandos reproducibles:
 ./script/verify_package.sh dist/METATRON.zip
 ```
 
-## Firma y Atajos: bloqueo externo pendiente
+En GitHub, la batería completa pasó con Swift 6.3.3. La primera compilación release descubrió un fallo del optimizador al destruir una subclase genérica de NSHostingView; el puente de acceso rápido usa ahora una raíz concreta, conservando el primer clic y la misma composición. El empaquetado remoto debe pasar antes de considerar terminada la revisión.
 
-security find-identity no encuentra identidades válidas de firma en este Mac. El paquete se firma ad hoc; no tiene Team ID ni notarización. La verificación de metadatos no demuestra ejecución de Atajos. No se cambian las protecciones del sistema para eludir esa falta.
+## Firma y Atajos: firma local elegida
+
+El usuario decidió mantener la firma local por ahora al no disponer de Apple Developer. security find-identity no encuentra identidades válidas de firma en este Mac. El paquete se firma ad hoc; no tiene Team ID ni notarización. La verificación de metadatos no demuestra ejecución de Atajos. No se cambian las protecciones del sistema para eludir esa falta.
 
 Con un certificado Apple instalado, el script admite METATRON_SIGN_IDENTITY y firma con hardened runtime y timestamp. Para exigir Team ID en la comprobación:
 

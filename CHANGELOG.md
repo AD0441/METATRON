@@ -11,6 +11,7 @@ Mantenimiento de estabilidad, sin nuevas capacidades de conversión.
 - Los recibos de conversión no reemplazan otro recibo si se reutiliza un identificador. Fallos y cancelación antes de confirmar la publicación retiran las salidas parciales. LibreOffice usa un perfil aislado por trabajo.
 - La CLI cancela con Ctrl+C/SIGTERM y falla explícitamente al vigilar una carpeta inexistente.
 - Información de versión y enlace de actualizaciones corregidos para METATRON.
+- Puente de acceso rápido con raíz concreta para evitar un fallo del optimizador de Swift 6.3 al compilar release.
 - CI comprueba todas las suites y el paquete real: firma, arquitectura, recursos, tres App Intents, conversión, recibo, carpeta vigilada y Ctrl+C. Versión centralizada en Info.plist y checksum regenerado al empaquetar.
 
 Validación local: 50 pruebas XCTest (una omitida por faltar Ghostscript) y 53 Swift Testing, cero fallos. Firma ad hoc; falta identidad Apple/Team ID y notarización. Las acciones nativas de Atajos siguen pendientes de ejecución con firma Apple. Ver [informe de estabilización](docs/STABILITY-2.2.1.md).
