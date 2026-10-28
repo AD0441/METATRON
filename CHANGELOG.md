@@ -1,5 +1,20 @@
 # Historial de cambios
 
+## 2.2.1 · en preparación
+
+Mantenimiento de estabilidad, sin nuevas capacidades de conversión.
+
+- Cancelación y tiempo límite de motores externos con grupo de procesos, cierre de ayudantes del mismo grupo y diagnósticos acotados. Audio del sistema usa el mismo ejecutor; la exportación nativa recibe cancelación.
+- Cerrar la aplicación detiene la recepción de carpetas, cancela y espera los trabajos antes de salir. Cancelar el trabajo actual conserva el resto de la cola; cancelar desde Atajos afecta solo a su lote.
+- Los errores del bloqueo de inicio se explican y se distinguen de una segunda instancia. La actividad dañada se respalda antes del siguiente guardado.
+- Carpetas vigiladas: parada que invalida comprobaciones pendientes, tres muestras estables de tamaño y fecha, reinicio sin repetir archivos existentes y conservación de vigilancias que no cambiaron. Se rechazan destinos que forman ciclos entre entradas vigiladas.
+- Los recibos de conversión no reemplazan otro recibo si se reutiliza un identificador. Fallos y cancelación antes de confirmar la publicación retiran las salidas parciales. LibreOffice usa un perfil aislado por trabajo.
+- La CLI cancela con Ctrl+C/SIGTERM y falla explícitamente al vigilar una carpeta inexistente.
+- Información de versión y enlace de actualizaciones corregidos para METATRON.
+- CI comprueba todas las suites y el paquete real: firma, arquitectura, recursos, tres App Intents, conversión, recibo, carpeta vigilada y Ctrl+C. Versión centralizada en Info.plist y checksum regenerado al empaquetar.
+
+Validación local: 50 pruebas XCTest (una omitida por faltar Ghostscript) y 53 Swift Testing, cero fallos. Firma ad hoc; falta identidad Apple/Team ID y notarización. Las acciones nativas de Atajos siguen pendientes de ejecución con firma Apple. Ver [informe de estabilización](docs/STABILITY-2.2.1.md).
+
 ## 2.2.0 · 28 de octubre de 2026
 
 METATRON amplía el flujo contextual con recetas reutilizables, procesamiento documental y controles para mantener la app en segundo plano.

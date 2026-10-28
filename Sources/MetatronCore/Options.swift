@@ -165,6 +165,7 @@ public enum MetatronError: LocalizedError {
     /// The conversion needs FFmpeg, LibreOffice or Ghostscript, which isn't installed.
     case needsEngine(String)
     case toolFailed(String, String)
+    case toolTimedOut(String)
     case badData(String)
     case cancelled
 
@@ -177,6 +178,7 @@ public enum MetatronError: LocalizedError {
         case .noSubject: return "No clear subject was found to cut out."
         case .notSmaller: return "It's already as small as it gets."
         case .needsEngine(let name): return "This needs \(name), which isn't installed."
+        case .toolTimedOut(let tool): return "\(tool) excedió el tiempo límite. Intenta con un archivo más pequeño o revisa el motor."
         case .toolFailed(let tool, let message): return "\(tool) failed: \(message)"
         case .badData(let why): return why
         case .cancelled: return "Cancelled."

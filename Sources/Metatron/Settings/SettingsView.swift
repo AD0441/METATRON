@@ -604,7 +604,6 @@ private struct AboutPane: View {
                         .multilineTextAlignment(.center).foregroundStyle(.secondary)
                     HStack {
                         Link("Base abierta: Kumquat", destination: URL(string: "https://github.com/iandifilippo/Kumquat")!)
-                        Button("Abrir proyecto") { NSWorkspace.shared.open(Bundle.main.bundleURL.deletingLastPathComponent().deletingLastPathComponent()) }
                         Button("Licencia MIT") { NSWorkspace.shared.open(Bundle.main.bundleURL.appendingPathComponent("Contents/Resources/LICENSE")) }
                     }
                     .padding(.top, 6)
@@ -613,9 +612,9 @@ private struct AboutPane: View {
                 .padding(.vertical, 12)
             }
             Section {
-                Text("Metatron se actualiza al compilar este proyecto local.")
+                Text("Consulta las versiones publicadas de METATRON para descargar una actualización. La aplicación no comprueba ni instala actualizaciones automáticamente.")
                 HStack {
-                    Button(L("Check Now")) { UpdateChecker.shared.check(userInitiated: true) }
+                    Button("Ver versiones publicadas…") { UpdateChecker.shared.check(userInitiated: true) }
                     Spacer()
                 }
             } footer: {

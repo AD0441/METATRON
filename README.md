@@ -26,6 +26,8 @@ La [comparativa con Kumquat, Tangerine y las versiones anteriores](docs/COMPARIS
 
 **Versión actual: [METATRON 2.2.0](https://github.com/AD0441/METATRON/releases/tag/v2.2.0), para Apple Silicon.** Incluye recetas contextuales, procesamiento documental y segundo plano. Consulta el [historial de cambios](CHANGELOG.md) y la comparativa; las acciones nativas de Atajos permanecen bloqueadas en esta compilación con firma ad hoc, sin Team ID Apple.
 
+La rama de mantenimiento prepara **2.2.1**. Su alcance, pruebas y pendientes están en el [informe de estabilización](docs/STABILITY-2.2.1.md); la release pública continúa siendo 2.2.0.
+
 ## En uso
 
 Las imágenes siguientes son capturas de la aplicación con archivos sintéticos de demostración.

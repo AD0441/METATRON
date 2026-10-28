@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 
 /// Optional command-line engines. Metatron never downloads them; it uses them when the user
 /// already has them (Homebrew, LibreOffice.app) and offers more formats.
@@ -75,6 +76,11 @@ public struct Engines: Sendable, Equatable {
         let done = DispatchSemaphore(value: 0)
         process.terminationHandler = { _ in done.signal() }
         guard (try? process.run()) != nil else { return [] }
+        // readDataToEndOfFile also needs a bound: waiting on the semaphore alone
+        // cannot time out a process that never closes stdout.
+        let watchdog = DispatchWorkItem { if process.isRunning { Darwin.kill(process.processIdentifier, SIGKILL) } }
+        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 10, execute: watchdog)
+        defer { watchdog.cancel() }
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         _ = done.wait(timeout: .now() + 10)
         var names: Set<String> = []
@@ -90,45 +96,17 @@ public struct Engines: Sendable, Equatable {
     /// Runs a command and throws with its last error lines if it fails.
     @discardableResult
     public static func run(_ tool: URL, _ arguments: [String], currentDirectory: URL? = nil, timeout: TimeInterval = 600, environment: [String:String] = [:]) async throws -> String {
-        try await withCheckedThrowingContinuation { (cont: CheckedContinuation<String, Error>) in
-            let process = Process()
-            process.executableURL = tool
-            process.arguments = arguments
-            process.environment = ProcessInfo.processInfo.environment.merging(environment) { _,new in new }
-            if let currentDirectory { process.currentDirectoryURL = currentDirectory }
-            let out = Pipe(), err = Pipe()
-            process.standardOutput = out
-            process.standardError = err
-            let output = LockedData(), errors = LockedData()
-            out.fileHandleForReading.readabilityHandler = { output.append($0.availableData) }
-            err.fileHandleForReading.readabilityHandler = { errors.append($0.availableData) }
-            let timer = DispatchWorkItem { if process.isRunning { process.terminate() } }
-            DispatchQueue.global().asyncAfter(deadline: .now() + timeout, execute: timer)
-            process.terminationHandler = { p in
-                timer.cancel()
-                out.fileHandleForReading.readabilityHandler = nil
-                err.fileHandleForReading.readabilityHandler = nil
-                output.append(out.fileHandleForReading.readDataToEndOfFile())
-                errors.append(err.fileHandleForReading.readDataToEndOfFile())
-                if p.terminationStatus == 0 {
-                    cont.resume(returning: String(decoding: output.data, as: UTF8.self))
-                } else {
-                    let message = String(decoding: errors.data, as: UTF8.self)
-                        .split(separator: "\n").suffix(2).joined(separator: " ")
-                    cont.resume(throwing: MetatronError.toolFailed(tool.lastPathComponent, message))
-                }
-            }
-            do { try process.run() } catch { cont.resume(throwing: error) }
+        let invocation = ToolInvocation(tool: tool, arguments: arguments, directory: currentDirectory,
+                                        timeout: timeout, environment: environment)
+        let output = try await withTaskCancellationHandler {
+            try Task.checkCancellation()
+            return try await withCheckedThrowingContinuation { invocation.start($0) }
+        } onCancel: {
+            invocation.cancel()
         }
+        try Task.checkCancellation()
+        return output
     }
-}
-
-/// Collects pipe output from background threads.
-final class LockedData: @unchecked Sendable {
-    private let lock = NSLock()
-    private var storage = Data()
-    func append(_ d: Data) { lock.lock(); storage.append(d); if storage.count > 1_048_576 { storage.removeFirst(storage.count-1_048_576) }; lock.unlock() }
-    var data: Data { lock.lock(); defer { lock.unlock() }; return storage }
 }
 
 // MARK: - FFmpeg
@@ -208,10 +186,10 @@ public enum LibreOffice {
         try FileManager.default.createDirectory(at: work, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: work) }
         // A private profile so a LibreOffice window that is already open doesn't block the conversion.
-        let profile = FileManager.default.temporaryDirectory.appendingPathComponent("metatron-lo-profile").absoluteString
+        let profile = work.appendingPathComponent("profile", isDirectory: true).absoluteString
         try await Engines.run(soffice, ["-env:UserInstallation=\(profile)", "--headless", "--norestore",
                                         "--convert-to", filter, "--outdir", work.path, input.path], timeout: 300)
-        guard let made = try FileManager.default.contentsOfDirectory(at: work, includingPropertiesForKeys: nil).first else {
+        guard let made = try FileManager.default.contentsOfDirectory(at: work, includingPropertiesForKeys: nil).first(where: { $0.lastPathComponent != "profile" }) else {
             throw MetatronError.writeFailed(output)
         }
         try FileManager.default.moveItem(at: made, to: output)
