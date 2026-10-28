@@ -28,3 +28,9 @@ Los registros completos de compilación y pruebas se conservan localmente; no se
 Con una instancia separada y una tabla CSV sintética, se completaron conversiones desde el cubo, la paleta (buscando `md` y usando Enter), Burbujas, el panel y el menú compacto. Se guardó una carpeta favorita desde Ajustes, se movió la muestra y Deshacer movimiento la restauró. El favorito temporal se retiró después de capturar la demostración.
 
 Se corrigieron el primer clic de paneles, Escape, el cierre diferido de presentaciones antiguas, el tamaño de Burbujas y la navegación Tab. Las capturas exportadas corresponden a la ventana propia, sin capturar otras aplicaciones o el escritorio.
+
+## Corrección 2.1: integración con el entorno
+
+Cubo y Burbujas se trasladaron al panel transparente y sin bordes de la ruleta clásica, anclado al punto de activación. El material nativo se recorta en cada círculo. El icono del archivo permanece en el centro. La capa acepta acciones solamente dentro de los círculos; los huecos no son destinos de arrastre. Las pruebas de geometría incluyen 1 a 12 burbujas, separación entre objetivos y detección de huecos.
+
+Se simplificó una expresión de la prueba de anonimización que agotaba el comprobador de tipos de Swift en GitHub, conservando la misma comprobación de píxeles.

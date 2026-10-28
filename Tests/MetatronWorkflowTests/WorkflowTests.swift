@@ -205,7 +205,14 @@ struct AdditionalIntegrityTests {
         let ctx = try #require(CGContext(data: nil, width: 6, height: 6, bitsPerComponent: 8, bytesPerRow: 24, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
         ctx.draw(sample, in: CGRect(x: 0,y: 0,width: 6,height: 6))
         let data = try #require(ctx.data).bindMemory(to: UInt8.self, capacity: 144)
-        let maximum = (0..<36).map { Int(data[$0 * 4]) + Int(data[$0 * 4 + 1]) + Int(data[$0 * 4 + 2]) }.max() ?? 765
+        var maximum = 0
+        for pixel in 0..<36 {
+            let offset = pixel * 4
+            let red = Int(data[offset])
+            let green = Int(data[offset + 1])
+            let blue = Int(data[offset + 2])
+            maximum = max(maximum, red + green + blue)
+        }
         #expect(maximum < 60, "The selected content must actually be blacked out, not only lose its text layer")
     }
 }

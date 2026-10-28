@@ -13,10 +13,13 @@ private struct RingContainer: View {
     @ObservedObject var settings = SettingsStore.shared
     @ObservedObject var model: RingModel
 
-    var body: some View {
-        var theme = settings.theme
-        theme.drawsBackdrop = false
-        return RingView(model: model, theme: theme)
+    private var ringTheme: Theme { var t=settings.theme;t.drawsBackdrop=false;return t }
+    @ViewBuilder var body: some View {
+        if settings.quickAccessStyle == .metatron || settings.quickAccessStyle == .bubbles {
+            MetatronOrbitView(model:model)
+        } else {
+            RingView(model:model,theme:ringTheme)
+        }
     }
 }
 
@@ -37,6 +40,9 @@ final class RingController {
     private var margin: CGFloat { max(60, geometry.diameter * (RingGeometry.canvasScale - 1) / 2 + 10) }
     var isVisible: Bool { (panel?.isVisible == true && model.shown) || QuickAccessController.shared.isVisible }
 
+    var isOrbit: Bool { [.metatron,.bubbles].contains(SettingsStore.shared.quickAccessStyle) }
+    var orbit: OrbitGeometry { OrbitGeometry(size:SettingsStore.shared.ringSize,layout:SettingsStore.shared.quickAccessStyle == .bubbles ? .bubbles : .metatron) }
+
     var geometry: RingGeometry { RingGeometry(diameter: SettingsStore.shared.ringSize) }
 
     // MARK: Show / hide
@@ -50,26 +56,27 @@ final class RingController {
             return
         }
         model.mode = mode
-        if SettingsStore.shared.quickAccessStyle != .ring {
+        if ![.ring,.metatron,.bubbles].contains(SettingsStore.shared.quickAccessStyle) {
             panel?.orderOut(nil)
             QuickAccessController.shared.show(model: model, at: point, style: SettingsStore.shared.quickAccessStyle, mode: mode)
             return
         }
         QuickAccessController.shared.hide()
         let panel = makePanelIfNeeded()
-        let side = geometry.diameter + margin * 2
+        let side = isOrbit ? orbit.side : geometry.diameter + margin * 2
         var frame = NSRect(x: point.x - side / 2, y: point.y - side / 2, width: side, height: side)
         if let screen = NSScreen.screens.first(where: { NSMouseInRect(point, $0.frame, false) }) ?? NSScreen.main {
-            let vf = screen.visibleFrame.insetBy(dx: -margin + 8, dy: -margin + 8)
+            let vf = screen.visibleFrame.insetBy(dx: isOrbit ? 8 : -margin + 8, dy: isOrbit ? 8 : -margin + 8)
             frame.origin.x = min(max(frame.minX, vf.minX), vf.maxX - side)
             frame.origin.y = min(max(frame.minY, vf.minY), vf.maxY - side)
         }
         panel.setFrame(frame, display: false)
         updateGlass()
+        dropView?.resetModifierTracking()
         panel.allowsKey = mode == .click
         model.shown = false
         if mode == .click {
-            NSApp.activate(ignoringOtherApps: true)
+            if !isOrbit { NSApp.activate(ignoringOtherApps: true) }
             panel.makeKeyAndOrderFront(nil)
             panel.makeFirstResponder(dropView)
             installOutsideClickMonitor()
@@ -181,6 +188,7 @@ final class RingController {
 
     private func updateGlass() {
         let settings = SettingsStore.shared
+        if isOrbit { glass.isHidden=true;return }
         let d = geometry.diameter
         // Centered with constraints so it always sits exactly under the disc.
         glass.removeConstraints(glass.constraints)
@@ -273,6 +281,8 @@ final class RingController {
 final class RingDropView: NSView {
     private unowned let controller: RingController
     private var tracking: NSTrackingArea?
+    private var triggerKeyDown = false
+    func resetModifierTracking() { triggerKeyDown=NSEvent.modifierFlags.contains(SettingsStore.shared.triggerKey.flag) }
 
     init(controller: RingController) {
         self.controller = controller
@@ -297,17 +307,28 @@ final class RingDropView: NSView {
     private func hit(_ windowPoint: NSPoint) -> RingGeometry.Hit {
         let p = convert(windowPoint, from: nil)
         let rel = CGPoint(x: p.x - bounds.midX, y: p.y - bounds.midY)
+        if controller.isOrbit {
+            switch controller.orbit.hit(rel,count:controller.model.items.count) {
+            case .hub:return .hub
+            case .action(let index):return .slice(index)
+            case .outside:return .outside
+            }
+        }
         return controller.geometry.hit(rel, count: controller.model.items.count)
     }
 
     // Dragging
     override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
-        controller.hover(hit(sender.draggingLocation))
+        let target=hit(sender.draggingLocation)
+        controller.hover(target)
+        if controller.isOrbit { if case .slice = target { return .copy }; return [] }
         return .copy
     }
 
     override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
-        controller.hover(hit(sender.draggingLocation))
+        let target=hit(sender.draggingLocation)
+        controller.hover(target)
+        if controller.isOrbit { if case .slice = target { return .copy }; return [] }
         return .copy
     }
 
@@ -357,6 +378,10 @@ final class RingDropView: NSView {
     }
 
     override func flagsChanged(with event: NSEvent) {
-        if event.modifierFlags.contains(SettingsStore.shared.triggerKey.flag) { controller.togglePage() }
+        let flag=SettingsStore.shared.triggerKey.flag
+        let down=event.modifierFlags.contains(flag)
+        let modifiers=event.modifierFlags.intersection([.shift,.option,.command,.control])
+        if down && !triggerKeyDown && modifiers == flag { controller.togglePage() }
+        triggerKeyDown=down
     }
 }

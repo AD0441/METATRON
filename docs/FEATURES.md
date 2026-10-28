@@ -23,7 +23,7 @@ Las capacidades dependen del formato concreto, los codificadores disponibles y l
 | Biblioteca | Índice local de texto y etiquetas por reglas. | No sustituye a Paperless-ngx; no incorpora sus funciones de servidor, correo o multiusuario. |
 | IA | Vision OCR y sujetos; asistente de Foundation Models disponible según el sistema. | No se entrenó un modelo propio y no se garantiza la colocación en Neural Engine. |
 | Compartir | Panel nativo de macOS/AirDrop y enlace LAN temporal de un archivo. | LAN usa HTTP sin cifrado y no implementa el protocolo LocalSend. No se ha validado entre dos equipos. |
-| Interfaz | Ventana SwiftUI en español, cuatro páginas de rueda; cubo de Metatrón, ruleta clásica, menú compacto, panel, comandos y burbujas elegibles; cinco paletas de color, atajos, ajustes y menú de barra. | La base conserva traducciones adicionales en sus ajustes; las pantallas nuevas se redactaron en español. |
+| Interfaz | Ventana SwiftUI en español, cuatro páginas de rueda; cubo de Metatrón y Burbujas flotantes sin marco, ruleta clásica, menú compacto, panel, y comandos elegibles; cinco paletas de color, atajos, ajustes y menú de barra. | La base conserva traducciones adicionales en sus ajustes; las pantallas nuevas se redactaron en español. |
 
 ## Límites frente a los proyectos de referencia
 

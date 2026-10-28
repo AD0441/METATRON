@@ -1,70 +1,88 @@
 import SwiftUI
 import MetatronCore
 
+/// A transparent desktop surface. Only the individual circular controls have a material.
 struct MetatronOrbitView: View {
     @ObservedObject var model: RingModel
     @ObservedObject private var settings = SettingsStore.shared
-    @State private var hovered: String?
-    private let side: CGFloat = 440
-    private let radius: CGFloat = 166
-    private let nodeSize: CGFloat = 74
-    private let categories = ["Convertir", "Herramientas", "Acciones", "Destinos"]
+    @Environment(\.colorScheme) private var systemScheme
+    private let categories=["Convertir","Herramientas","Acciones","Destinos"]
+    private var geo: OrbitGeometry { OrbitGeometry(size:settings.ringSize,layout:settings.quickAccessStyle == .bubbles ? .bubbles : .metatron) }
+    private var dark: Bool { (settings.theme.colorScheme ?? systemScheme) == .dark }
+    private var theme: Theme { var t=settings.theme;t.drawsBackdrop=false;return t }
     var body: some View {
-        VStack(spacing: 0) {
-            Picker("Categoría", selection: $model.page) { ForEach(0..<4) { Text(categories[$0]).tag($0) } }
-                .pickerStyle(.segmented).padding(.horizontal, 20).padding(.vertical, 10)
-            if settings.quickAccessStyle == .bubbles { bubbleGrid }
-            else { constellation }
-            HStack {
-                Text("\(model.items.count) acciones").font(.caption).foregroundStyle(.secondary)
-                Spacer()
-                Button("Siguiente categoría", systemImage: "arrow.right") { model.togglePage() }.controlSize(.small).keyboardShortcut(.rightArrow, modifiers: .option)
-            }.padding(.horizontal, 20).padding(.bottom, 12)
-        }
-
-    }
-    private var constellation: some View {
+        let side=geo.side, origin=CGPoint(x:side/2,y:side/2)
         ZStack {
-            Canvas { context, size in
-                let c = CGPoint(x: size.width / 2, y: size.height / 2)
-                func point(_ index: Int) -> CGPoint { let p = MetatronGeometry.centers[index]; return CGPoint(x: c.x+p.x*radius, y: c.y+p.y*radius) }
-                var lines = Path()
-                for edge in MetatronGeometry.edges { lines.move(to: point(edge.0)); lines.addLine(to: point(edge.1)) }
-                context.stroke(lines, with: .color(MetatronStyle.accent.opacity(0.14)), lineWidth: 0.7)
-                var circles = Path()
-                for index in 0..<13 { let p=point(index); circles.addEllipse(in: CGRect(x:p.x-nodeSize/2,y:p.y-nodeSize/2,width:nodeSize,height:nodeSize)) }
-                context.stroke(circles, with: .color(MetatronStyle.accent.opacity(0.13)), lineWidth: 1)
-            }.allowsHitTesting(false).accessibilityHidden(true)
-            Button { model.togglePage() } label: {
-                VStack(spacing: 3) { MetatronMark(lineWidth: 0.8).frame(width: 26, height: 26); Text(categories[min(model.page,3)]).font(.system(size: 10, weight: .semibold)) }
-                    .frame(width: nodeSize, height: nodeSize).background(MetatronStyle.panel, in: Circle())
-                    .overlay(Circle().strokeBorder(MetatronStyle.accent, lineWidth: 1.3))
-            }.buttonStyle(.plain).help("Cambiar categoría · ⌥→").position(x:side/2,y:side/2)
-            ForEach(Array(model.items.enumerated()), id: \.element.id) { index, item in
-                if let p = MetatronGeometry.actionCenter(index, radius: radius, center: CGPoint(x: side/2,y:side/2)) { node(item).position(p) }
+            if settings.quickAccessStyle == .metatron { connections }
+            hub.position(origin)
+            ForEach(Array(model.items.enumerated()),id:\.element.id) { index,item in
+                if let p=geo.center(for:index,count:model.items.count) {
+                    node(index,item).position(x:origin.x+p.x,y:origin.y+p.y)
+                }
             }
-        }.frame(width: side,height: side).frame(maxWidth:.infinity)
+            if model.progress == nil {
+                Text("\(categories[min(model.page,3)]) · \(model.items.count) acciones · Tab para cambiar")
+                    .font(.system(size:10*geo.scale,weight:.medium)).foregroundStyle(.primary)
+                    .padding(.horizontal,10).padding(.vertical,5)
+                    .background(Color(nsColor:.controlBackgroundColor).opacity(0.94),in:Capsule())
+                    .position(x:origin.x,y:origin.y+geo.radius(count:model.items.count)+geo.nodeRadius+24*geo.scale)
+                    .allowsHitTesting(false)
+            }
+        }
+        .frame(width:side,height:side)
+        .opacity(model.shown ? 1 : 0)
+        .animation(nil,value:model.shown)
+        .environment(\.colorScheme,theme.colorScheme ?? systemScheme)
     }
-    private var bubbleGrid: some View {
-        ScrollView {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 3), spacing: 18) {
-                ForEach(model.items) { item in node(item) }
-            }.padding(24)
-        }.frame(height:260)
+    private var connections: some View {
+        Canvas { context,size in
+            let c=CGPoint(x:size.width/2,y:size.height/2), r=geo.radius(count:model.items.count)
+            func point(_ i:Int)->CGPoint {let p=MetatronGeometry.centers[i];return CGPoint(x:c.x+p.x*r,y:c.y+p.y*r)}
+            var path=Path()
+            for edge in MetatronGeometry.edges {path.move(to:point(edge.0));path.addLine(to:point(edge.1))}
+            context.stroke(path,with:.color(settings.interfaceAccent.opacity(0.32)),lineWidth:0.8*geo.scale)
+            var circles=Path()
+            for index in 0..<13 {
+                let p=point(index),radius=geo.nodeRadius
+                circles.addEllipse(in:CGRect(x:p.x-radius,y:p.y-radius,width:2*radius,height:2*radius))
+            }
+            context.stroke(circles,with:.color(settings.interfaceAccent.opacity(0.18)),lineWidth:geo.scale)
+        }.allowsHitTesting(false).accessibilityHidden(true)
     }
-    private func node(_ item: RingItem) -> some View {
-        Button { QuickAccessController.perform(item, files: model.files) } label: {
-            VStack(spacing: 5) {
-                Image(systemName:item.symbol).font(.system(size:16, weight:.medium))
-                Text(item.title).font(.system(size:10,weight:.medium)).multilineTextAlignment(.center).lineLimit(3).frame(width:nodeSize-12)
-            }.foregroundStyle(hovered == item.id ? Color.white : settings.interfaceAccent)
-                .frame(width:nodeSize,height:nodeSize)
-                .background(hovered == item.id ? settings.interfaceAccent : MetatronStyle.panel, in:Circle())
-                .overlay(Circle().strokeBorder(hovered == item.id ? settings.interfaceAccent : MetatronStyle.divider,lineWidth:1))
+    private var hub: some View {
+        Button { RingController.shared.hubClicked() } label: {
+            ZStack {
+                BlurView(material:dark ? .hudWindow : .popover,dark:dark)
+                if let progress=model.progress {
+                    RingProgress(progress:progress,finished:model.finished,theme:theme,scale:geo.scale,
+                                 title:model.chosen.flatMap {model.items.indices.contains($0) ? model.items[$0].title : nil} ?? "")
+                } else {
+                    VStack(spacing:3*geo.scale) {
+                        FileIcon(urls:model.files).frame(width:32*geo.scale,height:32*geo.scale)
+                        Text(categories[min(model.page,3)]).font(.system(size:9*geo.scale,weight:.semibold))
+                        if model.files.count > 1 {Text("\(model.files.count) archivos").font(.system(size:8*geo.scale))}
+                    }.foregroundStyle(.primary)
+                }
+            }.frame(width:2*geo.hubRadius,height:2*geo.hubRadius)
+                .overlay(Circle().strokeBorder(settings.interfaceAccent.opacity(0.75),lineWidth:1.1))
+        }.buttonStyle(.plain).help("\(model.files.first?.lastPathComponent ?? "Archivos") · pulsa el centro para cambiar de categoría")
+    }
+    private func node(_ index:Int,_ item:RingItem)->some View {
+        let hot=model.hovered == index || model.chosen == index
+        return Button {RingController.shared.choose(index,files:[])} label: {
+            ZStack {
+                BlurView(material:dark ? .hudWindow : .popover,dark:dark)
+                if hot {Circle().fill(settings.interfaceAccent)}
+                VStack(spacing:4*geo.scale) {
+                    Image(systemName:item.symbol).font(.system(size:15*geo.scale,weight:.medium))
+                    Text(item.title).font(.system(size:10*geo.scale,weight:.medium)).lineLimit(3)
+                        .multilineTextAlignment(.center).frame(width:2*geo.nodeRadius-12*geo.scale)
+                }.foregroundStyle(hot ? Color(nsColor:.textBackgroundColor) : Color.primary)
+            }.frame(width:2*geo.nodeRadius,height:2*geo.nodeRadius)
+                .overlay(Circle().strokeBorder(hot ? settings.interfaceAccent : Color.primary.opacity(0.14),lineWidth:1))
+                .opacity(model.progress != nil && model.chosen != index ? 0.45 : 1)
                 .contentShape(Circle())
-        }.buttonStyle(.plain).onHover { hovered = $0 ? item.id : nil }
-            .help(item.destination?.folder.path ?? item.title)
+        }.buttonStyle(.plain).help(item.destination?.folder.path ?? item.title)
             .accessibilityLabel(item.destination == nil ? item.title : "Mover a " + item.title)
-            .dropDestination(for:URL.self) { urls,_ in guard !urls.isEmpty else{return false}; QuickAccessController.perform(item,files:urls);return true } isTargeted: { hovered = $0 ? item.id : nil }
     }
 }

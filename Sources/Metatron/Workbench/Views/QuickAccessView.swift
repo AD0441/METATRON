@@ -19,7 +19,7 @@ final class QuickAccessController {
     var isVisible: Bool { panel?.isVisible == true }
     func show(model: RingModel, at point: NSPoint, style: QuickAccessStyle, mode: RingModel.Mode) {
         hide()
-        let geometric = style == .metatron || style == .bubbles
+        let geometric = false
         let width: CGFloat = geometric ? 520 : style == .panel ? 540 : 420
         let height: CGFloat = style == .bubbles ? 430 : geometric ? 610 : style == .compact ? 460 : 500
         let p = ActionPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [.titled, .closable, .utilityWindow], backing: .buffered, defer: false)
@@ -79,8 +79,7 @@ struct QuickAccessView: View {
                     .onKeyPress(.upArrow) { moveSelection(-1); return .handled }
             }
             Divider()
-            if style == .metatron || style == .bubbles { MetatronOrbitView(model: model) }
-            else if visible.isEmpty { ContentUnavailableView.search(text: query) }
+            if visible.isEmpty { ContentUnavailableView.search(text: query) }
             else {
                 ScrollViewReader { proxy in
                     List {

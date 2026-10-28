@@ -30,7 +30,7 @@ root,bundle=map(Path,sys.argv[1:])
 p=plistlib.loads((root/'Resources/Info.plist').read_bytes())
 for k in ('CFBundleName','CFBundleDisplayName','CFBundleExecutable'): p[k]='METATRON'
 p['NSHumanReadableCopyright']='Creado por Sebastián Pastén F. · Base Kumquat © 2026 iandifilippo, MIT'
-p.update(CFBundleIdentifier='local.metatron.app',CFBundleShortVersionString='2.0.0',CFBundleVersion='2',LSUIElement=False,NSPrincipalClass='NSApplication',CFBundleDevelopmentRegion='es')
+p.update(CFBundleIdentifier='local.metatron.app',CFBundleShortVersionString='2.1.0',CFBundleVersion='3',LSUIElement=False,NSPrincipalClass='NSApplication',CFBundleDevelopmentRegion='es')
 p['NSLocalNetworkUsageDescription']='Comparte el archivo que eliges con otro dispositivo de tu red local.'
 p['NSAppleEventsUsageDescription']='Metatron puede leer la selección de Finder cuando usas su atajo.'
 p['NSServices'][0]['NSMenuItem']['default']='Convertir con Metatron'

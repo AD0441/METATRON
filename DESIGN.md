@@ -39,7 +39,7 @@ System SF text, native controls and SF Symbols. Workspace title 25pt semibold. N
 
 ## Layout
 
-Sidebar and workspace use NavigationSplitView. Main inset 30pt, section gap 22pt, input inset 22pt. File collections are bounded lazy lists. Compact and command access panels use a native list; the floating panel uses native segmented categories. The Metatron layout uses a 440pt canvas, 166pt outer radius and 74pt action circles. Bubbles use a three-column grid with a bounded 260pt scroll region. Native Tab navigation is preserved; Option+Right changes category.
+Sidebar and workspace use NavigationSplitView. Main inset 30pt, section gap 22pt, input inset 22pt. File collections are bounded lazy lists. Compact and command access panels use a native list; the floating panel uses native segmented categories. The Metatron layout uses a transparent 480pt canvas, 166pt outer radius and 74pt action circles. Bubbles use a radial orbit of the same circular targets. Both share the classic borderless nonactivating panel and native drop surface; there is no title bar, toolbar, opaque canvas or rectangular panel shadow. Each circle has its own native masked material. The hub shows the selected file. Tab/Space cycle categories, Escape closes, and hit testing ignores the gaps.
 
 ## Elevation & Depth
 

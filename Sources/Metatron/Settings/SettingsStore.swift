@@ -22,7 +22,7 @@ enum QuickAccessStyle: String, Codable, CaseIterable, Identifiable {
     case metatron, ring, compact, panel, commands, bubbles
     var id: String { rawValue }
     var title: String { switch self { case .metatron: "Cubo de Metatrón"; case .bubbles: "Burbujas"; case .ring: "Ruleta clásica"; case .compact: "Menú compacto"; case .panel: "Panel flotante"; case .commands: "Paleta de comandos" } }
-    var detail: String { switch self { case .metatron: "Doce acciones en círculos, con la geometría de Metatrón."; case .bubbles: "Acciones circulares grandes en una cuadrícula compacta."; case .ring: "Gestos y cuatro páginas de acciones."; case .compact: "Una lista breve, agrupada por función."; case .panel: "Pestañas con nombres completos y destinos."; case .commands: "Busca un formato, una herramienta o una carpeta." } }
+    var detail: String { switch self { case .metatron: "Círculos flotantes alrededor del archivo, sin marco ni fondo rectangular."; case .bubbles: "Burbujas flotantes alrededor del archivo, integradas con el entorno."; case .ring: "Gestos y cuatro páginas de acciones."; case .compact: "Una lista breve, agrupada por función."; case .panel: "Pestañas con nombres completos y destinos."; case .commands: "Busca un formato, una herramienta o una carpeta." } }
 }
 
 enum TriggerKey: String, Codable, CaseIterable, Identifiable {

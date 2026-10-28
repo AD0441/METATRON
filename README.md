@@ -50,12 +50,12 @@ Elige en **Ajustes → General → Presentación**. Todas comparten las acciones
 
 | Presentación | Para qué sirve |
 | --- | --- |
-| **Cubo de Metatrón** | Doce acciones circulares alrededor de un centro que cambia de categoría. Geometría visible, etiquetas y destinos. |
+| **Cubo de Metatrón** | Círculos flotantes sobre el entorno, con el archivo en el centro y las conexiones geométricas. Sin marco, barra de título ni fondo rectangular. |
 | **Ruleta clásica** | Sectores radiales para quienes prefieren el gesto tradicional. |
 | **Menú compacto** | Acciones agrupadas en una lista, con nombres completos. |
 | **Panel flotante** | Pestañas de conversión, herramientas, acciones y destinos. |
 | **Paleta de comandos** | Buscar `md`, `Markdown`, un formato, una herramienta o una carpeta y pulsar Enter. |
-| **Burbujas** | Botones circulares en una cuadrícula sencilla y desplazable. |
+| **Burbujas** | Burbujas distribuidas en órbita alrededor del archivo y del cursor, sobre una superficie transparente. |
 
 En la ventana, **Acciones** o **⌘K** abre la presentación elegida. También puedes usar «Abrir con», la barra de menús y la selección de Finder. macOS puede pedir permiso para leer esa selección cuando usas el atajo.
 
@@ -69,7 +69,7 @@ Durante un arrastre, los modificadores permiten abrir las categorías:
 | **Option** | Destinos favoritos |
 | **Control + Option** | Destinos incluso si Option es el disparador principal |
 
-El cubo y la ruleta muestran hasta doce acciones por categoría. Las listas y la paleta permiten acceder al catálogo completo. Los iconos tienen ayuda contextual con el nombre completo.
+El cubo, Burbujas y la ruleta muestran hasta doce acciones por categoría. En los tres, pulsa el centro, Tab o espacio para cambiar de categoría; Escape o un clic fuera los cierra. El círculo central muestra el icono del archivo. Solo los círculos de acción aceptan el archivo soltado; los huecos entre ellos no activan operaciones. Las listas y la paleta permiten acceder al catálogo completo. Los iconos tienen ayuda contextual con el nombre completo.
 
 ## Apariencia y organización
 

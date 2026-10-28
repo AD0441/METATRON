@@ -89,6 +89,9 @@ final class RoundBlurView: NSVisualEffectView {
 
     private func updateMask() {
         let size = bounds.size
+        wantsLayer = true
+        layer?.cornerRadius = min(size.width,size.height) / 2
+        layer?.masksToBounds = true
         guard size.width > 0, maskImage?.size != size else { return }
         maskImage = NSImage(size: size, flipped: false) { rect in
             NSColor.black.setFill()

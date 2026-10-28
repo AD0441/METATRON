@@ -26,7 +26,7 @@ enum DemoCapture {
             return
         }
         let name: String
-        if window is ActionPanel {name="access-"+SettingsStore.shared.quickAccessStyle.rawValue}
+        if window is RingPanel || window is ActionPanel {name="access-"+SettingsStore.shared.quickAccessStyle.rawValue}
         else if window.title.isEmpty || window.title.contains("Ajustes") || window.title == "Settings" {name="settings"}
         else {name=window.title.lowercased().replacingOccurrences(of:"[^a-z0-9]+",with:"-",options:.regularExpression)}
         do {try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true);try data.write(to:directory.appendingPathComponent(name+".png"),options:.atomic)}
