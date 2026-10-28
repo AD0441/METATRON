@@ -24,7 +24,7 @@ METATRON amplía la base MIT de Kumquat con un espacio de trabajo, recetas encad
 
 La [comparativa con Kumquat, Tangerine y las versiones anteriores](docs/COMPARISON.md) distingue funciones heredadas, mejoras propias y limitaciones. El procesamiento local, OCR y Markdown no se presentan como novedades exclusivas.
 
-**Estado de las versiones:** la descarga publicada sigue siendo METATRON 2.0; el código público incluye la corrección de círculos transparentes. La revisión local 2.2 continúa en preparación. Sus nuevas funciones y el bloqueo de ejecución de Atajos por falta de firma Apple se describen expresamente en la comparativa.
+**Versión actual: [METATRON 2.2.0](https://github.com/AD0441/METATRON/releases/tag/v2.2.0), para Apple Silicon.** Incluye recetas contextuales, procesamiento documental y segundo plano. Consulta el [historial de cambios](CHANGELOG.md) y la comparativa; las acciones nativas de Atajos permanecen bloqueadas en esta compilación con firma ad hoc, sin Team ID Apple.
 
 ## En uso
 
@@ -83,7 +83,7 @@ El cubo, Burbujas y la ruleta muestran hasta doce acciones por categoría. En lo
 
 Ejecuta tus recetas desde los círculos de **Recetas** y **Documentos**, desde la CLI. También se incluyen tres acciones App Intents para Atajos: aparecen en su buscador, pero **esta compilación ad hoc no puede ejecutarlas porque carece de un Team ID Apple**. La ejecución nativa debe validarse tras firmar con una identidad Apple. «Preparar para la web» y «Documento para análisis» son secuencias explícitas que puedes editar; no necesitan un modelo de lenguaje.
 
-La simulación muestra el peso de entrada, resolución y posibles pérdidas. Actividad muestra los tamaños reales después de verificar las salidas. El procesamiento documental incluye OCR, Markdown con procedencia, imágenes raster incrustadas compatibles y combinación de imágenes, PDF y documentos en un PDF final. MarkItDown y Docling son motores opcionales configurables: consulta [Documentos](docs/DOCUMENTS.md) y los [límites antes de publicar](docs/PREPUBLICATION.md).
+La simulación muestra el peso de entrada, resolución y posibles pérdidas. Actividad muestra los tamaños reales después de verificar las salidas. El procesamiento documental incluye OCR, Markdown con procedencia, imágenes raster incrustadas compatibles y combinación de imágenes, PDF y documentos en un PDF final. MarkItDown y Docling son motores opcionales configurables: consulta [Documentos](docs/DOCUMENTS.md) y los [límites de la versión](docs/PREPUBLICATION.md).
 
 ## Barra superior y segundo plano
 

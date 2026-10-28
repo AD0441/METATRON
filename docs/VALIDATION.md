@@ -1,4 +1,4 @@
-# Validación local de METATRON 2.0
+# Registro de validación de METATRON
 
 Fecha: 27 de octubre de 2026. Equipo: Apple M1 con 8 GB, macOS 27.2, Swift 6.4, compilación release.
 
@@ -46,4 +46,4 @@ Se simplificó una expresión de la prueba de anonimización que agotaba el comp
 - Las tres acciones aparecen en el buscador de Atajos. Ejecución bloqueada por Team ID ausente en firma ad hoc, confirmada por el registro linkd. No hay identidad Apple de desarrollo disponible en el Mac.
 - Docling dispone de adaptador; no se instalaron ni validaron sus modelos. Tablas y orden de lectura requieren revisión.
 - La revisión independiente anterior quedó incompleta por el límite de uso de los revisores; las comprobaciones de esta sección son locales.
-- Esta revisión no se ha enviado ni publicado en GitHub.
+- Esta revisión es la base de la release 2.2.0. El ZIP distribuido se comprueba por SHA-256 y firma ad hoc antes de adjuntarlo; no se presenta como notarizado por Apple.

@@ -1,6 +1,6 @@
-# Revisión antes de la siguiente publicación
+# Revisión de entrega de METATRON 2.2.0
 
-La versión pública 2.0 y el código previamente enviado permanecen en GitHub. Los cambios de esta revisión se preparan localmente y requieren completar la validación antes de publicar otra versión.
+La release 2.2.0 entrega las mejoras verificadas de esta revisión. La versión 2.0 permanece disponible como referencia histórica. Esta tabla conserva los límites prácticos y el bloqueo de firma de Atajos para que la publicación no implique funciones sin validar.
 
 | Frente | Implementación | Límite práctico |
 | --- | --- | --- |

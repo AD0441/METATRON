@@ -10,7 +10,7 @@ Revisión: **28 de octubre de 2026**. Esta comparación distingue la base de có
 | **Tangerine** | Referencia del gesto contextual; no es la base de código de este repositorio. | Aplicación instalada 2.0.2, build 9, observada el 27 de octubre; información pública del desarrollador consultada el 28 de octubre. |
 | **METATRON 2.0** | Primera versión publicada de este proyecto. | Ventana de trabajo, recetas, organización, historial, identidad y herramientas propias. |
 | **Corrección posterior a 2.0** | Disponible en el código público. | Cubo y Burbujas pasan a ser superficies flotantes transparentes, sin marco rectangular. |
-| **METATRON 2.2 en preparación** | Implementación y comprobaciones locales; todavía sin nueva release. | Acceso contextual a recetas, previsualización de propiedades, documentos y ciclo de vida ampliados. Las limitaciones pendientes se enumeran abajo. |
+| **METATRON 2.2.0** | [Release para Apple Silicon](https://github.com/AD0441/METATRON/releases/tag/v2.2.0), con comprobaciones locales. | Acceso contextual a recetas, previsualización de propiedades, documentos y ciclo de vida ampliados. Las limitaciones pendientes se enumeran abajo. |
 
 ## Qué se conserva de Kumquat
 
@@ -46,9 +46,9 @@ Tangerine documenta conversión y herramientas locales mediante ruedas contextua
 
 **No confirmado no significa ausente.** No se afirma que Tangerine carezca de lotes, OCR, historial, recetas o verificación. Tampoco se promete igualar su catálogo: por ejemplo, METATRON no incluye un escritor nativo de Pages y algunas rutas Office requieren LibreOffice.
 
-## Mejoras de la revisión local 2.2
+## Mejoras de METATRON 2.2.0
 
-Estas capacidades están preparadas localmente y **no deben confundirse con la release 2.0 descargable**:
+Estas capacidades se incorporan a la release **2.2.0**; no estaban todas incluidas en la descarga 2.0:
 
 - **Recetas desde el contexto:** seis familias —convertir, herramientas, acciones, destinos, recetas y documentos—; búsqueda y listas conservan el catálogo completo y los círculos muestran hasta doce acciones por familia.
 - **Objetivos editables:** «Preparar para la web» y «Documento para análisis» se resuelven con recetas; las conversiones normales no necesitan un modelo de lenguaje.
@@ -72,7 +72,7 @@ La revisión local registra **50 pruebas del núcleo, una omitida por faltar Gho
 - [Kumquat: base fijada](https://github.com/iandifilippo/Kumquat/tree/f748f057a763909244e6fd6118f65dc0eac2342c) y [procedencia de METATRON](../UPSTREAM.md).
 - [Tangerine: sitio oficial](https://www.tangerineformac.com/) y [press kit del desarrollador](https://www.tangerineformac.com/press). La web puede describir una versión distinta de la aplicación instalada.
 - [METATRON 2.0](https://github.com/AD0441/METATRON/releases/tag/v2.0.0) y [corrección de círculos transparentes](https://github.com/AD0441/METATRON/commit/b74689ce5b7ea49ae977b669f12aced2c309987e).
-- [Matriz pública de funciones y dependencias](FEATURES.md). La revisión local 2.2 sigue pendiente de publicación y no se infiere de la release descargable.
+- [Matriz pública de funciones y dependencias](FEATURES.md). La release 2.2.0 mantiene las limitaciones de firma, motores opcionales y fidelidad indicadas en esta comparación.
 
 Los materiales privados de investigación y los binarios de Tangerine quedan fuera de este repositorio. METATRON no está afiliado con Tangerine, Apple ni los proyectos citados.
 
