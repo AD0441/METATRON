@@ -45,8 +45,8 @@ final class RingModel: ObservableObject {
         var tools = settings.ordered(ActionCatalog.toolActions(for: files).filter(settings.isEnabled)).map(RingItem.init)
         // ZIP is hidden for images by default, but a ring with no tools at all is never useful.
         if tools.isEmpty, let zip = ActionCatalog.toolActions(for: files).first(where: { $0 == .tool(.zip) }) { tools = [RingItem(action: zip)] }
-        pages = [convert, tools, FileActionID.allCases.filter { $0 != .configureDestinations && ($0 != .annotate || (files.count == 1 && FileKind.of(files[0]) == .image)) }.map { RingItem(fileAction: $0) }, settings.savedDestinations.isEmpty ? [RingItem(fileAction: .configureDestinations)] : settings.savedDestinations.map { RingItem(destination: $0) }]
-        let recipes=WorkspaceStore.shared.recipes
+        pages = [convert, tools, FileActionID.allCases.filter { $0 != .configureDestinations && ($0 != .annotate || (files.count == 1 && ActionCatalog.supports(.tool(.resize), for: files))) }.map { RingItem(fileAction: $0) }, settings.savedDestinations.isEmpty ? [RingItem(fileAction: .configureDestinations)] : settings.savedDestinations.map { RingItem(destination: $0) }]
+        let recipes=WorkspaceStore.shared.recipes.map(WorkspaceStore.shared.configuredRecipe).filter { RecipeCompatibility.issue(inputs: files, recipe: $0) == nil }
         pages.append(Array(recipes.filter {!$0.steps.contains { ["documentAdvanced","bundlePDF","research","pdfTables"].contains($0.action) }}).map {RingItem(recipe:$0)})
         pages.append(Array(recipes.filter {$0.steps.contains { ["documentAdvanced","bundlePDF","research","pdfTables"].contains($0.action) }}).map {RingItem(recipe:$0)})
         allPages=pages

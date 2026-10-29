@@ -1,5 +1,20 @@
 # Historial de cambios
 
+## 2.3.0 · en desarrollo
+
+- Acciones y recetas contextuales limitadas a los tipos de archivo compatibles y motores disponibles. Los lotes ofrecen operaciones válidas para todos sus archivos. Textos, Excel y otros documentos no ofrecen transcripción de audio.
+- Validación de cada paso según el resultado anterior, filtro del editor de recetas, restricciones de entrada exportables y rechazo antes de crear salidas. Las carpetas vigiladas omiten archivos incompatibles con su receta.
+- La indexación documental admite tablas Excel mediante su lector estructurado y excluye audio, vídeo y binarios no compatibles.
+
+- Audio a TXT y Markdown mediante SpeechAnalyzer/SpeechTranscriber de Apple, con macOS 26+ y hardware compatible.
+- Acción contextual «Audio a texto · Apple local», dos recetas y uso desde carpetas vigiladas y terminal.
+- Idioma configurable y consulta del modelo instalado. La descarga solo se inicia desde el botón o comando explícito; sin reconocimiento remoto ni resumen.
+- Progreso por tiempo reconocido, cancelación del análisis y conservación del audio incluso si está activado enviar originales a la Papelera tras convertir.
+- Compatible con las opciones JSON de recetas previas. Idioma opcional por receta/CLI; el valor predeterminado de la app es español de Chile.
+
+
+Validación de desarrollo: 50 XCTest y 78 Swift Testing (128 pruebas), sin fallos ni omisiones.
+
 ## 2.2.1 · en preparación
 
 Mantenimiento de estabilidad, sin nuevas capacidades de conversión.

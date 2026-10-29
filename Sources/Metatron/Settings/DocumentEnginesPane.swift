@@ -11,6 +11,7 @@ struct DocumentEnginesPane:View {
                 Label("Nativo · siempre disponible",systemImage:"checkmark.circle.fill")
                 Text("Vision reconoce texto y PDFKit conserva páginas y extrae contenido. La receta Documento para análisis genera Markdown, imágenes de página y procedencia. Las tablas y el orden de lectura requieren revisión.").foregroundStyle(.secondary)
             }
+            SpeechSettingsSection()
             engine(.markitdown,path:$markitdown,detail:"Markdown para documentos Office, PDF y tablas. Un proceso separado se inicia solo cuando eliges este motor en una receta.")
             engine(.docling,path:$docling,detail:"Adaptador opcional para reconstrucción documental. Requiere una instalación y modelos locales preparados por el usuario; no se descargan desde METATRON.")
             Section("Límites para Apple Silicon") {
