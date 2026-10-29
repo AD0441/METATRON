@@ -89,22 +89,26 @@ struct ConvertWorkspaceView: View {
                 HStack(alignment: .top, spacing: 22) {
                     VStack(alignment: .leading, spacing: 14) {
                         Text("Qué quieres hacer").font(.title3.bold())
-                        Picker("Receta", selection: $store.selectedRecipeID) {
-                            ForEach(store.recipes) { Text($0.name).tag(Optional($0.id)) }
-                        }.labelsHidden()
-                        RecipeStepsSummary(steps: store.selectedRecipe.steps)
+                        if let recipe = store.conversionRecipe {
+                            Picker("Receta", selection: Binding(get: { store.conversionRecipe?.id }, set: { store.selectedRecipeID = $0 })) {
+                                ForEach(store.compatibleRecipes) { Text($0.name).tag(Optional($0.id)) }
+                            }.labelsHidden()
+                            RecipeStepsSummary(steps: recipe.steps)
+                        } else {
+                            Text("No hay recetas compatibles con esta selección. Puedes crear una en Recetas.").foregroundStyle(.secondary)
+                        }
                         Toggle("Copiar resultado al terminar", isOn: $store.copyAfterRun)
                         HStack {
                             Button("Simular", systemImage: "eye") { store.simulate() }
                             Button("Ejecutar receta", systemImage: "play.fill") { store.enqueue() }.buttonStyle(.borderedProminent)
-                        }.disabled(store.files.isEmpty)
+                        }.disabled(store.files.isEmpty || store.conversionRecipe == nil)
                         Text("⌘↩ ejecutar · ⇧⌘R simular").font(.caption).foregroundStyle(.secondary)
                     }.frame(maxWidth: .infinity, alignment: .leading)
                     VStack(alignment: .leading, spacing: 12) {
                         Label("Conserva tus originales", systemImage: "checkmark.shield").font(.headline)
                         Text("Cada receta trabaja en un espacio temporal. La salida se verifica antes de publicarse y queda registrada en Actividad.").foregroundStyle(.secondary)
-                        Button("Editar esta receta") { store.selectedSection = "recipes" }
-                        Button("Indexar para buscar") { store.indexFiles() }.disabled(store.files.isEmpty)
+                        Button("Editar esta receta") { store.selectedRecipeID = store.conversionRecipe?.id; store.selectedSection = "recipes" }.disabled(store.conversionRecipe == nil)
+                        Button("Indexar para buscar") { store.indexFiles() }.disabled(!store.canIndexFiles)
                         Button("Restaurar portapapeles") { store.restoreClipboard() }.disabled(!store.canRestoreClipboard)
                     }.padding(18).frame(maxWidth: .infinity, alignment: .leading).background(MetatronStyle.panel, in: RoundedRectangle(cornerRadius: 12))
                 }
@@ -126,6 +130,7 @@ struct InputFilesView: View {
             } else {
                 HStack { Text(store.files.count == 1 ? "1 archivo preparado" : "\(store.files.count) archivos preparados").font(.headline); Spacer(); Button("Quitar todos") { store.files = []; store.simulation = [] } }
                 Menu("Conversión o herramienta rápida") {
+                    if store.directActions.isEmpty { Text("No hay conversiones o herramientas compatibles con esta selección.") }
                     ForEach(store.directActions, id: \.id) { action in
                         Button(action.title) { ActionRunner.shared.start(action, files: store.files) }
                     }

@@ -48,6 +48,19 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
     @ObservationIgnored private let logger = Logger(subsystem: "local.metatron.app", category: "workspace")
 
     var selectedRecipe: Recipe { recipes.first { $0.id == selectedRecipeID } ?? recipes.first ?? Recipe.builtIns[0] }
+    var compatibleRecipes: [Recipe] { files.isEmpty ? recipes : recipes.map(configuredRecipe).filter { RecipeCompatibility.issue(inputs: files, recipe: $0) == nil } }
+    /// Resolve user-configured engines before availability checks and execution.
+    func configuredRecipe(_ recipe: Recipe) -> Recipe {
+        var configured = recipe
+        if let step = recipe.steps.first(where: { $0.action == "documentAdvanced" }),
+           let engine = DocumentEngineID(rawValue: step.text), engine != .native,
+           let path = UserDefaults.standard.string(forKey: "documentEngine." + engine.rawValue), !path.isEmpty {
+            configured.documentEnginePath = path
+        }
+        return configured
+    }
+    var conversionRecipe: Recipe? { compatibleRecipes.first { $0.id == selectedRecipeID } ?? compatibleRecipes.first }
+    var canIndexFiles: Bool { !files.isEmpty && files.allSatisfy(DocumentIndex.supports) }
     var directActions: [KQAction] { files.isEmpty ? [] : ActionCatalog.convertActions(for: files) + ActionCatalog.toolActions(for: files) }
     var completed: Int { jobs.count { $0.state == .completed } }
     var filteredLibrary: [LibraryItem] { search.isEmpty ? library : library.filter { $0.title.localizedCaseInsensitiveContains(search) || $0.text.localizedCaseInsensitiveContains(search) || $0.tag.localizedCaseInsensitiveContains(search) } }
@@ -112,24 +125,34 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
         simulation = []
     }
     func simulate() {
-        let inputs=files,recipe=selectedRecipe
+        guard let recipe = conversionRecipe else { notice = "No hay recetas compatibles con los archivos preparados."; return }
+        let inputs=files
         Task {
             do {
                 let rows=try await Simulation.inspect(inputs:inputs,recipe:recipe)
-                guard inputs == files,recipe == selectedRecipe else {return}
+                guard inputs == files,recipe == conversionRecipe else {return}
                 simulation=rows;activity="Simulación lista · no se han cambiado archivos"
             } catch {notice=error.localizedDescription}
         }
     }
-    func enqueue() { enqueue(inputs: files, recipe: selectedRecipe) }
+    func enqueue() {
+        guard let recipe = conversionRecipe else { notice = "No hay recetas compatibles con los archivos preparados."; return }
+        enqueue(inputs: files, recipe: recipe)
+    }
     @discardableResult func enqueue(inputs: [URL], recipe: Recipe, parameters: ToolParameters = .none, batch: UUID? = nil, completion: ((Result<RecipeResult, Error>) -> Void)? = nil) -> [UUID] {
-        guard !isShuttingDown else { completion?(.failure(CancellationError())); return [] }
         guard !inputs.isEmpty, !recipe.steps.isEmpty else { notice = "Añade archivos y al menos un paso."; return [] }
-        var ids: [UUID] = []
+        let recipe = configuredRecipe(recipe)
         let groups = recipe.groupsInputs ? [inputs] : inputs.map { [$0] }
+        guard !isShuttingDown else { for _ in groups { completion?(.failure(CancellationError())) }; return [] }
+        do { try RecipeCompatibility.validate(inputs: inputs, recipe: recipe) }
+        catch {
+            notice = error.localizedDescription
+            for _ in groups { completion?(.failure(error)) }
+            return []
+        }
+        var ids: [UUID] = []
         for group in groups {
             var configured=recipe
-            if let engine=recipe.steps.first(where: {$0.action == "documentAdvanced"}), let id=DocumentEngineID(rawValue:engine.text), id != .native {configured.documentEnginePath=UserDefaults.standard.string(forKey:"documentEngine."+id.rawValue)}
             var options = configured.conversionOptions ?? ConversionOptions()
             if options.speechLocale == nil { options.speechLocale = UserDefaults.standard.string(forKey: "speech.locale") ?? "es-CL" }
             configured.conversionOptions = options
@@ -147,6 +170,9 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
     func runRecipe(inputs:[URL],recipe:Recipe) async throws ->[PublishedFile] {
         guard !inputs.isEmpty,!recipe.steps.isEmpty else {throw WorkflowError.invalid("Añade archivos y pasos.")}
         guard !isShuttingDown else { throw CancellationError() }
+        try Task.checkCancellation()
+        let recipe = configuredRecipe(recipe)
+        try RecipeCompatibility.validate(inputs: inputs, recipe: recipe)
         let batch = UUID()
         let result = try await withTaskCancellationHandler {
             try Task.checkCancellation()
@@ -300,6 +326,7 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
         board.writeObjects(items); previousClipboard = []; canRestoreClipboard = false; activity = "Portapapeles anterior restaurado"
     }
     func indexFiles() {
+        guard canIndexFiles else { notice = "La biblioteca admite PDF, imágenes, documentos y tablas; convierte primero los audios a texto."; return }
         let inputs = files
         Task {
             for input in inputs {

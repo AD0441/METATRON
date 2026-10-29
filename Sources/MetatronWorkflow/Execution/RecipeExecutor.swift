@@ -14,6 +14,7 @@ public enum RecipeExecutor {
         guard !inputs.isEmpty, !recipe.steps.isEmpty else { throw WorkflowError.invalid("Añade archivos y pasos.") }
         guard recipe.quality.isFinite, (0...1).contains(recipe.quality) else { throw WorkflowError.invalid("La calidad debe estar entre 0 y 1.") }
         try Task.checkCancellation()
+        try RecipeCompatibility.validate(inputs: inputs, recipe: recipe)
         let start = Date()
         let sourceBytes=inputs.reduce(Int64(0)) {$0+FileIntegrity.bytes($1)}
         let fm = FileManager.default

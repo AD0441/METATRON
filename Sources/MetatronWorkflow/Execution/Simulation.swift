@@ -11,6 +11,7 @@ public enum Simulation {
 
     public static func plan(inputs: [URL], recipe: Recipe) throws -> [SimulationRow] {
         guard !inputs.isEmpty, !recipe.steps.isEmpty else { throw WorkflowError.invalid("Añade archivos y al menos un paso.") }
+        try RecipeCompatibility.validate(inputs: inputs, recipe: recipe)
         var reserved: Set<String> = []
         return try inputs.map { input in
             let stem = input.deletingPathExtension().lastPathComponent

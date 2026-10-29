@@ -113,6 +113,7 @@ import MetatronWorkflow
             defer { watcher.stop(); continuation.finish() }
             FileHandle.standardOutput.write(Data("Vigilando \(input.path). Ctrl+C para terminar.\n".utf8))
             for try await file in stream where FileKind.of(file) != .folder {
+                guard RecipeCompatibility.issue(inputs: [file], recipe: recipe) == nil else { continue }
                 do { let result = try await RecipeExecutor.execute(inputs: [file], recipe: recipe); result.files.forEach { print($0.url.path) } }
                 catch is CancellationError { throw CancellationError() }
                 catch { FileHandle.standardError.write(Data((error.localizedDescription + "\n").utf8)) }

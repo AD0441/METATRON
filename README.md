@@ -89,6 +89,8 @@ El cubo, Burbujas y la ruleta muestran hasta doce acciones por categoría. En lo
 
 Ejecuta tus recetas desde los círculos de **Recetas** y **Documentos**, desde la CLI. También se incluyen tres acciones App Intents para Atajos: aparecen en su buscador, pero **esta compilación ad hoc no puede ejecutarlas porque carece de un Team ID Apple**. La ejecución nativa debe validarse tras firmar con una identidad Apple. «Preparar para la web» y «Documento para análisis» son secuencias explícitas que puedes editar; no necesitan un modelo de lenguaje.
 
+Las acciones y recetas se filtran según todos los archivos seleccionados y los motores disponibles: por ejemplo, un Excel o texto no ofrece transcripción de audio. El editor también filtra el siguiente paso según el resultado de los anteriores. La ejecución valida la cadena antes de crear salidas; las carpetas vigiladas omiten las entradas incompatibles.
+
 La simulación muestra el peso de entrada, resolución y posibles pérdidas. Actividad muestra los tamaños reales después de verificar las salidas. El procesamiento documental incluye OCR, Markdown con procedencia, imágenes raster incrustadas compatibles y combinación de imágenes, PDF y documentos en un PDF final. MarkItDown y Docling son motores opcionales configurables: consulta [Documentos](docs/DOCUMENTS.md) y los [límites de la versión](docs/PREPUBLICATION.md).
 
 ## Barra superior y segundo plano

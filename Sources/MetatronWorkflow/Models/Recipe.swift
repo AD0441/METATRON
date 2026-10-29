@@ -45,9 +45,12 @@ public struct Recipe: Codable, Hashable, Identifiable, Sendable {
     public var folderPath: String?
     public var conversionOptions: ConversionOptions? = nil
     public var documentEnginePath: String? = nil
-    public init(name: String, steps: [RecipeStep], suffix: String = "-metatron", quality: Double = 0.85, preserveMetadata: Bool = true, folderPath: String? = nil) {
+    /// Optional restriction for workflows with a specific intent, e.g. audio -> Markdown.
+    public var inputKinds: Set<FileKind>? = nil
+    public init(name: String, steps: [RecipeStep], suffix: String = "-metatron", quality: Double = 0.85, preserveMetadata: Bool = true, folderPath: String? = nil, inputKinds: Set<FileKind>? = nil) {
         id = UUID(); self.name = name; self.steps = steps; self.suffix = suffix
         self.quality = quality; self.preserveMetadata = preserveMetadata; self.folderPath = folderPath
+        self.inputKinds = inputKinds
     }
     public static let builtIns = [
         Recipe(name: "Preparar para la web", steps: [.init(action:"resize",number:1600),.init(action:"tool.stripMetadata"),.init(action:"convert.webp")],quality:0.8,preserveMetadata:false),
@@ -59,8 +62,8 @@ public struct Recipe: Codable, Hashable, Identifiable, Sendable {
         Recipe(name: "Paquete de investigación", steps: [.init(action: "research")]),
         Recipe(name: "Compartir vídeo", steps: [.init(action: "convert.mp4"), .init(action: "tool.compressVideo")]),
         Recipe(name: "Tabla para Excel", steps: [.init(action: "convert.xlsx")]),
-        Recipe(name: "Audio a texto · Apple local", steps: [.init(action: "tool.transcribeAudio")]),
-        Recipe(name: "Audio a Markdown · Apple local", steps: [.init(action: "convert.md")]),
+        Recipe(name: "Audio a texto · Apple local", steps: [.init(action: "tool.transcribeAudio")], inputKinds: [.audio]),
+        Recipe(name: "Audio a Markdown · Apple local", steps: [.init(action: "convert.md")], inputKinds: [.audio]),
         Recipe(name: "Copia de archivo ZIP", steps: [.init(action: "tool.zip")])
     ]
     public var groupsInputs: Bool { steps.first.map { ["tool.merge", "tool.zip", "joinVideo", "bundlePDF"].contains($0.action) } ?? false }

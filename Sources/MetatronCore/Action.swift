@@ -1,4 +1,6 @@
 import Foundation
+import ImageIO
+import UniformTypeIdentifiers
 
 /// Tools live on the second page of the ring (tap the trigger key again to switch).
 public enum ToolID: String, CaseIterable, Sendable, Codable, Hashable {
@@ -86,18 +88,24 @@ public enum KQAction: Hashable, Sendable, Codable {
 
 /// Which actions make sense for a group of files.
 public enum ActionCatalog {
-    public static func convertActions(for urls: [URL], engines: Engines = .current) -> [KQAction] {
+    public static func convertActions(for urls: [URL], engines: Engines = .current, includeCurrentFormat: Bool = false) -> [KQAction] {
         guard let first = urls.first else { return [] }
+        let targets = urls.map { formats(for: $0, engines: engines) }
+        var common = targets[0].filter { format in targets.dropFirst().allSatisfy { $0.contains(format) } }
+        // Combining images and existing PDFs is a group operation that preserves
+        // PDF pages; it is not PDF -> PDF re-encoding through the document writer.
+        if urls.count > 1, canMerge(urls), !common.contains(.pdf) { common.append(.pdf) }
+        return common.filter { includeCurrentFormat || urls.count > 1 || !$0.matches(first) }.map { .convert($0) }
+    }
+
+    private static func formats(for first: URL, engines: Engines) -> [OutputFormat] {
+        let kind = FileKind.of(first)
         let ffmpeg = engines.ffmpeg != nil, office = engines.soffice != nil
-        guard let kind = FileKind.common(urls) else {
-            // Mixed images and PDFs can still become one PDF.
-            let kinds = Set(urls.map(FileKind.of))
-            return kinds.isSubset(of: [.image, .pdf]) ? [.convert(.pdf)] : []
-        }
         let ext = first.pathExtension.lowercased()
         var formats: [OutputFormat]
         switch kind {
         case .image:
+            guard canReadImage(first) else { return [] }
             let preferred: [OutputFormat] = [.jpg, .png, .heic, .pdf, .md, .webp, .avif, .tiff, .gif, .bmp, .ico, .icns, .psd]
             formats = preferred.filter { $0 == .pdf || $0 == .md || ($0 == .webp && engines.canWriteWebP) || OutputFormat.writableImageFormats.contains($0) }
         case .pdf:
@@ -137,36 +145,59 @@ public enum ActionCatalog {
         case .folder, .other:
             formats = []
         }
-        // Don't offer the format the file already has (unless several files have different ones).
-        return formats.filter { !(urls.count == 1 && $0.matches(first)) }.map { .convert($0) }
+        return formats
     }
 
     public static func toolActions(for urls: [URL], engines: Engines = .current) -> [KQAction] {
-        let kinds = Set(urls.map(FileKind.of))
-        if kinds.count > 1 {
-            var tools: [ToolID] = []
-            if kinds.isSubset(of: [.image, .pdf]) { tools.append(.merge) }
-            tools.append(.zip)
-            return tools.map { .tool($0) }
-        }
-        var tools: [ToolID]
-        switch kinds.first {
+        guard let first = urls.first else { return [] }
+        let candidates = tools(for: first, engines: engines)
+        var common = candidates.filter { tool in urls.dropFirst().allSatisfy { tools(for: $0, engines: engines).contains(tool) } }
+        if urls.count > 1, canMerge(urls) { common.insert(.merge, at: 0) }
+        return common.map { .tool($0) }
+    }
+    private static func tools(for url: URL, engines: Engines) -> [ToolID] {
+        switch FileKind.of(url) {
         case .image:
-            tools = [.compress, .resize, .crop, .addBackground, .removeBackground, .stripMetadata, .extractText, .rotate, .flip, .grayscale, .zip]
-        case .pdf:
-            tools = [.compressPDF, .split, .rotatePDF, .protect, .extractPDFText, .longImage, .zip]
-            if urls.count > 1 { tools.insert(.merge, at: 0) }
+            guard canReadImage(url) else { return [.zip] }
+            var tools: [ToolID] = [.compress, .resize, .crop, .addBackground, .removeBackground, .stripMetadata, .extractText, .rotate, .flip, .grayscale, .zip]
+            // Metadata stripping preserves the source container; read-only ImageIO
+            // formats cannot be written back by that operation.
+            if !canRewriteImage(url) { tools.removeAll { $0 == .stripMetadata } }
+            return tools
+        case .pdf: return [.compressPDF, .split, .rotatePDF, .protect, .extractPDFText, .longImage, .zip]
         case .video:
-            let usable = urls.allSatisfy(FileKind.isNativeMedia) || engines.ffmpeg != nil
-            tools = usable ? [.compressVideo, .mute, .frames, .zip] : [.zip]
+            return FileKind.isNativeMedia(url) || engines.ffmpeg != nil ? [.compressVideo, .mute, .frames, .zip] : [.zip]
         case .audio:
-            tools = AppleSpeech.isSupported ? [.transcribeAudio, .zip] : [.zip]
-        case .archive:
-            tools = [.extract]
-        default:
-            tools = [.zip]
+            return AppleSpeech.isSupported && (FileKind.isNativeMedia(url) || engines.ffmpeg != nil) ? [.transcribeAudio, .zip] : [.zip]
+        case .archive: return [.extract, .zip]
+        default: return [.zip]
         }
-        return tools.map { .tool($0) }
+    }
+    /// The same capability rules protect execution and recipe projections. Same
+    /// format conversions are valid in chains (resize PNG -> encode PNG again).
+    public static func supports(_ action: KQAction, for urls: [URL], engines: Engines = .current) -> Bool {
+        guard !urls.isEmpty else { return false }
+        if action == .tool(.merge) { return canMerge(urls) }
+        switch action {
+        case .convert: return convertActions(for: urls, engines: engines, includeCurrentFormat: true).contains(action)
+        case .tool: return toolActions(for: urls, engines: engines).contains(action)
+        }
+    }
+
+    private static let readableImageTypes = Set((CGImageSourceCopyTypeIdentifiers() as? [String]) ?? [])
+    private static let writableImageTypes = Set((CGImageDestinationCopyTypeIdentifiers() as? [String]) ?? [])
+    private static func canRewriteImage(_ url: URL) -> Bool {
+        guard let type = UTType(filenameExtension: url.pathExtension.lowercased()) else { return false }
+        return writableImageTypes.contains(type.identifier)
+    }
+    private static func canReadImage(_ url: URL) -> Bool {
+        // SVG is rasterized by Images.loadSVG through AppKit, outside ImageIO.
+        if url.pathExtension.lowercased() == "svg" { return true }
+        guard let type = UTType(filenameExtension: url.pathExtension.lowercased()) else { return false }
+        return readableImageTypes.contains(type.identifier)
+    }
+    private static func canMerge(_ urls: [URL]) -> Bool {
+        urls.allSatisfy { FileKind.of($0) == .pdf || (FileKind.of($0) == .image && canReadImage($0)) }
     }
 
     /// Every action that can ever appear for a kind (for Settings and watch folders).
@@ -174,18 +205,27 @@ public enum ActionCatalog {
         let everything = Engines(ffmpeg: URL(fileURLWithPath: "/ffmpeg"), soffice: URL(fileURLWithPath: "/soffice"), cwebp: URL(fileURLWithPath: "/cwebp"))
         let samples: [URL]
         switch kind {
-        case .image: samples = [URL(fileURLWithPath: "/tmp/a.webp")]
+        case .image: samples = [URL(fileURLWithPath: "/tmp/a.png"), URL(fileURLWithPath: "/tmp/b.webp")]
         case .pdf: samples = [URL(fileURLWithPath: "/tmp/a.pdf"), URL(fileURLWithPath: "/tmp/b.pdf")]
         case .document: samples = [URL(fileURLWithPath: "/tmp/a.md")]
         case .ebook: samples = [URL(fileURLWithPath: "/tmp/a.epub")]
-        case .data: samples = [URL(fileURLWithPath: "/tmp/a.yaml.csv"), URL(fileURLWithPath: "/tmp/b.tsv")]
-        case .office: samples = [URL(fileURLWithPath: "/tmp/a.xls")]
+        case .data: samples = ["csv", "json", "plist"].map { URL(fileURLWithPath: "/tmp/sample." + $0) }
+        case .office: samples = ["xls", "ppt", "pages"].map { URL(fileURLWithPath: "/tmp/sample." + $0) }
         case .subtitle: samples = [URL(fileURLWithPath: "/tmp/a.ass.srt"), URL(fileURLWithPath: "/tmp/b.vtt")]
         case .video: samples = [URL(fileURLWithPath: "/tmp/a.flv")]
         case .audio: samples = [URL(fileURLWithPath: "/tmp/a.wma")]
         case .archive: samples = [URL(fileURLWithPath: "/tmp/a.rar")]
         case .folder, .other: samples = [URL(fileURLWithPath: "/tmp/folder/", isDirectory: true)]
         }
-        return (convertActions(for: samples, engines: everything), toolActions(for: samples, engines: everything))
+        // Settings describe a family, so use the union of its subtypes rather
+        // than the intersection used for an actual multi-file selection.
+        var conversions: [KQAction] = [], tools: [KQAction] = []
+        for sample in samples {
+            for action in convertActions(for: [sample], engines: everything, includeCurrentFormat: true) where !conversions.contains(action) { conversions.append(action) }
+            for action in toolActions(for: [sample], engines: everything) where !tools.contains(action) { tools.append(action) }
+        }
+        for action in convertActions(for: samples, engines: everything) where !conversions.contains(action) { conversions.append(action) }
+        for action in toolActions(for: samples, engines: everything) where !tools.contains(action) { tools.append(action) }
+        return (conversions, tools)
     }
 }

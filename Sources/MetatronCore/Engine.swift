@@ -19,6 +19,9 @@ public struct Engine: Sendable {
     public func run(_ action: KQAction, on urls: [URL], parameters: ToolParameters = .none,
                     progress: @escaping @Sendable (Int, Int) -> Void = { _, _ in }) async throws -> ActionOutcome {
         guard !urls.isEmpty else { throw MetatronError.badData("Añade al menos un archivo.") }
+        guard ActionCatalog.supports(action, for: urls) else {
+            throw MetatronError.unsupported("La operación elegida para " + Set(urls.map { $0.pathExtension.uppercased() }).sorted().joined(separator: ", ") + ". Revisa el tipo de archivo y los motores disponibles")
+        }
         let inputBytes = urls.reduce(0) { $0 + $1.fileSize }
         var outputs: [URL] = []
         var detail: String?

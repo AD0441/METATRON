@@ -608,7 +608,7 @@
 "ENABLE_APP_SANDBOX" = "NO";
 "SWIFT_OPTIMIZATION_LEVEL" = "-Onone";
 "MARKETING_VERSION" = "2.3.0";
-"CURRENT_PROJECT_VERSION" = "6";
+"CURRENT_PROJECT_VERSION" = "7";
 "LD_RUNPATH_SEARCH_PATHS" = ("$(inherited)","@executable_path/../Frameworks");
 };
 "name" = "Debug";
@@ -639,7 +639,7 @@
 "ENABLE_APP_SANDBOX" = "NO";
 "SWIFT_OPTIMIZATION_LEVEL" = "-O";
 "MARKETING_VERSION" = "2.3.0";
-"CURRENT_PROJECT_VERSION" = "6";
+"CURRENT_PROJECT_VERSION" = "7";
 "LD_RUNPATH_SEARCH_PATHS" = ("$(inherited)","@executable_path/../Frameworks");
 };
 "name" = "Release";

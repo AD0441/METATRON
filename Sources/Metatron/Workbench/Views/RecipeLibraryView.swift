@@ -1,5 +1,6 @@
 import SwiftUI
 import MetatronWorkflow
+import MetatronCore
 struct RecipeLibraryView: View {
     @Bindable var store: WorkspaceStore
     var body: some View {
@@ -7,7 +8,12 @@ struct RecipeLibraryView: View {
             List(selection: $store.selectedRecipeID) {
                 ForEach(store.recipes) { recipe in Label(recipe.name, systemImage: "square.stack.3d.up").tag(Optional(recipe.id)) }
             }.frame(minWidth: 200, idealWidth: 240, maxWidth: 300)
-            RecipeEditor(recipe: store.selectedRecipe, save: store.updateRecipe)
+            VStack(spacing: 0) {
+                if !store.files.isEmpty, let issue = RecipeCompatibility.issue(inputs: store.files, recipe: store.configuredRecipe(store.selectedRecipe)) {
+                    Label(issue, systemImage: "info.circle").font(.callout).foregroundStyle(.secondary).padding()
+                }
+                RecipeEditor(recipe: store.configuredRecipe(store.selectedRecipe), inputs: store.files, save: store.updateRecipe)
+            }
         }
         .navigationTitle("Recetas")
         .toolbar { ToolbarItemGroup { Button("Importar", systemImage: "square.and.arrow.down") { store.importRecipe() }; Button("Exportar", systemImage: "square.and.arrow.up") { store.exportRecipe() }; Button("Nueva receta", systemImage: "plus") { store.addRecipe() } } }
@@ -15,19 +21,49 @@ struct RecipeLibraryView: View {
 }
 struct RecipeEditor: View {
     let recipe: Recipe
+    let inputs: [URL]
     let save: (Recipe) -> Void
+    private var availableSteps: [RecipeStep] { RecipeCompatibility.nextSteps(inputs: inputs, recipe: recipe) }
+    private var selectedAction: String? { availableSteps.first { $0.action == chosenAction }?.action ?? availableSteps.first?.action }
+    private var inputSelection: String {
+        guard let kinds = RecipeCompatibility.inputKinds(for: recipe), kinds != Set(FileKind.allCases) else { return "all" }
+        return kinds.count == 1 ? (kinds.first?.rawValue ?? "multiple") : "multiple"
+    }
     @State private var chosenAction = "convert.jpg"
     private func binding<Value>(_ key: WritableKeyPath<Recipe,Value>) -> Binding<Value> {
         Binding(get: { recipe[keyPath: key] }, set: { value in var copy = recipe; copy[keyPath: key] = value; save(copy) })
     }
     var body: some View {
         Form {
-            Section("Nombre") { TextField("Nombre de la receta", text: binding(\.name)) }
+            Section("Nombre") {
+                TextField("Nombre de la receta", text: binding(\.name))
+                Picker("Archivos de entrada", selection: Binding(get: { inputSelection }, set: { value in
+                    var copy = recipe
+                    copy.inputKinds = value == "all" ? Set(FileKind.allCases) : FileKind(rawValue: value).map { [$0] }
+                    save(copy)
+                })) {
+                    Text("Según los pasos compatibles").tag("all")
+                    ForEach(FileKind.allCases, id: \.self) { Text($0.title).tag($0.rawValue) }
+                    if inputSelection == "multiple" { Text("Varios tipos definidos").tag("multiple") }
+                }
+            }
             Section("Pasos · se ejecutan en este orden") {
                 ForEach(recipe.steps) { step in RecipeStepRow(step: step, update: { replacement in var copy = recipe; if let i = copy.steps.firstIndex(where: { $0.id == step.id }) { copy.steps[i] = replacement }; save(copy) }, remove: { var copy = recipe; copy.steps.removeAll { $0.id == step.id }; save(copy) }, move: { direction in var copy = recipe; if let i = copy.steps.firstIndex(where: { $0.id == step.id }), copy.steps.indices.contains(i + direction) { copy.steps.swapAt(i, i + direction); save(copy) } }) }
-                HStack {
-                    Picker("Añadir paso", selection: $chosenAction) { ForEach(RecipeStep.choices) { Text($0.title).tag($0.action) } }
-                    Button("Añadir") { var copy = recipe; copy.steps.append(RecipeStep(action: chosenAction, number: chosenAction == "targetSize" ? 500 : 1920)); save(copy) }
+                if !availableSteps.isEmpty {
+                    HStack {
+                        Picker("Añadir paso", selection: Binding(get: { selectedAction }, set: { if let value = $0 { chosenAction = value } })) {
+                            ForEach(availableSteps) { Text($0.title).tag(Optional($0.action)) }
+                        }
+                        Button("Añadir") {
+                            guard let action = selectedAction else { return }
+                            var copy = recipe
+                            copy.steps.append(RecipeStep(action: action, number: action == "targetSize" ? 500 : 1920))
+                            save(copy)
+                        }
+                    }
+                    if !inputs.isEmpty { Text("Se muestran pasos compatibles con los archivos preparados y el resultado de los pasos anteriores.").font(.caption).foregroundStyle(.secondary) }
+                } else {
+                    Text("No hay pasos compatibles para esta selección. Revisa los pasos anteriores o los tipos de entrada de la receta.").font(.caption).foregroundStyle(.secondary)
                 }
             }
             Section("Salida") {
