@@ -32,6 +32,10 @@ La rama de mantenimiento prepara **2.2.1**. Su alcance, pruebas y pendientes est
 
 La rama 2.3 incorpora transcripción de archivos de audio con **Apple Speech local**, a TXT o Markdown. Requiere macOS 26 y un Mac compatible; el idioma se elige en **Ajustes → Documentos → Audio a texto**. La descarga del modelo es explícita; no hay reconocimiento en la nube ni resumen. Conserva el audio original e integra recetas, carpetas vigiladas y CLI. [Guía y validación](docs/AUDIO-TRANSCRIPTION.md).
 
+## Requerimientos y trabajo pendiente
+
+La [especificación de requerimientos](docs/REQUIREMENTS.md) consolida las decisiones de producto, los criterios de aceptación y las prioridades. La [matriz de estado](docs/STATUS.md) distingue funciones implementadas, mejoras parciales, validaciones pendientes y el orden de trabajo antes de publicar 2.3. También está disponible como [CSV para revisión](docs/REQUIREMENTS_REVIEW.csv).
+
 ## En uso
 
 Las imágenes siguientes son capturas de la aplicación con archivos sintéticos de demostración.

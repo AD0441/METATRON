@@ -2,6 +2,8 @@
 
 ## 2.3.0 · en desarrollo
 
+- Especificación consolidada, matriz de estado y CSV de 88 requisitos, con 20 casos de aceptación y prioridades para cerrar 2.3. La revisión documental no reemplaza pruebas prácticas ni publica una nueva versión.
+
 - Acciones y recetas contextuales limitadas a los tipos de archivo compatibles y motores disponibles. Los lotes ofrecen operaciones válidas para todos sus archivos. Textos, Excel y otros documentos no ofrecen transcripción de audio.
 - Validación de cada paso según el resultado anterior, filtro del editor de recetas, restricciones de entrada exportables y rechazo antes de crear salidas. Las carpetas vigiladas omiten archivos incompatibles con su receta.
 - La indexación documental admite tablas Excel mediante su lector estructurado y excluye audio, vídeo y binarios no compatibles.

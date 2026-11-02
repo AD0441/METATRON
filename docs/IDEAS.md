@@ -1,6 +1,6 @@
 # Posibles próximas mejoras
 
-Estas opciones son propuestas; no se anuncian como funciones integradas.
+Estas opciones describen ampliaciones; no se anuncian como capacidades completas. MarkItDown y Docling ya tienen adaptadores configurables: lo pendiente de esa propuesta es la extracción estructural avanzada y su evaluación representativa, no la mera presencia del adaptador. El estado consolidado y la prioridad antes de iniciar nuevas funciones están en [STATUS.md](STATUS.md).
 
 | Idea | Uso concreto | Próximo paso |
 |---|---|---|
