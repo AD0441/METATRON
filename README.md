@@ -11,7 +11,9 @@
   <p><a href="https://github.com/AD0441/METATRON/releases/tag/v2.2.0">Descargar 2.2.0</a> · <a href="#qué-nos-diferencia">Ventajas</a> · <a href="#en-uso">En uso</a> · <a href="#empezar">Empezar</a> · <a href="docs/FEATURES.md">Alcance</a> · <a href="https://ko-fi.com/C0C51WQ1T0">Apoyar</a></p>
 </div>
 
-![METATRON · Simplicidad con impacto. Ordena tus archivos. Recupera tu tiempo. Concéntrate en lo que vale la pena.](docs/assets/brand/family-cover.png)
+![METATRON: cubo de acciones sobre un archivo del escritorio, logo sobre el nombre y eslogan. Simplicidad con impacto.](docs/assets/promo/photographic-cover.png)
+
+*Composición promocional generada con IA a partir de recursos reales de la app. [Procedencia y capturas originales](docs/assets/promo/photographic-cover.md).*
 
 **METATRON** reúne conversiones de archivos, recetas de varios pasos, carpetas favoritas y una cola con resultados verificables. Su identidad parte del cubo de Metatrón: círculos y conexiones, con una interpretación gráfica propia y sin figuras antropomórficas.
 
