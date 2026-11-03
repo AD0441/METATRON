@@ -1,64 +1,100 @@
 import Foundation
+import Darwin
 
-/// Watches a folder and reports files that land in it, once they've finished copying.
+/// Reports new regular files after size and modification time stay unchanged
+/// for three samples. Pausing invalidates every pending stability check.
 public final class FolderWatcher: @unchecked Sendable {
     public let folder: URL
-    private let onFile: (URL) -> Void
+    private let onFile: @Sendable (URL) -> Void
+    private let onError: @Sendable (String) -> Void
+    private let interval: TimeInterval
+    private let queue = DispatchQueue(label: "metatron.watch", qos: .utility)
+    private let queueKey = DispatchSpecificKey<Bool>()
     private var source: DispatchSourceFileSystemObject?
-    private var known: Set<String>
+    private var known: Set<String> = []
     private var ignored: Set<String> = []
-    private let queue = DispatchQueue(label: "metatron.watch")
+    private var pending: Set<String> = []
+    private var generation = 0
 
-    /// Files already in the folder are left alone; only new arrivals are reported.
-    public init(folder: URL, onFile: @escaping (URL) -> Void) {
-        self.folder = folder
-        self.onFile = onFile
-        known = Set((try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? [])
+    public convenience init(folder: URL, onError: @escaping @Sendable (String) -> Void = { _ in }, onFile: @escaping @Sendable (URL) -> Void) {
+        self.init(folder: folder, interval: 1, onError: onError, onFile: onFile)
     }
-
+    init(folder: URL, interval: TimeInterval, onError: @escaping @Sendable (String) -> Void = { _ in }, onFile: @escaping @Sendable (URL) -> Void) {
+        self.folder = folder; self.interval = interval; self.onFile = onFile; self.onError = onError
+        queue.setSpecific(key: queueKey, value: true)
+    }
     deinit { stop() }
 
-    public func start() {
-        let fd = open(folder.path, O_EVTONLY)
-        guard fd >= 0 else { return }
-        let src = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd, eventMask: [.write, .rename, .link], queue: queue)
-        src.setEventHandler { [weak self] in self?.scan() }
-        src.setCancelHandler { close(fd) }
-        src.resume()
-        source = src
-    }
-
-    public func stop() {
-        source?.cancel()
-        source = nil
-    }
-
-    /// Results Metatron writes into the folder must not be converted again.
-    public func ignore(_ urls: [URL]) {
-        queue.async { self.ignored.formUnion(urls.map(\.lastPathComponent)) }
-    }
-
-    private func scan() {
-        let names = Set((try? FileManager.default.contentsOfDirectory(atPath: folder.path)) ?? [])
-        let fresh = names.subtracting(known).filter { !$0.hasPrefix(".") && !ignored.contains($0) }
-        known = names
-        for name in fresh {
-            let url = folder.appendingPathComponent(name)
-            waitUntilStable(url, lastSize: -1, attempts: 0)
+    /// Existing files are a baseline, including arrivals made while paused.
+    @discardableResult public func start() -> Bool {
+        synchronized {
+            guard source == nil else { return true }
+            do {
+                known = Set(try FileManager.default.contentsOfDirectory(atPath: folder.path))
+                let values = try folder.resourceValues(forKeys: [.isDirectoryKey])
+                guard values.isDirectory == true else { throw MetatronError.unreadable(folder) }
+            } catch { onError("No se pudo vigilar \(folder.lastPathComponent): \(error.localizedDescription)"); return false }
+            let fd = open(folder.path, O_EVTONLY | O_CLOEXEC)
+            guard fd >= 0 else { onError("No se pudo abrir la carpeta \(folder.lastPathComponent)."); return false }
+            generation += 1
+            let src = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd, eventMask: [.write, .rename, .delete, .revoke, .link], queue: queue)
+            src.setEventHandler { [weak self] in
+                guard let self else { return }
+                if !src.data.intersection([.rename, .delete, .revoke]).isEmpty {
+                    self.stop()
+                    self.onError("La carpeta \(self.folder.lastPathComponent) se movió o dejó de estar disponible. Vuelve a seleccionarla en Ajustes.")
+                } else { self.scan() }
+            }
+            src.setCancelHandler { close(fd) }
+            source = src; src.resume()
+            // Covers arrivals between the baseline read and event registration.
+            scan()
+            return true
         }
     }
+    public func stop() {
+        synchronized {
+            generation += 1
+            source?.setEventHandler {}; source?.cancel(); source = nil
+            pending.removeAll()
+        }
+    }
+    public func ignore(_ urls: [URL]) { synchronized { ignored.formUnion(urls.map(\.lastPathComponent)) } }
 
-    /// Waits until the size stops changing (downloads and copies write in chunks).
-    private func waitUntilStable(_ url: URL, lastSize: Int64, attempts: Int) {
-        queue.asyncAfter(deadline: .now() + 1) { [weak self] in
-            guard let self, FileManager.default.fileExists(atPath: url.path) else { return }
-            if url.pathExtension == "download" || url.pathExtension == "crdownload" || url.pathExtension == "part" { return }
-            let size = url.fileSize
-            if size == lastSize, size > 0 || url.hasDirectoryPath {
-                self.onFile(url)
-            } else if attempts < 600 {
-                self.waitUntilStable(url, lastSize: size, attempts: attempts + 1)
+    private func synchronized<T>(_ body: () -> T) -> T {
+        if DispatchQueue.getSpecific(key: queueKey) == true { return body() }
+        return queue.sync(execute: body)
+    }
+    private func scan() {
+        guard source != nil else { return }
+        guard let entries = try? FileManager.default.contentsOfDirectory(atPath: folder.path) else {
+            stop(); onError("No se puede leer la carpeta \(folder.lastPathComponent)."); return
+        }
+        let names = Set(entries)
+        let fresh = names.subtracting(known).filter { !$0.hasPrefix(".") && !ignored.contains($0) }
+        known = names
+        for name in fresh where pending.insert(name).inserted {
+            sample(folder.appendingPathComponent(name), previous: nil, stable: 0, attempts: 0, generation: generation)
+        }
+    }
+    private struct Stamp: Equatable { let bytes: Int; let modified: Date? }
+    private func sample(_ url: URL, previous: Stamp?, stable: Int, attempts: Int, generation expected: Int) {
+        queue.asyncAfter(deadline: .now() + interval) { [weak self] in
+            guard let self, self.source != nil, expected == self.generation else { return }
+            let name = url.lastPathComponent
+            guard !self.ignored.contains(name),
+                  !["download", "crdownload", "part", "tmp"].contains(url.pathExtension.lowercased()),
+                  let values = try? url.resourceValues(forKeys: [.isRegularFileKey, .isSymbolicLinkKey, .fileSizeKey, .contentModificationDateKey]),
+                  values.isRegularFile == true, values.isSymbolicLink != true else {
+                self.pending.remove(name); return
             }
+            let stamp = Stamp(bytes: values.fileSize ?? 0, modified: values.contentModificationDate)
+            let count = stamp == previous ? stable + 1 : 0
+            if count >= 2, stamp.bytes > 0 {
+                self.pending.remove(name); self.onFile(url)
+            } else if attempts < 600 {
+                self.sample(url, previous: stamp, stable: count, attempts: attempts + 1, generation: expected)
+            } else { self.pending.remove(name); self.onError("El archivo \(name) no terminó de copiarse dentro del tiempo límite.") }
         }
     }
 }

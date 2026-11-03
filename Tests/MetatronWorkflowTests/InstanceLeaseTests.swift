@@ -3,6 +3,13 @@ import Foundation
 @testable import MetatronWorkflow
 
 struct InstanceLeaseTests {
+    @Test func unavailablePathIsNotReportedAsAnotherInstance() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        try Data("file, not directory".utf8).write(to: root)
+        do { _ = try InstanceLease(url: root.appendingPathComponent("instance.lock")); Issue.record("Expected an unavailable path") }
+        catch { #expect((error as? InstanceLeaseError) != .alreadyRunning) }
+    }
     @Test func onlyOneLeaseCanOwnTheInstanceLock() throws {
         let root=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer {try? FileManager.default.removeItem(at:root)}

@@ -47,3 +47,7 @@ Se simplificó una expresión de la prueba de anonimización que agotaba el comp
 - Docling dispone de adaptador; no se instalaron ni validaron sus modelos. Tablas y orden de lectura requieren revisión.
 - La revisión independiente anterior quedó incompleta por el límite de uso de los revisores; las comprobaciones de esta sección son locales.
 - Esta revisión es la base de la release 2.2.0. El ZIP distribuido se comprueba por SHA-256 y firma ad hoc antes de adjuntarlo; no se presenta como notarizado por Apple.
+
+## Mantenimiento 2.2.1
+
+La evidencia, alcance y pendientes posteriores a 2.2.0 están en [STABILITY-2.2.1.md](STABILITY-2.2.1.md). El candidato pasa 103 pruebas locales (una omitida por Ghostscript), empaquetado y conversión/vigilancia real desde el ZIP; no equivale a notarización ni valida ejecución nativa de Atajos.

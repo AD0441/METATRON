@@ -5,12 +5,20 @@ on:
 permissions:
   contents: read
 jobs:
-  workflow-tests:
+  native-tests-and-package:
     runs-on: macos-26
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - name: Toolchain
         run: swift --version
-      - name: Native workflow and geometry tests
-        run: ./script/test.sh --filter MetatronWorkflowTests
+      - name: All Core, Workflow and application regression tests
+        run: ./script/test.sh
+      - name: Build and verify the distributed app and CLI
+        run: ./script/build_and_run.sh --build-only
+      - name: Preserve candidate package
+        uses: actions/upload-artifact@v4
+        with:
+          name: METATRON-validation-${{ runner.arch }}
+          path: dist/METATRON.zip
+          if-no-files-found: error
