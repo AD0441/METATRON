@@ -212,6 +212,14 @@ Estos conteos no representan porcentaje de producto terminado; cada requisito ti
 | OWN-02 | P1 | Parcial | Ya hay módulos Core/Workflow, recetas y pruebas propias; sigue existiendo código derivado. | Preparar inventario y decisiones por módulo; no prometer independencia total actual. | [E02](#e02), [E03](#e03), [E17](#e17) |
 | OWN-03 | P1 | Parcial | Recetas, historial, controles e interfaz propios documentados. | Actualizar comparativa para 2.3 sin inferir carencias de otros productos. | [E14](#e14), [E17](#e17) |
 
+## Preparación M1 / S1 · 3 de noviembre de 2026
+
+El [plan acotado de M1](M1-S1.md) desarrolla la aceptación de la 2.3 instalada durante S1 (2–6 de noviembre), siguiendo el chat «Resume técnicamente los proyectos». Incluye seis presentaciones, compatibilidad, muestras representativas, recetas, audio sin resumen, cancelación y ciclo de vida, organizados en diez casos.
+
+Se consultó versión 2.3.0 build 7 y CLI de la copia en Aplicaciones, y su firma estricta se verificó correctamente. El [CI del commit documental 1caf654](https://github.com/AD0441/METATRON/actions/runs/41383337277) figura correcto. Los ensayos funcionales de esta pasada están **pendientes**; esta preparación no modifica los estados ni conteos de los 88 requisitos.
+
+M1 entrega diagnóstico y defectos reproducibles; M2 corrige y mide cargas, y M3 integra/verifica la distribución. La aceptación puede quedar abierta con fallos o bloqueos explícitos. Firma Apple, Atajos, ampliaciones y auditorías completas no se incorporan a M1 por esta planificación.
+
 ## Qué debemos hacer primero
 
 1. **Validación práctica del candidato:** CTX-07, AUT-04 y DIST-03, con AC-01–AC-14 sobre la copia instalada. Conservar la evidencia histórica sin volver a presentar como pendientes las funciones ya probadas.
