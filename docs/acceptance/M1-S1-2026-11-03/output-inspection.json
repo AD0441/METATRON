@@ -1,0 +1,72 @@
+{
+  "images": [
+    {
+      "EXIF": true,
+      "file": "imagen-metatron 6.jpg",
+      "GPS": true,
+      "height": 2000,
+      "width": 3200
+    },
+    {
+      "EXIF": true,
+      "file": "imagen-metatron.jpg",
+      "GPS": true,
+      "height": 2000,
+      "width": 3200
+    },
+    {
+      "EXIF": true,
+      "file": "imagen-metatron 7.jpg",
+      "GPS": true,
+      "height": 2000,
+      "width": 3200
+    },
+    {
+      "EXIF": true,
+      "file": "imagen-metatron 5.jpg",
+      "GPS": true,
+      "height": 2000,
+      "width": 3200
+    },
+    {
+      "EXIF": true,
+      "file": "imagen-metatron 4.jpg",
+      "GPS": true,
+      "height": 2000,
+      "width": 3200
+    },
+    {
+      "EXIF": true,
+      "file": "imagen-metatron 3.jpg",
+      "GPS": true,
+      "height": 2000,
+      "width": 3200
+    },
+    {
+      "EXIF": true,
+      "file": "imagen-metatron 2.jpg",
+      "GPS": true,
+      "height": 2000,
+      "width": 3200
+    },
+    {
+      "EXIF": false,
+      "file": "imagen-m1.jpg",
+      "GPS": false,
+      "height": 500,
+      "width": 800
+    }
+  ],
+  "instances": [
+    {
+      "path": "/Applications/METATRON.app",
+      "pid": 2437,
+      "policy": 1
+    }
+  ],
+  "originalGPS": true,
+  "textToPDF": {
+    "containsUnicode": true,
+    "pages": 1
+  }
+}

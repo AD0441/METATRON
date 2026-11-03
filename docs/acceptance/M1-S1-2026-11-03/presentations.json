@@ -1,0 +1,20 @@
+{
+  "styles": [
+    "metatron",
+    "bubbles",
+    "compact",
+    "panel",
+    "commands",
+    "ring"
+  ],
+  "completed_jobs": 6,
+  "jpg_outputs": [
+    "imagen-metatron 2.jpg",
+    "imagen-metatron 3.jpg",
+    "imagen-metatron 4.jpg",
+    "imagen-metatron 5.jpg",
+    "imagen-metatron 6.jpg",
+    "imagen-metatron.jpg"
+  ],
+  "originals_unchanged": true
+}

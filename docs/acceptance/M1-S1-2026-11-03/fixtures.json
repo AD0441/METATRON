@@ -1,0 +1,62 @@
+[
+  {
+    "name": "danado.png",
+    "bytes": 34,
+    "sha256": "bb0016783e2c2603d9bfbdf07148150f6b0918da3fc959dba3887035faef4c63"
+  },
+  {
+    "name": "escaneado.pdf",
+    "bytes": 217424,
+    "sha256": "32a312c25d3d7dbef4311ac598597199efa5a928be73a2f5d0c88605c779448c"
+  },
+  {
+    "name": "imagen.jpg",
+    "bytes": 167517,
+    "sha256": "60ce8d998649b5ccf3eb520d51f1ad6fe2b326d4989938aad0f5b43045de88f2"
+  },
+  {
+    "name": "imagen.png",
+    "bytes": 283687,
+    "sha256": "5205fe64182c0bd8e622c1d7421ea803b679c450030f301cd8d8f71eeb318261"
+  },
+  {
+    "name": "notas.txt",
+    "bytes": 67,
+    "sha256": "3f1561b6e20035339aa80d17359c3d45c224ad3dcd1970f94b5e9e7fdb777e9d"
+  },
+  {
+    "name": "tabla.csv",
+    "bytes": 46,
+    "sha256": "30c61f45fbe67fe72601177faf36f8dde6407a1ddcb08e4820c66ab889e2caee"
+  },
+  {
+    "name": "tabla.xlsx",
+    "bytes": 1427,
+    "sha256": "6e8c8929898f4a40e4a46cf59a49ac5434619eafd17e5da6a9a63d603e5d1eda"
+  },
+  {
+    "name": "texto.pdf",
+    "bytes": 11939,
+    "sha256": "d4da334d6b6a2d61ce4a0ef65b56f27522710213d833fbdab14eb3faaaca3930"
+  },
+  {
+    "name": "voz-larga.wav",
+    "bytes": 75183884,
+    "sha256": "845cf44bf97e864398f676cb1592b58e4c74211e308ba5e48d56e857ef06fb25"
+  },
+  {
+    "name": "voz.aiff",
+    "bytes": 421784,
+    "sha256": "212502de07653b5fd82dca0d055d8fa9805a8210353cef374daf38c53ac68551"
+  },
+  {
+    "name": "voz.wav",
+    "bytes": 421784,
+    "sha256": "94c812d5688341c2ae6b404b0cfe3608b3f63a6cdb660ff690729687c2253df8"
+  },
+  {
+    "name": "salida.wav",
+    "bytes": 75183884,
+    "sha256": "845cf44bf97e864398f676cb1592b58e4c74211e308ba5e48d56e857ef06fb25"
+  }
+]

@@ -1,0 +1,18 @@
+{
+  "reported": "No se puede procesar",
+  "received_jobs": [
+    {
+      "id": "A3317067-BC89-4861-99A4-96A42C0EEB0D",
+      "inputs": [
+        "danado.png"
+      ],
+      "state": "failed",
+      "message": "Couldn't read danado.png.",
+      "outputs": 0
+    }
+  ],
+  "valid_fixture": {
+    "name": "IMAGEN-VALIDA.png",
+    "sha256": "5205fe64182c0bd8e622c1d7421ea803b679c450030f301cd8d8f71eeb318261"
+  }
+}

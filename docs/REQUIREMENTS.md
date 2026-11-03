@@ -438,7 +438,7 @@ Para cada ejecución registrar: fecha, commit/build y ruta de la app, macOS/hard
 ## 8. Documentos y mantenimiento
 
 - [STATUS.md](STATUS.md): evaluación actual, mejoras, próxima acción y registro de evidencia por código.
-- [REQUIREMENTS_REVIEW.csv](REQUIREMENTS_REVIEW.csv): la misma matriz en UTF-8 con BOM y delimitador punto y coma, importable en una planilla.
+- [REQUIREMENTS_REVIEW.csv](REQUIREMENTS_REVIEW.csv): la misma matriz en UTF-8 con BOM y delimitador punto y coma, importable en una planilla. `Estado_actual` y `Fecha_revision` identifican el estado y la fecha de evaluación de cada requisito.
 - [FEATURES.md](FEATURES.md), [AUDIO-TRANSCRIPTION.md](AUDIO-TRANSCRIPTION.md), [STABILITY-2.2.1.md](STABILITY-2.2.1.md), [COMPARISON.md](COMPARISON.md) y [CHANGELOG.md](../CHANGELOG.md): alcance detallado e historial; una fecha anterior no se convierte en validación nueva.
 - Actualizar estado y evidencia al implementar o probar; no renumerar requisitos usados. Si se divide uno, conservar referencia y motivo.
 - Este documento usa Naberius como patrón documental y no modifica ese proyecto. Las propuestas aquí identificadas no suponen adoptar sus dependencias ni copiar instrucciones de proceso ajenas.

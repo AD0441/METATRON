@@ -61,3 +61,13 @@ La CLI distribuida se probó previamente con conversión y vigilancia reales sob
 La copia en Aplicaciones fue verificada al instalarla y su versión se consultó en esta revisión. Esto no acredita una nueva aceptación integral de la interfaz instalada. El 2 de noviembre se revisaron documentos, código, versión y metadatos de GitHub; **no se volvieron a ejecutar aquí las 128 pruebas ni una auditoría de interfaz, red, accesibilidad o rendimiento**.
 
 La [especificación](REQUIREMENTS.md) y la [matriz actual](STATUS.md) enumeran el plan de aceptación pendiente. La release pública continúa en 2.2.0 y ambas propuestas siguen abiertas. Firma ad hoc acordada; Atajos ejecutable con firma Apple permanece condicionado. La auditoría práctica de 2.3, el perfil sostenido en M1/8 GB y la revisión offline/VoiceOver no se consideran cerrados por esta consolidación.
+
+## Ejecución de M1/S1 · 3 de noviembre de 2026
+
+Se probó la copia instalada 2.3.0 build 7 mediante su interfaz, sin recompilar ni instalar recursos. El [informe](M1-S1-RESULTS.md) y sus [artefactos](acceptance/M1-S1-2026-11-03/README.md) cierran diez comprobaciones acotadas de M1. No equivale a aceptación integral ni a una nueva ejecución de las 128 pruebas.
+
+Hubo 25 trabajos UI: 20 completados, tres cancelaciones intencionales y dos errores esperados del PNG dañado. La fase inicial registró 23; después se verificó el arrastre de la imagen válida y se separó el intento manual sobre el archivo dañado. El usuario confirmó la aparición del menú superior; no se infiere que accionara todos sus comandos. Se verificaron 12 entradas y la copia de arrastre intactas, 20 recibos y 40 registros publicados.
+
+OCR, Excel/Unicode, PDF, receta con retirada de metadatos y TXT/Markdown de audio produjeron el contenido esperado. Cerrar conservó el proceso; Salir durante audio activo canceló también la cola pendiente y terminó sin publicar parciales. Se restauraron perfil y recientes tras respaldar las evidencias de ambas fases.
+
+Para M2: diagnóstico de PNG en inglés, contraste de foco/⌘W y carga acordada de tiempo/memoria. Los límites de accesibilidad, permisos, sistemas, otros arrastres y operaciones del menú no accionadas permanecen explícitos. La fuente de METATRON, la versión instalada y la release pública no cambiaron.

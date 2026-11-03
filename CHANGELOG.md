@@ -2,6 +2,8 @@
 
 ## 2.3.0 · en desarrollo
 
+- Ensayo de aceptación M1/S1 de la copia instalada: resultados y evidencias publicados en docs/M1-S1-RESULTS.md; diez comprobaciones acotadas, con arrastre verificado y menú confirmado manualmente. Sin cambios de código ni nueva build.
+
 - Especificación consolidada, matriz de estado y CSV de 88 requisitos, con 20 casos de aceptación y prioridades para cerrar 2.3. La revisión documental no reemplaza pruebas prácticas ni publica una nueva versión.
 
 - Acciones y recetas contextuales limitadas a los tipos de archivo compatibles y motores disponibles. Los lotes ofrecen operaciones válidas para todos sus archivos. Textos, Excel y otros documentos no ofrecen transcripción de audio.
