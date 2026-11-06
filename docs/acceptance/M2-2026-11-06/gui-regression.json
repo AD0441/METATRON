@@ -1,0 +1,14 @@
+{
+  "00-danado.png": {
+    "state": "failed",
+    "message": "No se pudo leer 00-danado.png.",
+    "published_records": 0,
+    "original_unchanged": true
+  },
+  "01-valido.png": {
+    "state": "completed",
+    "message": "Salida verificada",
+    "published_records": 2,
+    "original_unchanged": true
+  }
+}

@@ -1,5 +1,27 @@
 # Historial de cambios
 
+## 2.3.0 · en desarrollo
+
+- Build 8. Actividad guarda los fallos de conversión con el mismo diagnóstico traducido que el aviso. La cola continúa con el siguiente archivo cuando uno falla.
+- M2 midió la CLI release con PNG, PDF y voz sintética, y la app gráfica en reposo sobre M1/8 GiB. Los resultados, incluida la primera demora de OCR, están en [el informe](docs/M2-RESULTS.md).
+
+- Ensayo de aceptación M1/S1 de la copia instalada: resultados y evidencias publicados en docs/M1-S1-RESULTS.md; diez comprobaciones acotadas, con arrastre verificado y menú confirmado manualmente. Sin cambios de código ni nueva build.
+
+- Especificación consolidada, matriz de estado y CSV de 88 requisitos, con 20 casos de aceptación y prioridades para cerrar 2.3. La revisión documental no reemplaza pruebas prácticas ni publica una nueva versión.
+
+- Acciones y recetas contextuales limitadas a los tipos de archivo compatibles y motores disponibles. Los lotes ofrecen operaciones válidas para todos sus archivos. Textos, Excel y otros documentos no ofrecen transcripción de audio.
+- Validación de cada paso según el resultado anterior, filtro del editor de recetas, restricciones de entrada exportables y rechazo antes de crear salidas. Las carpetas vigiladas omiten archivos incompatibles con su receta.
+- La indexación documental admite tablas Excel mediante su lector estructurado y excluye audio, vídeo y binarios no compatibles.
+
+- Audio a TXT y Markdown mediante SpeechAnalyzer/SpeechTranscriber de Apple, con macOS 26+ y hardware compatible.
+- Acción contextual «Audio a texto · Apple local», dos recetas y uso desde carpetas vigiladas y terminal.
+- Idioma configurable y consulta del modelo instalado. La descarga solo se inicia desde el botón o comando explícito; sin reconocimiento remoto ni resumen.
+- Progreso por tiempo reconocido, cancelación del análisis y conservación del audio incluso si está activado enviar originales a la Papelera tras convertir.
+- Compatible con las opciones JSON de recetas previas. Idioma opcional por receta/CLI; el valor predeterminado de la app es español de Chile.
+
+
+Validación de desarrollo: 50 XCTest y 78 Swift Testing (128 pruebas), sin fallos ni omisiones.
+
 ## 2.2.1 · en preparación
 
 Mantenimiento de estabilidad, sin nuevas capacidades de conversión.

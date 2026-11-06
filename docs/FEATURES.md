@@ -31,3 +31,7 @@ Las capacidades dependen del formato concreto, los codificadores disponibles y l
 ## Límites frente a los proyectos de referencia
 
 Anonimización avanzada por patrones, extracción semántica equivalente a Docling, intercambio compatible con LocalSend con cifrado y equivalencia completa de todas las conversiones de Tangerine. Estas capacidades no se anuncian como implementadas.
+
+## Rama 2.3 · audio a texto
+
+Apple Speech local a TXT/Markdown, macOS 26+, idioma configurable, sin resumen y sin descarga implícita de modelos. Acción contextual, recetas, carpetas vigiladas y CLI. Consulta [requisitos, límites y validación](AUDIO-TRANSCRIPTION.md).
