@@ -2,6 +2,9 @@
 
 ## 2.3.0 · en desarrollo
 
+- Build 8. Actividad guarda los fallos de conversión con el mismo diagnóstico traducido que el aviso. La cola continúa con el siguiente archivo cuando uno falla.
+- M2 midió la CLI release con PNG, PDF y voz sintética, y la app gráfica en reposo sobre M1/8 GiB. Los resultados, incluida la primera demora de OCR, están en [el informe](docs/M2-RESULTS.md).
+
 - Ensayo de aceptación M1/S1 de la copia instalada: resultados y evidencias publicados en docs/M1-S1-RESULTS.md; diez comprobaciones acotadas, con arrastre verificado y menú confirmado manualmente. Sin cambios de código ni nueva build.
 
 - Especificación consolidada, matriz de estado y CSV de 88 requisitos, con 20 casos de aceptación y prioridades para cerrar 2.3. La revisión documental no reemplaza pruebas prácticas ni publica una nueva versión.

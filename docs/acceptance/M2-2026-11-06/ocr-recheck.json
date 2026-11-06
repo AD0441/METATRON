@@ -1,0 +1,20 @@
+[
+  {
+    "wall_s": 1.0714,
+    "peak_rss_bytes": 109756416,
+    "outputs_verified": 1,
+    "receipts_verified": 1
+  },
+  {
+    "wall_s": 0.3519,
+    "peak_rss_bytes": 111181824,
+    "outputs_verified": 1,
+    "receipts_verified": 1
+  },
+  {
+    "wall_s": 0.3513,
+    "peak_rss_bytes": 120094720,
+    "outputs_verified": 1,
+    "receipts_verified": 1
+  }
+]

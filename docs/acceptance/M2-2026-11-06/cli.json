@@ -1,0 +1,112 @@
+{
+  "cli_sha256": "6b53b2b792a26afc67b9b2e0c4f8f431c571c6eb9f12a09ca85335871b4e3e00",
+  "original_sha256": {
+    "escaneado.pdf": "32a312c25d3d7dbef4311ac598597199efa5a928be73a2f5d0c88605c779448c",
+    "imagen-1.png": "5205fe64182c0bd8e622c1d7421ea803b679c450030f301cd8d8f71eeb318261",
+    "imagen-2.png": "5205fe64182c0bd8e622c1d7421ea803b679c450030f301cd8d8f71eeb318261",
+    "imagen-3.png": "5205fe64182c0bd8e622c1d7421ea803b679c450030f301cd8d8f71eeb318261",
+    "imagen-4.png": "5205fe64182c0bd8e622c1d7421ea803b679c450030f301cd8d8f71eeb318261",
+    "imagen-5.png": "5205fe64182c0bd8e622c1d7421ea803b679c450030f301cd8d8f71eeb318261",
+    "imagen.png": "5205fe64182c0bd8e622c1d7421ea803b679c450030f301cd8d8f71eeb318261",
+    "texto.pdf": "d4da334d6b6a2d61ce4a0ef65b56f27522710213d833fbdab14eb3faaaca3930",
+    "voz-larga.wav": "845cf44bf97e864398f676cb1592b58e4c74211e308ba5e48d56e857ef06fb25"
+  },
+  "cases": {
+    "5_png_to_jpg": {
+      "runs": [
+        {
+          "wall_s": 1.6437,
+          "peak_rss_bytes": 175161344,
+          "outputs_verified": 5,
+          "receipts_verified": 1
+        },
+        {
+          "wall_s": 2.6429,
+          "peak_rss_bytes": 174948352,
+          "outputs_verified": 5,
+          "receipts_verified": 1
+        },
+        {
+          "wall_s": 1.3591,
+          "peak_rss_bytes": 174931968,
+          "outputs_verified": 5,
+          "receipts_verified": 1
+        }
+      ],
+      "median_wall_s": 1.6437,
+      "max_peak_rss_bytes": 175161344
+    },
+    "text_pdf_to_md": {
+      "runs": [
+        {
+          "wall_s": 0.2742,
+          "peak_rss_bytes": 28196864,
+          "outputs_verified": 1,
+          "receipts_verified": 1
+        },
+        {
+          "wall_s": 0.146,
+          "peak_rss_bytes": 28196864,
+          "outputs_verified": 1,
+          "receipts_verified": 1
+        },
+        {
+          "wall_s": 0.1447,
+          "peak_rss_bytes": 28180480,
+          "outputs_verified": 1,
+          "receipts_verified": 1
+        }
+      ],
+      "median_wall_s": 0.146,
+      "max_peak_rss_bytes": 28196864
+    },
+    "scanned_pdf_to_md": {
+      "runs": [
+        {
+          "wall_s": 63.3719,
+          "peak_rss_bytes": 86786048,
+          "outputs_verified": 1,
+          "receipts_verified": 1
+        },
+        {
+          "wall_s": 0.5815,
+          "peak_rss_bytes": 111362048,
+          "outputs_verified": 1,
+          "receipts_verified": 1
+        },
+        {
+          "wall_s": 0.3268,
+          "peak_rss_bytes": 111280128,
+          "outputs_verified": 1,
+          "receipts_verified": 1
+        }
+      ],
+      "median_wall_s": 0.5815,
+      "max_peak_rss_bytes": 111362048
+    },
+    "long_audio_to_txt": {
+      "runs": [
+        {
+          "wall_s": 27.3768,
+          "peak_rss_bytes": 24739840,
+          "outputs_verified": 1,
+          "receipts_verified": 1
+        },
+        {
+          "wall_s": 27.7151,
+          "peak_rss_bytes": 23740416,
+          "outputs_verified": 1,
+          "receipts_verified": 1
+        },
+        {
+          "wall_s": 23.734,
+          "peak_rss_bytes": 23674880,
+          "outputs_verified": 1,
+          "receipts_verified": 1
+        }
+      ],
+      "median_wall_s": 27.3768,
+      "max_peak_rss_bytes": 24739840
+    }
+  }
+}

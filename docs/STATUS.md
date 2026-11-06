@@ -1,6 +1,6 @@
 # METATRON — Estado de requisitos y próximos trabajos
 
-**Corte inicial:** 2 de noviembre de 2026. **Última actualización de ejecución:** 3 de noviembre de 2026. **Especificación:** [REQUIREMENTS.md](REQUIREMENTS.md). **Base:** 2.3.0 build 7, commit `0f86ca829eb93a2b40796b01a5788d318d952c68`.
+**Corte inicial:** 2 de noviembre de 2026. **Última actualización de ejecución:** 6 de noviembre de 2026. **Especificación:** [REQUIREMENTS.md](REQUIREMENTS.md). **Base:** 2.3.0 build 7, commit `0f86ca829eb93a2b40796b01a5788d318d952c68`.
 
 El corte inicial del 2 de noviembre revisó conversación, código, pruebas y documentación. El 3 de noviembre se añadió la ejecución acotada de M1, descrita en E18; no se realizó un perfil sostenido ni una auditoría completa de rendimiento o interfaz. «Implementado» no equivale a aceptación exhaustiva. Los criterios de la especificación describen lo que debe comprobarse; la columna de próxima acción describe lo que falta. «Introducción» no significa publicado en esa versión: 2.2.1 y 2.3 siguen en propuestas abiertas.
 
@@ -30,8 +30,8 @@ El corte inicial del 2 de noviembre revisó conversación, código, pruebas y do
 | Estado | Cantidad |
 | --- | ---: |
 | Implementado | 49 |
-| Parcial | 24 |
-| Por validar | 6 |
+| Parcial | 25 |
+| Por validar | 5 |
 | Pendiente | 8 |
 | Condicionado | 1 |
 
@@ -180,7 +180,7 @@ Estos conteos no representan porcentaje de producto terminado; cada requisito ti
 | --- | --- | --- | --- | --- | --- |
 | PER-01 | P0 | Implementado | Cola serial, trabajo concurrente separado y límites de imágenes/documentos/audio. | Medir el comportamiento sostenido; este diseño no demuestra por sí solo fluidez integral. | [E09](#e09), [E12](#e12) |
 | PER-02 | P0 | Implementado | El redimensionado simple mantuvo CPU tras superar a Metal en el ensayo local. | Repetir si cambian algoritmo, resolución o hardware. | [E12](#e12) |
-| PER-03 | P0 | Por validar | Hay microbenchmarks y una muestra de reposo históricos, no un perfil completo de 2.3. | Ejecutar AC-16 con objetivos provisionales documentados. | [E12](#e12) |
+| PER-03 | P0 | Parcial | Build 8 medida en reposo y CLI bajo carga, incluido el primer OCR lento. | Completar la apertura contextual p50/p95, los 10 lotes en la app y 30 minutos de uso. Contrastar OCR en frío. | [E12](#e12), [E19](#e19) |
 | PER-04 | P1 | Por validar | El paquete verifica arquitectura y metadatos; falta matriz de ejecución entre sistemas. | No equiparar compilación con soporte validado de todas las versiones. | [E04](#e04), [E16](#e16) |
 
 ### VIS · Identidad, apariencia y accesibilidad
@@ -190,7 +190,7 @@ Estos conteos no representan porcentaje de producto terminado; cada requisito ti
 | VIS-01 | P0 | Implementado | Marca, icono y activos generables originales. | Revisar tamaños pequeños y coherencia de las nuevas capturas. | [E11](#e11) |
 | VIS-02 | P0 | Implementado | Temas configurables en vez de una única apariencia. | Medir contraste de estados y selección en todas las paletas. | [E11](#e11), [E15](#e15) |
 | VIS-03 | P0 | Parcial | Existen atajos y navegación; no se ha cerrado una auditoría integral de accesibilidad. | Ejecutar AC-17 y registrar los hallazgos por presentación. | [E01](#e01), [E11](#e11), [E15](#e15) |
-| VIS-04 | P1 | Parcial | Base con traducciones heredadas y pantallas nuevas en español. | Corregir D-M1-01: error de PNG en inglés; mantener pendiente la localización integral. | [E11](#e11), [E18](#e18) |
+| VIS-04 | P1 | Parcial | El error del PNG se guarda traducido en Actividad desde la build 8. | Completar la localización de las demás pantallas y diagnósticos. | [E11](#e11), [E18](#e18), [E19](#e19) |
 | VIS-05 | P0 | Implementado | Identidad editorial y donación integradas sin bloquear funciones. | Mantener coherencia en README, app y release. | [E11](#e11), [E13](#e13) |
 
 ### DIST · Pruebas, instalación y publicación
@@ -221,6 +221,10 @@ El [alcance M1](M1-S1.md) preparó diez casos sobre 29 requisitos existentes par
 El [informe de M1/S1](M1-S1-RESULTS.md) cierra diez comprobaciones acotadas, con la verificación positiva de arrastre y la confirmación manual de aparición del menú. Son 25 trabajos UI: 20 completados, tres cancelaciones intencionales y dos errores de lectura del PNG dañado (uno en la fase inicial y otro manual). Se verificaron las 12 fuentes originales y su copia adicional para arrastre, 20 recibos y ausencia de staging residual. D-M1-01 registra un error de lectura en inglés; el foco/⌘W permanece como observación por contrastar, no como defecto demostrado.
 
 DIST-03 permanece «Parcial»: la aceptación acotada no certifica todos los controles del menú, permisos, sistemas o variantes. Los otros requisitos conservan sus estados generales. El CSV usa `Estado_actual` y `Fecha_revision`. M1 entrega su diagnóstico; M2 corrige y mide, y M3 integra y distribuye. Perfil, recientes y preferencias temporales se restauraron después de preservar evidencias separadas.
+
+## Ejecución de M2 · 6 de noviembre de 2026
+
+El [informe de M2](M2-RESULTS.md) registra la corrección D-M1-01 en la candidata build 8, seis pruebas de cola y una comprobación manual positiva de ⌘W tras cerrar el Cubo. La carga incluyó PNG, PDFs y audio largo en la CLI y 60 segundos de reposo en la app gráfica. PER-03 queda «Parcial» mientras se completa el ensayo sostenido en la app y se contrasta el primer OCR lento. La build 7 continúa instalada.
 
 ## Qué debemos hacer primero
 
@@ -418,6 +422,13 @@ Las rutas siguientes muestran dónde revisar la implementación y sus pruebas. U
 - [Evidencias y generadores](acceptance/M1-S1-2026-11-03/README.md).
 - [Verificación independiente](acceptance/M1-S1-2026-11-03/verification.json).
 - [Trabajos UI sanitizados](acceptance/M1-S1-2026-11-03/ui-jobs.json).
+
+### E19
+
+**Fallos y recursos de M2 · 6 de noviembre de 2026.**
+
+- [Informe y alcance pendiente](M2-RESULTS.md).
+- [Datos y reproducción](acceptance/M2-2026-11-06/README.md).
 
 ## Reglas para actualizar esta matriz
 

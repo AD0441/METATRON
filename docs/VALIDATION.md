@@ -70,4 +70,8 @@ Hubo 25 trabajos UI: 20 completados, tres cancelaciones intencionales y dos erro
 
 OCR, Excel/Unicode, PDF, receta con retirada de metadatos y TXT/Markdown de audio produjeron el contenido esperado. Cerrar conservó el proceso; Salir durante audio activo canceló también la cola pendiente y terminó sin publicar parciales. Se restauraron perfil y recientes tras respaldar las evidencias de ambas fases.
 
-Para M2: diagnóstico de PNG en inglés, contraste de foco/⌘W y carga acordada de tiempo/memoria. Los límites de accesibilidad, permisos, sistemas, otros arrastres y operaciones del menú no accionadas permanecen explícitos. La fuente de METATRON, la versión instalada y la release pública no cambiaron.
+Para M2 quedaron el diagnóstico de PNG en inglés, el contraste de foco/⌘W y la carga de tiempo/memoria. En M1 se conservaron la fuente, la versión instalada y la release pública.
+
+## Ejecución de M2 · 6 de noviembre de 2026
+
+La candidata 2.3.0 build 8 corrigió el error de lectura en Actividad. Pasaron seis pruebas dirigidas de la cola y la comprobación gráfica con ambos PNG. El autor confirmó el cierre manual con ⌘W después de Escape. El [informe de M2](M2-RESULTS.md) registra tres repeticiones por carga de CLI, reposo gráfico, el primer OCR lento y el alcance pendiente de AC-16. Se verificó el ZIP con firma ad hoc. La instalación existente conserva la build 7.

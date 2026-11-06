@@ -217,7 +217,10 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
                     logger.notice("Job completed in \(result.elapsed) seconds")
                 } catch {
                     let cancelled = Task.isCancelled || error is CancellationError
-                    update(job.id) { $0.state = cancelled ? .cancelled : .failed; $0.message = cancelled ? "Cancelado. Los originales se conservan." : error.localizedDescription }
+                    update(job.id) {
+                        $0.state = cancelled ? .cancelled : .failed
+                        $0.message = cancelled ? "Cancelado. Los originales se conservan." : ActionRunner.message(for: error)
+                    }
                     completions.removeValue(forKey: job.id)?(.failure(error))
                 }
                 runningJobID = nil

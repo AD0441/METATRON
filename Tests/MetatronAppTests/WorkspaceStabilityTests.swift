@@ -1,5 +1,6 @@
 import Testing
 import Foundation
+import CoreGraphics
 import MetatronCore
 import MetatronWorkflow
 @testable import Metatron
@@ -44,6 +45,37 @@ import MetatronWorkflow
         try await waitUntil { store.jobs.contains { $0.inputs.first?.lastPathComponent == "second.txt" && $0.state == .running } }
         #expect(store.jobs.filter { $0.state == .cancelled }.count == 1)
         await store.shutDown()
+    }
+
+    @Test(.timeLimit(.minutes(1))) func failedImagePersistsTheTranslatedMessageAndTheNextImageCompletes() async throws {
+        let folder = try makeDirectory()
+        defer { try? FileManager.default.removeItem(at: folder) }
+        let broken = folder.appendingPathComponent("danado.png")
+        let valid = folder.appendingPathComponent("valido.png")
+        let damagedBytes = Data("damaged PNG fixture".utf8)
+        try damagedBytes.write(to: broken)
+        let pixels = try #require(CGContext(data: nil, width: 8, height: 8, bitsPerComponent: 8,
+                                            bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(),
+                                            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue))
+        try Images.write(#require(pixels.makeImage()), to: valid, format: .png, quality: 1)
+        let validBytes = try Data(contentsOf: valid)
+        let store = WorkspaceStore(directory: folder)
+        let recipe = Recipe(name: "JPG", steps: [.init(action: "convert.jpg")])
+
+        let ids = store.enqueue(inputs: [broken, valid], recipe: recipe)
+        try #require(ids.count == 2)
+        try await waitUntil { !store.isRunning }
+
+        let saved = WorkspaceStore(directory: folder)
+        let failed = try #require(saved.jobs.first { $0.id == ids[0] })
+        let completed = try #require(saved.jobs.first { $0.id == ids[1] })
+        #expect(failed.state == .failed)
+        #expect(failed.message == L("Couldn't read %@.", broken.lastPathComponent))
+        #expect(failed.outputs.isEmpty)
+        #expect(completed.state == .completed)
+        #expect(completed.outputs.contains { $0.url.pathExtension == "jpg" })
+        #expect(try Data(contentsOf: broken) == damagedBytes)
+        #expect(try Data(contentsOf: valid) == validBytes)
     }
 
     @Test func unreadableSnapshotIsBackedUpBeforeAnySave() throws {
