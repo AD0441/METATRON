@@ -9,7 +9,16 @@ final class ActionPanel: NSPanel {
     override var canBecomeMain: Bool { false }
     override func cancelOperation(_ sender: Any?) { onDismiss?() }
 }
-final class ActionHostingView<Content: View>: NSHostingView<Content> {
+// A concrete hosting root avoids Swift 6.3's release optimizer crash when
+// emitting the isolated destructor of a generic NSHostingView subclass.
+struct QuickAccessRoot: View {
+    let model: RingModel
+    let style: QuickAccessStyle
+    var body: some View {
+        QuickAccessView(model: model, style: style).tint(SettingsStore.shared.interfaceAccent)
+    }
+}
+final class ActionHostingView: NSHostingView<QuickAccessRoot> {
     override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
 }
 
@@ -26,7 +35,7 @@ final class QuickAccessController {
         p.onDismiss = { [weak self] in self?.hide() }
         p.hidesOnDeactivate = false
         p.title = style.title; p.level = .floating; p.isReleasedWhenClosed = false; p.animationBehavior = .none
-        p.contentView = ActionHostingView(rootView: QuickAccessView(model: model, style: style).tint(SettingsStore.shared.interfaceAccent))
+        p.contentView = ActionHostingView(rootView: QuickAccessRoot(model: model, style: style))
         let screen = NSScreen.screens.first { $0.frame.contains(point) } ?? NSScreen.main
         let area = screen?.visibleFrame ?? NSRect(x: 0, y: 0, width: 1440, height: 900)
         p.setFrameOrigin(NSPoint(x: min(max(point.x - width / 2, area.minX + 8), area.maxX - width - 8), y: min(max(point.y - height / 2, area.minY + 8), area.maxY - height - 8)))

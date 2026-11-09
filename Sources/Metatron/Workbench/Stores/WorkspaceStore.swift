@@ -19,6 +19,7 @@ struct WorkspaceSnapshot: Codable {
 extension Notification.Name { static let metatronShowWorkbench = Notification.Name("Metatron.showWorkbench") }
 
 @Observable @MainActor final class WorkspaceStore {
+    typealias JobExecution = @Sendable (WorkJob, ToolParameters, @escaping @Sendable (String) async -> Void) async throws -> RecipeResult
     static let shared = WorkspaceStore()
     var files: [URL] = []
     var recipes: [Recipe] = Recipe.builtIns
@@ -34,6 +35,11 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
     private(set) var canRestoreClipboard = false
     var hardware = HardwareProfile.current()
     var isRunning = false
+    private(set) var isShuttingDown = false
+    @ObservationIgnored private let executeJob: JobExecution
+    @ObservationIgnored private var runningJobID: UUID?
+    @ObservationIgnored private var batches: [UUID: UUID] = [:]
+    @ObservationIgnored private var unreadableSnapshot = false
     let directory: URL
     @ObservationIgnored private var queueTask: Task<Void, Never>?
     @ObservationIgnored private var transientParameters: [UUID: ToolParameters] = [:]
@@ -45,7 +51,10 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
     var directActions: [KQAction] { files.isEmpty ? [] : ActionCatalog.convertActions(for: files) + ActionCatalog.toolActions(for: files) }
     var completed: Int { jobs.count { $0.state == .completed } }
     var filteredLibrary: [LibraryItem] { search.isEmpty ? library : library.filter { $0.title.localizedCaseInsensitiveContains(search) || $0.text.localizedCaseInsensitiveContains(search) || $0.tag.localizedCaseInsensitiveContains(search) } }
-    init(directory: URL? = nil) {
+    init(directory: URL? = nil, executeJob: @escaping JobExecution = { job, parameters, progress in
+        try await RecipeExecutor.execute(inputs: job.inputs, recipe: job.recipe, id: job.id, parameters: parameters, progress: progress)
+    }) {
+        self.executeJob = executeJob
         if let directory { self.directory = directory }
         else if let index = CommandLine.arguments.firstIndex(of: "--data-dir"), CommandLine.arguments.count > index + 1 {
             self.directory = URL(fileURLWithPath: CommandLine.arguments[index + 1], isDirectory: true)
@@ -61,12 +70,21 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
                 jobs = saved.jobs.map { job in var copy = job; if [.queued,.running].contains(copy.state) { copy.state = .interrupted; copy.message = "Interrumpido al cerrar. Puedes reintentar." }; return copy }
                 library = saved.library
             }
-        } catch { notice = "No se pudo leer el espacio de trabajo: \(error.localizedDescription). El archivo original se conserva." }
+        } catch { unreadableSnapshot = true; notice = "No se pudo leer el espacio de trabajo: \(error.localizedDescription). El archivo original se conserva." }
         jobs = ActivityRetention.retained(jobs, days: SettingsStore.shared.activityRetentionDays)
         selectedRecipeID = recipes.first?.id
     }
     func persist() {
         do {
+            // Preserve a corrupt/incompatible snapshot before allowing any save.
+            // If the backup fails, the original must remain untouched.
+            if unreadableSnapshot {
+                let original = directory.appendingPathComponent("workspace.json")
+                if FileManager.default.fileExists(atPath: original.path) {
+                    try FileManager.default.copyItem(at: original, to: directory.appendingPathComponent("workspace-recovery-" + UUID().uuidString + ".json"))
+                }
+                unreadableSnapshot = false
+            }
             let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
             try encoder.encode(WorkspaceSnapshot(recipes: recipes, jobs: jobs, library: library)).write(to: directory.appendingPathComponent("workspace.json"), options: .atomic)
         } catch { notice = "No se pudo guardar la actividad: \(error.localizedDescription)" }
@@ -104,43 +122,64 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
         }
     }
     func enqueue() { enqueue(inputs: files, recipe: selectedRecipe) }
-    func enqueue(inputs: [URL], recipe: Recipe, parameters: ToolParameters = .none, completion: ((Result<RecipeResult, Error>) -> Void)? = nil) {
-        guard !inputs.isEmpty, !recipe.steps.isEmpty else { notice = "Añade archivos y al menos un paso."; return }
+    @discardableResult func enqueue(inputs: [URL], recipe: Recipe, parameters: ToolParameters = .none, batch: UUID? = nil, completion: ((Result<RecipeResult, Error>) -> Void)? = nil) -> [UUID] {
+        guard !isShuttingDown else { completion?(.failure(CancellationError())); return [] }
+        guard !inputs.isEmpty, !recipe.steps.isEmpty else { notice = "Añade archivos y al menos un paso."; return [] }
+        var ids: [UUID] = []
         let groups = recipe.groupsInputs ? [inputs] : inputs.map { [$0] }
         for group in groups {
             var configured=recipe
             if let engine=recipe.steps.first(where: {$0.action == "documentAdvanced"}), let id=DocumentEngineID(rawValue:engine.text), id != .native {configured.documentEnginePath=UserDefaults.standard.string(forKey:"documentEngine."+id.rawValue)}
             let job = WorkJob(inputs: group, recipe: configured)
+            ids.append(job.id)
+            if let batch { batches[job.id] = batch }
             transientParameters[job.id] = parameters
             if let completion { completions[job.id] = completion }
             jobs.insert(job, at: 0)
         }
         simulation = []
         persist(); startQueue()
+        return ids
     }
     func runRecipe(inputs:[URL],recipe:Recipe) async throws ->[PublishedFile] {
         guard !inputs.isEmpty,!recipe.steps.isEmpty else {throw WorkflowError.invalid("Añade archivos y pasos.")}
-        return try await withCheckedThrowingContinuation { continuation in
-            var remaining=recipe.groupsInputs ? 1 : inputs.count
-            var outputs:[PublishedFile]=[]
-            var failure:Error?
-            enqueue(inputs:inputs,recipe:recipe) {result in
-                switch result {case .success(let value):outputs.append(contentsOf:value.files);case .failure(let error):if failure == nil {failure=error}}
-                remaining -= 1
-                if remaining == 0 {if let failure {continuation.resume(throwing:failure)} else {continuation.resume(returning:outputs)}}
+        guard !isShuttingDown else { throw CancellationError() }
+        let batch = UUID()
+        let result = try await withTaskCancellationHandler {
+            try Task.checkCancellation()
+            return try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<[PublishedFile], Error>) in
+                var remaining = recipe.groupsInputs ? 1 : inputs.count
+                var outputs: [PublishedFile] = []
+                var failure: Error?
+                enqueue(inputs: inputs, recipe: recipe, batch: batch) { result in
+                    switch result {
+                    case .success(let value): outputs.append(contentsOf: value.files)
+                    case .failure(let error): if failure == nil { failure = error }
+                    }
+                    remaining -= 1
+                    if remaining == 0 {
+                        if let failure { continuation.resume(throwing: failure) }
+                        else { continuation.resume(returning: outputs) }
+                    }
+                }
             }
+        } onCancel: {
+            Task { @MainActor in self.cancelJobs(Set(self.batches.filter { $0.value == batch }.keys)) }
         }
+        try Task.checkCancellation()
+        return result
     }
     private func startQueue() {
-        guard queueTask == nil else { return }
+        guard queueTask == nil, !isShuttingDown else { return }
         isRunning = true
         queueTask = Task { [weak self] in
             guard let self else { return }
             while !Task.isCancelled, let job = jobs.last(where: { $0.state == .queued }) {
+                runningJobID = job.id
                 update(job.id) { $0.state = .running; $0.message = "Comprobando entradas" }
                 let parameters = transientParameters[job.id] ?? .none
                 do {
-                    let result = try await RecipeExecutor.execute(inputs: job.inputs, recipe: job.recipe, id: job.id, parameters: parameters) { [weak self] message in
+                    let result = try await executeJob(job, parameters) { [weak self] message in
                         await self?.progress(job.id, message: message)
                     }
                     update(job.id) { $0.sourceBytes=result.inputBytes; $0.outputs = result.files; $0.duration = result.elapsed; $0.state = .completed; $0.message = result.warnings.isEmpty ? "Salida verificada" : result.warnings.joined(separator: " · ") }
@@ -152,6 +191,8 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
                     update(job.id) { $0.state = cancelled ? .cancelled : .failed; $0.message = cancelled ? "Cancelado. Los originales se conservan." : error.localizedDescription }
                     completions.removeValue(forKey: job.id)?(.failure(error))
                 }
+                runningJobID = nil
+                batches.removeValue(forKey: job.id)
                 transientParameters.removeValue(forKey: job.id)
                 jobs = ActivityRetention.retained(jobs, days: SettingsStore.shared.activityRetentionDays)
                 persist()
@@ -167,7 +208,33 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
         activity = message
         if let index = jobs.firstIndex(where: { $0.id == id }) { jobs[index].message = message }
     }
-    func cancel() { queueTask?.cancel(); activity = "Cancelando después del paso en curso…" }
+    /// Cancels the current job; independent queued work continues afterwards.
+    func cancel() {
+        guard let runningJobID else { return }
+        cancelJobs([runningJobID])
+    }
+    private func cancelJobs(_ ids: Set<UUID>) {
+        for id in ids {
+            guard let job = jobs.first(where: { $0.id == id }) else { continue }
+            if job.state == .queued {
+                update(id) { $0.state = .cancelled; $0.message = "Cancelado. Los originales se conservan." }
+                transientParameters.removeValue(forKey: id); batches.removeValue(forKey: id)
+                completions.removeValue(forKey: id)?(.failure(CancellationError()))
+            } else if job.state == .running {
+                queueTask?.cancel(); activity = "Cancelando el trabajo actual…"
+            }
+        }
+    }
+    /// No new jobs can enter while quitting. Await the active conversion and its
+    /// rollback before replying to macOS, so helpers cannot outlive the app.
+    func shutDown() async {
+        isShuttingDown = true
+        cancelJobs(Set(jobs.filter { ActivityRetention.isActive($0) }.map(\.id)))
+        let pending = queueTask
+        queueTask?.cancel()
+        await pending?.value
+        persist()
+    }
     func retry(_ job: WorkJob) {
         guard !job.recipe.steps.contains(where: { $0.action == "tool.protect" || $0.action == "tool.crop" || $0.action == "tool.resize" || $0.action == "tool.addBackground" }) else { notice = "Esta operación requiere parámetros. Iníciala desde la rueda."; return }
         enqueue(inputs: job.inputs, recipe: job.recipe)

@@ -11,6 +11,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let monitor = DragMonitor()
     private var instanceLease: InstanceLease?
     private var duplicateLaunch = false
+    private var startupFailure: String?
+    private var terminating = false
     private var reopenObserver: NSObjectProtocol?
     private var statusItem: NSStatusItem?
     private var cancellables: Set<AnyCancellable> = []
@@ -22,18 +24,37 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         claimInstance()
     }
     private func claimInstance() {
-        guard instanceLease == nil,!duplicateLaunch else {return}
+        guard instanceLease == nil, !duplicateLaunch, startupFailure == nil else { return }
         do { instanceLease=try InstanceLease(url:URL.applicationSupportDirectory.appendingPathComponent("METATRON/instance.lock")) }
-        catch {
+        catch InstanceLeaseError.alreadyRunning {
             duplicateLaunch=true
             DistributedNotificationCenter.default().postNotificationName(.init("local.metatron.reopen"),object:nil,userInfo:nil,deliverImmediately:true)
             NSRunningApplication.runningApplications(withBundleIdentifier:Bundle.main.bundleIdentifier ?? "local.metatron.app")
                 .first { $0.processIdentifier != ProcessInfo.processInfo.processIdentifier }?.activate()
             NSApp.terminate(nil)
+        } catch {
+            startupFailure = "No se pudo obtener el bloqueo de inicio en Soporte de aplicaciones. Revisa los permisos y el espacio disponible.\n\n" + error.localizedDescription
+            logger.error("Instance lock unavailable: \(error.localizedDescription)")
         }
     }
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        guard instanceLease != nil else { return .terminateNow }
+        guard !terminating else { return .terminateLater }
+        WatchService.shared.stop()
+        monitor.stop()
+        Hotkey.shared.setEnabled(false)
+        let store = WorkspaceStore.shared
+        guard store.isRunning else { return .terminateNow }
+        terminating = true
+        Task {
+            await store.shutDown()
+            logger.notice("Active work drained; terminating")
+            sender.reply(toApplicationShouldTerminate: true)
+        }
+        return .terminateLater
+    }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender:NSApplication)->Bool {false}
-    func applicationWillTerminate(_ notification:Notification) {if !duplicateLaunch {WorkspaceStore.shared.persist()}}
+    func applicationWillTerminate(_ notification:Notification) {if instanceLease != nil {WorkspaceStore.shared.persist()}}
     func menuNeedsUpdate(_ menu:NSMenu) {
         guard menu === statusItem?.menu else{return}
         let current=makeMenu()
@@ -44,7 +65,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         Self.current=self
         claimInstance()
-        guard !duplicateLaunch else { NSApp.terminate(nil);return }
+        guard !duplicateLaunch else { NSApp.terminate(nil); return }
+        if let startupFailure {
+            NSApp.setActivationPolicy(.regular)
+            let alert = NSAlert(); alert.messageText = "METATRON no pudo iniciar"; alert.informativeText = startupFailure
+            alert.addButton(withTitle: "Cerrar"); NSApp.activate(ignoringOtherApps: true); alert.runModal()
+            NSApp.terminate(nil); return
+        }
         NSApp.setActivationPolicy(settings.showDockIcon ? .regular : .accessory)
         reopenObserver=DistributedNotificationCenter.default().addObserver(forName:.init("local.metatron.reopen"),object:nil,queue:.main) { _ in MainActor.assumeIsolated { WorkbenchPresentation.show() } }
         // Look for optional engines early, off the main thread.
@@ -169,7 +196,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(item(settings.showDockIcon ? "Ocultar icono del Dock" : "Mostrar icono en el Dock",#selector(toggleDock),""))
         menu.addItem(item(L("Settings…"), #selector(openSettings), ","))
         menu.addItem(item(L("Welcome Screen"), #selector(openWelcome), ""))
-        menu.addItem(item(L("Check for Updates…"), #selector(checkUpdates), ""))
+        menu.addItem(item("Ver versiones de METATRON…", #selector(checkUpdates), ""))
         menu.addItem(.separator())
         menu.addItem(item("Salir METATRON completamente", #selector(quit), "q"))
         return menu

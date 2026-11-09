@@ -13,6 +13,7 @@ public enum RecipeExecutor {
     @concurrent public static func execute(inputs: [URL], recipe: Recipe, id: UUID = UUID(), parameters: ToolParameters = .none, progress: @escaping @Sendable (String) async -> Void = { _ in }) async throws -> RecipeResult {
         guard !inputs.isEmpty, !recipe.steps.isEmpty else { throw WorkflowError.invalid("Añade archivos y pasos.") }
         guard recipe.quality.isFinite, (0...1).contains(recipe.quality) else { throw WorkflowError.invalid("La calidad debe estar entre 0 y 1.") }
+        try Task.checkCancellation()
         let start = Date()
         let sourceBytes=inputs.reduce(Int64(0)) {$0+FileIntegrity.bytes($1)}
         let fm = FileManager.default
@@ -106,10 +107,24 @@ public enum RecipeExecutor {
                 }
                 published.append(PublishedFile(url: target, digest: hash, bytes: FileIntegrity.bytes(target)))
             }
-            let receipt = destination.appendingPathComponent("metatron-\(id.uuidString).json")
+            try Task.checkCancellation()
+            let receiptName = "metatron-\(id.uuidString).json"
+            let stagedReceipt = staging.appendingPathComponent(receiptName)
             let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            try encoder.encode(published).write(to: receipt, options: .atomic)
-            published.append(PublishedFile(url: receipt, digest: try FileIntegrity.digest(receipt), bytes: FileIntegrity.bytes(receipt)))
+            try encoder.encode(published).write(to: stagedReceipt, options: .atomic)
+            let receiptHash = try FileIntegrity.digest(stagedReceipt)
+            let receiptBytes = FileIntegrity.bytes(stagedReceipt)
+            var reserved: Set<String> = []
+            let proposed = destination.appendingPathComponent(receiptName)
+            var receipt = FileIntegrity.unique(proposed, reserved: &reserved)
+            while true {
+                try Task.checkCancellation()
+                do { try fm.moveItem(at: stagedReceipt, to: receipt); break }
+                catch where fm.fileExists(atPath: receipt.path) { receipt = FileIntegrity.unique(proposed, reserved: &reserved) }
+            }
+            // The receipt is the commit point; cancellation after this returns a
+            // completed transaction, never a half-published success.
+            published.append(PublishedFile(url: receipt, digest: receiptHash, bytes: receiptBytes))
             return RecipeResult(files: published, inputBytes:sourceBytes, elapsed: Date().timeIntervalSince(start), warnings: warnings)
         } catch {
             // Only outputs just created by this transaction are removed on a publication failure.

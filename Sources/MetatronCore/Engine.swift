@@ -107,6 +107,7 @@ public struct Engine: Sendable {
             let doc = try PDFs.open(url)
             var outs: [URL] = []
             for i in 0..<doc.pageCount {
+                try Task.checkCancellation()
                 guard let page = doc.page(at: i), let image = PDFs.render(page, dpi: options.pdfDPI) else { continue }
                 let extra = doc.pageCount > 1 ? String(format: "%03d", i + 1) : nil
                 let target = try planner.url(for: url, extra: extra, ext: format.fileExtension)
@@ -353,6 +354,7 @@ public struct Engine: Sendable {
             let doc = try PDFs.open(url)
             var outs: [URL] = []
             for i in 0..<doc.pageCount {
+                try Task.checkCancellation()
                 guard let page = doc.page(at: i) else { continue }
                 let single = PDFDocument()
                 single.insert(page, at: 0)

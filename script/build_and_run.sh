@@ -40,7 +40,7 @@ root,bundle=map(Path,sys.argv[1:])
 p=plistlib.loads((root/'Resources/Info.plist').read_bytes())
 for k in ('CFBundleName','CFBundleDisplayName','CFBundleExecutable'): p[k]='METATRON'
 p['NSHumanReadableCopyright']='Creado por Sebastián Pastén F. · Base Kumquat © 2026 iandifilippo, MIT'
-p.update(CFBundleIdentifier='local.metatron.app',CFBundleShortVersionString='2.2.0',CFBundleVersion='4',LSUIElement=False,NSPrincipalClass='NSApplication',CFBundleDevelopmentRegion='es')
+p.update(CFBundleIdentifier='local.metatron.app',LSUIElement=False,NSPrincipalClass='NSApplication',CFBundleDevelopmentRegion='es')
 p['NSLocalNetworkUsageDescription']='Comparte el archivo que eliges con otro dispositivo de tu red local.'
 p['NSAppleEventsUsageDescription']='Metatron puede leer la selección de Finder cuando usas su atajo.'
 p['NSServices'][0]['NSMenuItem']['default']='Convertir con Metatron'
@@ -55,21 +55,28 @@ SIGN_IDENTITY="${METATRON_SIGN_IDENTITY:--}"
 if [[ "$SIGN_IDENTITY" == - ]]; then
   /usr/bin/codesign --force --deep --sign - "$APP_BUNDLE"
 else
-  /usr/bin/codesign --force --options runtime --sign "$SIGN_IDENTITY" "$APP_BUNDLE/Contents/MacOS/metatron-cli"
-  /usr/bin/codesign --force --deep --options runtime --sign "$SIGN_IDENTITY" "$APP_BUNDLE"
+  /usr/bin/codesign --force --timestamp --options runtime --sign "$SIGN_IDENTITY" "$APP_BUNDLE/Contents/MacOS/metatron-cli"
+  /usr/bin/codesign --force --deep --timestamp --options runtime --sign "$SIGN_IDENTITY" "$APP_BUNDLE"
 fi
 /usr/bin/codesign --verify --deep --strict "$APP_BUNDLE"
 mkdir -p "$ROOT_DIR/dist"
 /usr/bin/ditto -c -k --keepParent --norsrc --noextattr "$APP_BUNDLE" "$ROOT_DIR/dist/$APP_NAME.zip"
 /usr/bin/ditto "$APP_BUNDLE" "$ROOT_DIR/dist/$APP_NAME.app"
+"$ROOT_DIR/script/verify_package.sh" "$ROOT_DIR/dist/$APP_NAME.zip"
+(cd "$ROOT_DIR/dist" && /usr/bin/shasum -a 256 "$APP_NAME.zip" > SHA256SUMS.txt)
+# Xcode's intermediate unsigned copy must not compete with the distributed app
+# in Launch Services / Shortcuts discovery after a local build.
+LSREGISTER=/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister
+"$LSREGISTER" -u "$ROOT_DIR/.build/xcode/Build/Products/$XCODE_CONFIGURATION/$APP_NAME.app" >/dev/null 2>&1 || true
+"$LSREGISTER" -f "$ROOT_DIR/dist/$APP_NAME.app" >/dev/null 2>&1 || true
 APP_BUNDLE="$ROOT_DIR/dist/$APP_NAME.app"
 /usr/bin/xattr -dr com.apple.FinderInfo "$APP_BUNDLE" 2>/dev/null || true
 /usr/bin/xattr -dr com.apple.ResourceFork "$APP_BUNDLE" 2>/dev/null || true
 if [[ "$MODE" == --build-only ]]; then echo "$APP_BUNDLE"; exit 0; fi
 case "$MODE" in
  --debug) xcrun lldb -- "$APP_BUNDLE/Contents/MacOS/$APP_NAME";;
- --verify) /usr/bin/open -n "$APP_BUNDLE"; sleep 2; pgrep -x "$APP_NAME" >/dev/null; echo "Metatron abierto y en ejecución";;
- --logs) /usr/bin/open -n "$APP_BUNDLE"; /usr/bin/log stream --info --style compact --predicate 'process == "Metatron"';;
- --telemetry) /usr/bin/open -n "$APP_BUNDLE"; /usr/bin/log stream --info --style compact --predicate 'subsystem == "local.metatron.app"';;
- *) /usr/bin/open -n "$APP_BUNDLE";;
+ --verify) /usr/bin/open "$APP_BUNDLE"; sleep 2; pgrep -x "$APP_NAME" >/dev/null; echo "Metatron abierto y en ejecución";;
+ --logs) /usr/bin/open "$APP_BUNDLE"; /usr/bin/log stream --info --style compact --predicate 'process == "METATRON"';;
+ --telemetry) /usr/bin/open "$APP_BUNDLE"; /usr/bin/log stream --info --style compact --predicate 'subsystem == "local.metatron.app"';;
+ *) /usr/bin/open "$APP_BUNDLE";;
 esac
