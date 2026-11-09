@@ -2,21 +2,38 @@
   <img src="docs/assets/brand/app-icon.png" width="112" alt="Icono de METATRON">
   <h1>METATRON</h1>
   <p><strong>Ordena tus archivos. Recupera tu tiempo.</strong></p>
-  <p>Convierte, organiza y automatiza desde una aplicación nativa para macOS.</p>
+  <p>Convierte, organiza y automatiza archivos desde tu Mac.</p>
   <p>
-    <img alt="macOS 14 o posterior" src="https://img.shields.io/badge/macOS-14%2B-183B4A?logo=apple&logoColor=white">
-    <img alt="Swift 6" src="https://img.shields.io/badge/Swift-6-365D72?logo=swift&logoColor=white">
-    <img alt="Apple Silicon" src="https://img.shields.io/badge/Apple_Silicon-M1_ready-476957">
-    <a href="LICENSE"><img alt="Licencia MIT" src="https://img.shields.io/badge/license-MIT-58616B"></a>
+    <img alt="macOS 14 o posterior" src="https://img.shields.io/badge/macOS-14%2B-183B4A?style=flat-square&amp;logo=apple&amp;logoColor=white">
+    <img alt="Apple Silicon" src="https://img.shields.io/badge/Apple_Silicon-arm64-365D72?style=flat-square">
+    <img alt="Versión 2.2.0" src="https://img.shields.io/badge/versi%C3%B3n-2.2.0-58616B?style=flat-square">
   </p>
-  <p><a href="#empezar">Empezar</a> · <a href="#seis-formas-de-trabajar">Presentaciones</a> · <a href="docs/FEATURES.md">Alcance</a> · <a href="docs/COMPARISON.md">Comparativa</a> · <a href="CONTRIBUTING.md">Contribuir</a> · <a href="https://ko-fi.com/C0C51WQ1T0">Apoyar</a></p>
+  <p><a href="https://github.com/AD0441/METATRON/releases/tag/v2.2.0">Descargar 2.2.0</a> · <a href="#qué-nos-diferencia">Ventajas</a> · <a href="#en-uso">En uso</a> · <a href="#empezar">Empezar</a> · <a href="docs/FEATURES.md">Alcance</a> · <a href="https://ko-fi.com/C0C51WQ1T0">Apoyar</a></p>
 </div>
 
-![METATRON — identidad geométrica original](docs/assets/brand/cover.png)
+![METATRON: cubo de acciones sobre un archivo del escritorio, logo sobre el nombre y eslogan. Simplicidad con impacto.](docs/assets/promo/photographic-cover.png)
+
+*Composición promocional generada con IA a partir de recursos reales de la app. [Procedencia y capturas originales](docs/assets/promo/photographic-cover.md).*
 
 **METATRON** reúne conversiones de archivos, recetas de varios pasos, carpetas favoritas y una cola con resultados verificables. Su identidad parte del cubo de Metatrón: círculos y conexiones, con una interpretación gráfica propia y sin figuras antropomórficas.
 
 **Creado por Sebastián Pastén F.** Construido sobre [Kumquat](https://github.com/iandifilippo/Kumquat), bajo MIT, e inspirado en el flujo de trabajo de Tangerine. Se conserva la atribución de la base en [UPSTREAM.md](UPSTREAM.md).
+
+## Simplicidad con impacto
+
+**Concéntrate en lo que vale la pena.** Creamos herramientas nativas para Mac que reúnen lo necesario en un flujo claro: menos pasos repetidos, decisiones visibles y control sobre tu trabajo. En METATRON, eso significa resolver las tareas repetidas con archivos y volver al trabajo que estabas haciendo.
+
+Compartimos una filosofía y una [identidad visual](docs/FAMILY.md); cada aplicación conserva su propósito, su sello y sus límites.
+
+## Qué nos diferencia
+
+| Lo que necesitas | Nuestra ventaja práctica | Alcance que debes conocer |
+| --- | --- | --- |
+| Repetir una tarea con varios pasos | Recetas editables con calidad, metadatos y destino; simulación antes de ejecutar. | El resultado y los formatos disponibles dependen de cada motor. |
+| Revisar un lote y sus salidas | Cola, actividad exportable, hashes y recibos en el mismo espacio de trabajo. | La fidelidad de documentos complejos requiere revisión. |
+| Actuar desde donde estás trabajando | Acceso contextual, destinos favoritos y seis presentaciones con las mismas acciones. | Las acciones nativas de Atajos siguen bloqueadas en la distribución ad hoc. |
+
+Sobre la base MIT de **Kumquat**, METATRON añade su espacio de trabajo, recetas encadenadas y publicación verificable. **Tangerine** ya ofrece [conversión local y acciones contextuales](https://www.tangerineformac.com/press); el aporte de METATRON es reunir esos accesos con la cola, las recetas y la revisión de resultados. [Comparativa, atribuciones y límites](docs/COMPARISON.md).
 
 ## Mejoras respecto a Kumquat y Tangerine
 
@@ -161,11 +178,13 @@ Los aportes voluntarios ayudan a mantener el desarrollo y las pruebas de METATRO
 
 ## Identidad y licencia
 
-El símbolo, los iconos de documentación y la portada se generan con geometría original. Se incluyen SVG, PNG, ICNS y el [generador reproducible](script/make_brand.swift). La imagen aportada por el usuario se utilizó como referencia visual y no se redistribuye. [Criterios de identidad y referencias](docs/BRAND.md).
+El símbolo y los iconos de documentación usan geometría original, con SVG, PNG, ICNS y [generador reproducible](script/make_brand.swift). La portada actual aplica la [identidad común de la familia](docs/FAMILY.md) mediante una ilustración promocional generada; conserva el sello propio. La imagen original aportada por el usuario no se redistribuye. [Criterios de identidad y referencias](docs/BRAND.md).
 
 MIT. Se mantiene el copyright de Kumquat y se identifican los aportes de METATRON. No existe afiliación con Tangerine, Apple o los proyectos citados.
 
 <div align="center">
-  <picture><source media="(prefers-color-scheme: dark)" srcset="docs/assets/brand/symbol-dark.svg"><img src="docs/assets/brand/symbol-light.svg" width="70" alt="Símbolo de METATRON"></picture>
+  <p><strong>Simplicidad con impacto.</strong><br>Concéntrate en lo que vale la pena.</p>
+  <p><a href="https://github.com/AD0441/NABERIUS">NABERIUS</a> · <a href="https://github.com/AD0441/RAZIEL">RAZIEL</a> · <a href="https://github.com/AD0441/METATRON">METATRON</a> · <a href="https://github.com/AD0441/PAIMON">PAIMON</a> · <a href="https://github.com/AD0441/VAPULA">VAPULA</a></p>
   <p><strong>Creado por Sebastián Pastén F.</strong></p>
+  <p><a href="https://www.sebastianpasten.com/desarrollos-aplicaciones-para-mac-software-sdr">Más aplicaciones para Mac</a> · <a href="https://ko-fi.com/C0C51WQ1T0">Apoyar en Ko-fi</a></p>
 </div>
