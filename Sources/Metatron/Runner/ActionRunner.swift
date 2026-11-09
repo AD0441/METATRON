@@ -44,7 +44,12 @@ final class ActionRunner {
         if settings.playSound { NSSound(named: "Pop")?.play() }
         if settings.revealInFinder { NSWorkspace.shared.activateFileViewerSelecting(outcome.outputs) }
         var trashed: [URL] = []
-        if settings.trashOriginal, case .convert = action {
+        let isAudioTranscript: Bool
+        if case .convert(let format) = action {
+            isAudioTranscript = [.txt, .md].contains(format) && files.allSatisfy { FileKind.of($0) == .audio }
+        } else { isAudioTranscript = false }
+        // A transcript loses voice/timing information and never replaces a recording.
+        if settings.trashOriginal, !isAudioTranscript, case .convert = action {
             for url in files {
                 var result: NSURL?
                 if (try? FileManager.default.trashItem(at: url, resultingItemURL: &result)) != nil, let r = result as URL? {

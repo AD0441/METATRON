@@ -7,16 +7,21 @@ import PDFKit
 public struct Engine: Sendable {
     public var options: ConversionOptions
     public var planner: OutputPlanner
+    public var speechProgress: @Sendable (String) async -> Void
 
-    public init(options: ConversionOptions = .init(), planner: OutputPlanner = .init()) {
+    public init(options: ConversionOptions = .init(), planner: OutputPlanner = .init(), speechProgress: @escaping @Sendable (String) async -> Void = { _ in }) {
         self.options = options
         self.planner = planner
+        self.speechProgress = speechProgress
     }
 
     /// - Parameter progress: called with (finished, total) after each file.
     public func run(_ action: KQAction, on urls: [URL], parameters: ToolParameters = .none,
                     progress: @escaping @Sendable (Int, Int) -> Void = { _, _ in }) async throws -> ActionOutcome {
         guard !urls.isEmpty else { throw MetatronError.badData("Añade al menos un archivo.") }
+        guard ActionCatalog.supports(action, for: urls) else {
+            throw MetatronError.unsupported("La operación elegida para " + Set(urls.map { $0.pathExtension.uppercased() }).sorted().joined(separator: ", ") + ". Revisa el tipo de archivo y los motores disponibles")
+        }
         let inputBytes = urls.reduce(0) { $0 + $1.fileSize }
         var outputs: [URL] = []
         var detail: String?
@@ -79,6 +84,13 @@ public struct Engine: Sendable {
         let ext = url.pathExtension.lowercased()
         let engines = Engines.current
         let out = { try planner.url(for: url, ext: format.fileExtension) }
+
+        if kind == .audio, [.txt, .md].contains(format) {
+            let transcript = try await AppleSpeech.transcribe(url, locale: options.speechLocale ?? "es-CL", progress: speechProgress)
+            let target = try out()
+            try AppleSpeech.write(transcript, source: url, to: target, format: format)
+            return [target]
+        }
 
         if format == .md {
             let target = try out()
@@ -295,6 +307,11 @@ public struct Engine: Sendable {
             try Data(text.utf8).write(to: out)
             return ([out], nil)
 
+        case .transcribeAudio:
+            let transcript = try await AppleSpeech.transcribe(url, locale: options.speechLocale ?? "es-CL", progress: speechProgress)
+            let out = try planner.url(for: url, tool: .transcribeAudio, ext: "txt")
+            try AppleSpeech.write(transcript, source: url, to: out, format: .txt)
+            return ([out], "Apple Speech · " + transcript.locale)
         case .extractPDFText:
             let out = try planner.url(for: url, tool: .extractPDFText, ext: "txt")
             try Data(PDFs.text(of: PDFs.open(url)).utf8).write(to: out)

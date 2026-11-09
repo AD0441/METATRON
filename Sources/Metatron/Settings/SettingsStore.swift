@@ -234,6 +234,7 @@ final class SettingsStore: ObservableObject {
         o.framesPerSecond = framesPerSecond > 0 ? framesPerSecond : nil
         o.pdfCompression = pdfCompression
         o.preferLibreOffice = preferLibreOffice
+        o.speechLocale = UserDefaults.standard.string(forKey: "speech.locale") ?? "es-CL"
         return o
     }
 

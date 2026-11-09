@@ -1,0 +1,32 @@
+{
+  "processes": {
+    "corespeechd_system": {
+      "samples": 122,
+      "peak_rss_kib": 96
+    },
+    "corespeechd": {
+      "samples": 122,
+      "peak_rss_kib": 4256
+    },
+    "aned": {
+      "samples": 122,
+      "peak_rss_kib": 12016
+    },
+    "speechmaintenanced": {
+      "samples": 122,
+      "peak_rss_kib": 624
+    },
+    "com.apple.siri.embeddedspeech": {
+      "samples": 122,
+      "peak_rss_kib": 36816
+    },
+    "localspeechrecognition": {
+      "samples": 146,
+      "peak_rss_kib": 185328
+    },
+    "aneuserd": {
+      "samples": 71,
+      "peak_rss_kib": 5824
+    }
+  }
+}

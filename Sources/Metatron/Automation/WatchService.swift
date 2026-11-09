@@ -58,6 +58,8 @@ final class WatchService {
                 return
             }
         }
-        WorkspaceStore.shared.enqueue(inputs: [url], recipe: recipe)
+        let configured = WorkspaceStore.shared.configuredRecipe(recipe)
+        guard RecipeCompatibility.issue(inputs: [url], recipe: configured) == nil else { return }
+        WorkspaceStore.shared.enqueue(inputs: [url], recipe: configured)
     }
 }

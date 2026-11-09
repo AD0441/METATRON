@@ -1,0 +1,26 @@
+{
+  "originals_checked": 12,
+  "all_original_hashes_unchanged": true,
+  "ui_jobs": {
+    "completed": 19,
+    "failed": 1,
+    "cancelled": 3
+  },
+  "published_records_verified": 38,
+  "receipts_verified": 19,
+  "recipe_image": {
+    "EXIF": false,
+    "file": "imagen-m1.jpg",
+    "GPS": false,
+    "height": 500,
+    "width": 800
+  },
+  "unicode_and_ocr_verified": true,
+  "audio_txt_markdown_without_summary": true,
+  "invalid_recipe_exit": 1,
+  "invalid_recipe_diagnostic": "Paso 1 · Redimensionar · 800 px: no es compatible con XLSX o falta el motor necesario.",
+  "invalid_recipe_created_directory": false,
+  "shutdown_published_partial": false,
+  "own_staging_leftovers": [],
+  "failed_png_message": "Couldn't read danado.png."
+}

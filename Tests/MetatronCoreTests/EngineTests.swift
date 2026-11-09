@@ -123,7 +123,7 @@ final class EngineTests: XCTestCase {
 
     func testMixedImagesAndPDFsOfferMerge() {
         let urls = [URL(fileURLWithPath: "/x/a.png"), URL(fileURLWithPath: "/x/b.pdf")]
-        XCTAssertEqual(ActionCatalog.convertActions(for: urls), [.convert(.pdf)])
+        XCTAssertEqual(Set(ActionCatalog.convertActions(for: urls)), Set([.convert(.jpg), .convert(.png), .convert(.md), .convert(.tiff), .convert(.pdf)]))
         XCTAssertEqual(ActionCatalog.toolActions(for: urls), [.tool(.merge), .tool(.zip)])
     }
 

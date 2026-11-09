@@ -1,0 +1,262 @@
+{
+  "counts": {
+    "failed": 1,
+    "cancelled": 3,
+    "completed": 19
+  },
+  "jobs": [
+    {
+      "id": "908F88D0-2D20-4F9F-9000-AD4FF450A440",
+      "inputs": [
+        "voz.aiff"
+      ],
+      "recipe": "Convirtiendo a TXT",
+      "state": "cancelled",
+      "message": "Cancelado. Los originales se conservan.",
+      "outputs": 0,
+      "created_at": "2026-11-03T12:44:03.432819-03:00"
+    },
+    {
+      "id": "9F8E72FD-E625-4607-83BF-1992232C8361",
+      "inputs": [
+        "salida.wav"
+      ],
+      "recipe": "Convirtiendo a TXT",
+      "state": "cancelled",
+      "message": "Cancelado. Los originales se conservan.",
+      "outputs": 0,
+      "created_at": "2026-11-03T12:44:03.432433-03:00"
+    },
+    {
+      "id": "B5FCB3BD-1AA7-49DA-AAAA-3757F9EEB2A6",
+      "inputs": [
+        "voz.aiff"
+      ],
+      "recipe": "Convirtiendo a TXT",
+      "state": "completed",
+      "message": "Transcripción automática local de Apple. Revisa nombres, cifras y puntuación.",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:42:44.566740-03:00"
+    },
+    {
+      "id": "AF154490-F654-4A15-99E4-325AF79B1D2C",
+      "inputs": [
+        "voz-larga.wav"
+      ],
+      "recipe": "Convirtiendo a TXT",
+      "state": "completed",
+      "message": "Transcripción automática local de Apple. Revisa nombres, cifras y puntuación.",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:42:44.566629-03:00"
+    },
+    {
+      "id": "0C45A9DA-D393-430E-853B-7E515CA356ED",
+      "inputs": [
+        "imagen.png"
+      ],
+      "recipe": "Convirtiendo a JPG",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:31:31.989110-03:00"
+    },
+    {
+      "id": "45806943-D6C3-4928-8020-F0AD94B4C47E",
+      "inputs": [
+        "danado.png"
+      ],
+      "recipe": "Convirtiendo a JPG",
+      "state": "failed",
+      "message": "Couldn't read danado.png.",
+      "outputs": 0,
+      "created_at": "2026-11-03T12:31:31.988880-03:00"
+    },
+    {
+      "id": "3BBB9C65-9CA1-478E-9E53-629C17AA3CBB",
+      "inputs": [
+        "voz.aiff"
+      ],
+      "recipe": "Convirtiendo a TXT",
+      "state": "completed",
+      "message": "Transcripción automática local de Apple. Revisa nombres, cifras y puntuación.",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:30:39.292000-03:00"
+    },
+    {
+      "id": "012C0AD8-409E-4ADA-816D-2B52A8A5E223",
+      "inputs": [
+        "voz-larga.wav"
+      ],
+      "recipe": "Convirtiendo a TXT",
+      "state": "cancelled",
+      "message": "Cancelado. Los originales se conservan.",
+      "outputs": 0,
+      "created_at": "2026-11-03T12:30:39.291769-03:00"
+    },
+    {
+      "id": "22057D84-C797-4AD6-AC57-736EDC2B16D9",
+      "inputs": [
+        "voz.aiff"
+      ],
+      "recipe": "Audio a Markdown · Apple local",
+      "state": "completed",
+      "message": "Transcripción automática local de Apple. Revisa nombres, cifras y puntuación.",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:29:54.039372-03:00"
+    },
+    {
+      "id": "6AF34CF3-8D5F-41BE-B9FA-0255715EF4D4",
+      "inputs": [
+        "voz.aiff"
+      ],
+      "recipe": "Convirtiendo a TXT",
+      "state": "completed",
+      "message": "Transcripción automática local de Apple. Revisa nombres, cifras y puntuación.",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:29:28.048133-03:00"
+    },
+    {
+      "id": "ABABF5E1-CC94-433A-A46D-32D2E81AC8EE",
+      "inputs": [
+        "imagen.jpg"
+      ],
+      "recipe": "M1 Legacy imagen QA",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:28:05.821699-03:00"
+    },
+    {
+      "id": "7CAD5371-5B21-4CC1-971F-18550D555520",
+      "inputs": [
+        "tabla.csv"
+      ],
+      "recipe": "Convirtiendo a Markdown",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:27:06.660142-03:00"
+    },
+    {
+      "id": "54BD8B44-6501-4C1A-8B84-92B2451B12E0",
+      "inputs": [
+        "imagen.png"
+      ],
+      "recipe": "Convirtiendo a Markdown",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:27:06.659924-03:00"
+    },
+    {
+      "id": "5D2F43C4-4C0E-44E5-A744-9E02A174A416",
+      "inputs": [
+        "escaneado.pdf"
+      ],
+      "recipe": "Convirtiendo a Markdown",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:25:13.462621-03:00"
+    },
+    {
+      "id": "C3CD6D28-2063-48EB-9B2B-14C6026A41EA",
+      "inputs": [
+        "texto.pdf"
+      ],
+      "recipe": "Convirtiendo a Markdown",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:25:05.245676-03:00"
+    },
+    {
+      "id": "0C6E680E-30DD-45D4-B4D7-136E507E1BA0",
+      "inputs": [
+        "notas.txt"
+      ],
+      "recipe": "Convirtiendo a PDF",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:24:52.705435-03:00"
+    },
+    {
+      "id": "8F538705-1D54-46C5-AADB-6252458E3C11",
+      "inputs": [
+        "tabla.xlsx"
+      ],
+      "recipe": "Convirtiendo a Markdown",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:24:39.012121-03:00"
+    },
+    {
+      "id": "498E58B8-9598-45A0-8931-8E5F9D3DDB1C",
+      "inputs": [
+        "imagen.png"
+      ],
+      "recipe": "Convirtiendo a JPG",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:23:42.961655-03:00"
+    },
+    {
+      "id": "E9D84D40-7423-48EC-9ED7-F88056E955C3",
+      "inputs": [
+        "imagen.png"
+      ],
+      "recipe": "Convirtiendo a JPG",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:23:29.632232-03:00"
+    },
+    {
+      "id": "DBDBAF4E-17AE-4945-803D-7E98751C6EC2",
+      "inputs": [
+        "imagen.png"
+      ],
+      "recipe": "Convirtiendo a JPG",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:23:09.395596-03:00"
+    },
+    {
+      "id": "446E9CA1-EC0A-43AD-B01E-A58F7D75F19B",
+      "inputs": [
+        "imagen.png"
+      ],
+      "recipe": "Convirtiendo a JPG",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:22:57.436872-03:00"
+    },
+    {
+      "id": "DAB87D55-5449-46BD-9334-B961FD28EBCF",
+      "inputs": [
+        "imagen.png"
+      ],
+      "recipe": "Convirtiendo a JPG",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:22:33.087683-03:00"
+    },
+    {
+      "id": "AD16C42F-2DAC-411B-A7FC-CDA166E150BC",
+      "inputs": [
+        "imagen.png"
+      ],
+      "recipe": "Convirtiendo a JPG",
+      "state": "completed",
+      "message": "Salida verificada",
+      "outputs": 2,
+      "created_at": "2026-11-03T12:21:26.296728-03:00"
+    }
+  ]
+}

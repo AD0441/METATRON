@@ -1,0 +1,11 @@
+{
+  "instances": [
+    {
+      "path": "/Applications/METATRON.app",
+      "pid": 2437,
+      "policy": 1
+    }
+  ],
+  "metal": "Apple M1",
+  "os": "Version 27.2 (Build 26B123)"
+}

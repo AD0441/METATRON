@@ -2,6 +2,8 @@
 /// translate the values and add a case to `AppLanguage`.
 enum Translations {
     static let es: [String: String] = [
+        "Audio to Text · Apple local": "Audio a texto · Apple local",
+        "Transcribe locally with Apple Speech · macOS 26+": "Transcribe localmente con Apple Speech · macOS 26+",
         // Ring and actions
         "Convert": "Convertir",
         "Tools": "Herramientas",

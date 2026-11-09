@@ -1,0 +1,19 @@
+{
+  "cases_exercised": 10,
+  "case_scope": "Aceptación acotada de M1, con límites registrados por caso; no es aceptación integral de 2.3.",
+  "tool_assisted_ui_jobs": 23,
+  "additional_manual_ui_jobs": 2,
+  "total_ui_jobs": 25,
+  "completed": 20,
+  "cancelled_intentionally": 3,
+  "failed_damaged_png": 2,
+  "original_inputs_verified": 12,
+  "additional_positive_drag_copy_verified": 1,
+  "total_receipts_verified": 20,
+  "published_records_verified": 40,
+  "manual_menu_user_report": "Sí, el menú aparece correctamente",
+  "menu_scope": "Aparición de Abrir, Pausar, Ajustes y Salir; no se infiere que el usuario accionara todos los comandos.",
+  "product_source_modified": false,
+  "installed_version": "2.3.0",
+  "installed_build": "7"
+}

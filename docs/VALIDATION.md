@@ -51,3 +51,27 @@ Se simplificó una expresión de la prueba de anonimización que agotaba el comp
 ## Mantenimiento 2.2.1
 
 La evidencia, alcance y pendientes posteriores a 2.2.0 están en [STABILITY-2.2.1.md](STABILITY-2.2.1.md). El candidato pasa 103 pruebas locales (una omitida por Ghostscript), empaquetado y conversión/vigilancia real desde el ZIP; no equivale a notarización ni valida ejecución nativa de Atajos.
+
+## Candidato 2.3 y consolidación documental · 2 de noviembre de 2026
+
+El candidato funcional revisado es **2.3.0 build 7**, commit `0f86ca829eb93a2b40796b01a5788d318d952c68`. La evidencia local previa registra **50 XCTest y 78 Swift Testing (128 pruebas), sin fallos ni omisiones**, además de repeticiones dirigidas. El [CI de ese commit](https://github.com/AD0441/METATRON/actions/runs/40792241911) pasó pruebas, compilación release, verificación del paquete y conservación del artefacto. Este registro actualiza la referencia del candidato; no altera los conteos históricos anteriores.
+
+La CLI distribuida se probó previamente con conversión y vigilancia reales sobre datos sintéticos. Apple Speech produjo TXT y Markdown desde audio sintético es-CL y canceló un audio largo conservando el original y sin salidas parciales. No se descargaron modelos; la ejecución nativa se comprobó localmente, no mediante modelos instalados en CI.
+
+La copia en Aplicaciones fue verificada al instalarla y su versión se consultó en esta revisión. Esto no acredita una nueva aceptación integral de la interfaz instalada. El 2 de noviembre se revisaron documentos, código, versión y metadatos de GitHub; **no se volvieron a ejecutar aquí las 128 pruebas ni una auditoría de interfaz, red, accesibilidad o rendimiento**.
+
+La [especificación](REQUIREMENTS.md) y la [matriz actual](STATUS.md) enumeran el plan de aceptación pendiente. La release pública continúa en 2.2.0 y ambas propuestas siguen abiertas. Firma ad hoc acordada; Atajos ejecutable con firma Apple permanece condicionado. La auditoría práctica de 2.3, el perfil sostenido en M1/8 GB y la revisión offline/VoiceOver no se consideran cerrados por esta consolidación.
+
+## Ejecución de M1/S1 · 3 de noviembre de 2026
+
+Se probó la copia instalada 2.3.0 build 7 mediante su interfaz, sin recompilar ni instalar recursos. El [informe](M1-S1-RESULTS.md) y sus [artefactos](acceptance/M1-S1-2026-11-03/README.md) cierran diez comprobaciones acotadas de M1. No equivale a aceptación integral ni a una nueva ejecución de las 128 pruebas.
+
+Hubo 25 trabajos UI: 20 completados, tres cancelaciones intencionales y dos errores esperados del PNG dañado. La fase inicial registró 23; después se verificó el arrastre de la imagen válida y se separó el intento manual sobre el archivo dañado. El usuario confirmó la aparición del menú superior; no se infiere que accionara todos sus comandos. Se verificaron 12 entradas y la copia de arrastre intactas, 20 recibos y 40 registros publicados.
+
+OCR, Excel/Unicode, PDF, receta con retirada de metadatos y TXT/Markdown de audio produjeron el contenido esperado. Cerrar conservó el proceso; Salir durante audio activo canceló también la cola pendiente y terminó sin publicar parciales. Se restauraron perfil y recientes tras respaldar las evidencias de ambas fases.
+
+Para M2 quedaron el diagnóstico de PNG en inglés, el contraste de foco/⌘W y la carga de tiempo/memoria. En M1 se conservaron la fuente, la versión instalada y la release pública.
+
+## Ejecución de M2 · 6 de noviembre de 2026
+
+La candidata 2.3.0 build 8 corrigió el error de lectura en Actividad. Pasaron seis pruebas dirigidas de la cola y la comprobación gráfica con ambos PNG. El autor confirmó el cierre manual con ⌘W después de Escape. El [informe de M2](M2-RESULTS.md) registra tres repeticiones por carga de CLI, reposo gráfico, el primer OCR lento y el alcance pendiente de AC-16. Se verificó el ZIP con firma ad hoc. La instalación existente conserva la build 7.

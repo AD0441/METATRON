@@ -25,6 +25,8 @@ public struct ConversionOptions: Sendable, Equatable, Codable, Hashable {
     public var pdfCompression: PDFCompression = .balanced
     /// Use LibreOffice (when installed) for Word → PDF, which keeps complex layouts.
     public var preferLibreOffice: Bool = true
+    /// Optional for compatibility with previously exported recipes.
+    public var speechLocale: String? = nil
 
     public enum PDFCompression: String, Sendable, Codable, CaseIterable {
         /// Recompresses images; text stays selectable.
@@ -114,6 +116,7 @@ public struct OutputPlanner: Sendable {
         case .grayscale: return "B&W"
         case .stripMetadata: return "Clean"
         case .extractText, .extractPDFText: return "Text"
+        case .transcribeAudio: return "Transcript"
         case .merge: return "Merged"
         case .split: return "Page"
         case .protect: return "Protected"
