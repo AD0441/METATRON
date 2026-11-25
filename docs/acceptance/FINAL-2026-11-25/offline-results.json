@@ -1,0 +1,36 @@
+{
+  "network_denial_control": true,
+  "policy": "(version 1)(allow default)(deny network*)",
+  "cases": [
+    {
+      "case": "image",
+      "status": "passed",
+      "published_files_verified": 1,
+      "receipt_verified": true
+    },
+    {
+      "case": "table",
+      "status": "passed",
+      "published_files_verified": 1,
+      "receipt_verified": true
+    },
+    {
+      "case": "pdf",
+      "status": "passed",
+      "published_files_verified": 1,
+      "receipt_verified": true
+    },
+    {
+      "case": "speech",
+      "status": "passed",
+      "published_files_verified": 1,
+      "receipt_verified": true
+    },
+    {
+      "case": "office",
+      "status": "not_executed_nested_sandbox_unsupported",
+      "control_allow_default_also_fails": true
+    }
+  ],
+  "scope": "CLI process under network denial; shared system services are outside this audit"
+}

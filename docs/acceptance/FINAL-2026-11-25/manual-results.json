@@ -1,0 +1,22 @@
+{
+  "date": "2026-11-25",
+  "build": 9,
+  "confirmation": "El usuario confirmó que las seis presentaciones funcionan correctamente",
+  "scope": [
+    "ejecutar una conversión",
+    "cambiar de categoría",
+    "cerrar con Escape"
+  ],
+  "presentations": [
+    "Ruleta",
+    "Cubo",
+    "Burbujas",
+    "Menú",
+    "Panel",
+    "Comandos"
+  ],
+  "unverified": [
+    "VoiceOver completo",
+    "segunda pantalla y otros escalados"
+  ]
+}

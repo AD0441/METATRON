@@ -1,4 +1,4 @@
-# Alcance de METATRON 2.2.0
+# Alcance de METATRON 2.3.1
 
 Las capacidades dependen del formato concreto, los codificadores disponibles y la versión de macOS. La rueda consulta el catálogo de acciones del equipo. Esta tabla distingue funcionamiento implementado de equivalencia completa con otras aplicaciones.
 
@@ -9,7 +9,7 @@ Las capacidades dependen del formato concreto, los codificadores disponibles y l
 | Markdown | Salida directa desde PDF, documentos, imágenes (OCR), tablas y subtítulos; receta dedicada, acciones y CLI. | Estructura básica; PDF por páginas, tablas de datos y énfasis/enlaces de documentos. El motor nativo no equivale a una reconstrucción semántica completa. MarkItDown y Docling son opcionales; véase [Documentos](DOCUMENTS.md). |
 | Organización | Carpetas favoritas con nombre y orden; cuarta página de destinos, barra de favoritos y movimientos reversibles. | Se deshace el último movimiento registrado. La ruleta muestra hasta 12 favoritos; los otros modos muestran todos. |
 | Actividad | Buscar, filtrar, exportar JSON, limpiar registros y retención ilimitada/7/14/30 días. | Retirar un registro elimina su acceso a deshacer la conversión; conserva archivos y trabajos activos. |
-| Documentos | Lectura/escritura de formatos de texto, Word, RTF, HTML, ODT y EPUB; PDF mediante AppKit o LibreOffice disponible. | No reproduce todos los elementos de Word/Pages/Keynote. No hay un escritor nativo de Pages. |
+| Documentos | Lectura/escritura de formatos de texto, Word, RTF, HTML, ODT y EPUB; PDF con vista previa Office local para DOC/DOCX/ODT, AppKit para otras rutas o LibreOffice opcional. | No reproduce todos los elementos de Word/Pages/Keynote. No hay un escritor nativo de Pages. |
 | Hojas y datos | CSV, TSV, XLSX, JSON y PLIST, con exportaciones tabulares. | El contenido tabular no equivale a preservar todas las fórmulas, gráficos y estilos de una planilla compleja. Office antiguo y algunos formatos necesitan LibreOffice. |
 | Audio y vídeo | Conversiones nativas y FFmpeg, GIF, compresión, silencio, fotogramas; recorte y unión de vídeo; normalización y mono. | Los códecs dependen del equipo. Normalización/mono usan FFmpeg; unión comprueba orientación y puede requerir normalizar previamente los clips. No incluye una línea de tiempo de edición completa. |
 | Subtítulos y archivos | SRT/VTT/TXT; ZIP/TAR.GZ y extracción con herramientas del sistema. | La compatibilidad de extracción depende de libarchive en macOS. |
@@ -35,3 +35,7 @@ Anonimización avanzada por patrones, extracción semántica equivalente a Docli
 ## Rama 2.3 · audio a texto
 
 Apple Speech local a TXT/Markdown, macOS 26+, idioma configurable, sin resumen y sin descarga implícita de modelos. Acción contextual, recetas, carpetas vigiladas y CLI. Consulta [requisitos, límites y validación](AUDIO-TRANSCRIPTION.md).
+
+## Guardado y cierre 2.3.1
+
+Los trabajos nuevos respetan Ajustes → Guardado: misma carpeta, subcarpeta o carpeta fija; una carpeta explícita de receta tiene prioridad. El comprobante JSON adicional es opcional y Actividad conserva verificación y reversión. Word a PDF mantiene las limitaciones descritas en RELEASE-2.3.1.md. Audio a TXT/Markdown utiliza Apple Speech local en macOS 26+, sin resumen ni diarización.

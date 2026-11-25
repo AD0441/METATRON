@@ -38,6 +38,25 @@ struct OutputPreferenceTests {
         #expect(try FileIntegrity.digest(source) == before)
     }
 
+    @Test func disablingReceiptsPreservesJSONResults() async throws {
+        let fixture = try Fixtures()
+        defer { fixture.clean() }
+        let input = fixture.directory.appendingPathComponent("table.csv")
+        try Data("Nombre,Valor\nReunión,42\n".utf8).write(to: input)
+        let before = try FileIntegrity.digest(input)
+        var recipe = Recipe(name: "JSON", steps: [.init(action: "convert.json")])
+        recipe.writeReceipt = false
+        let result = try await RecipeExecutor.execute(inputs: [input], recipe: recipe)
+        #expect(result.files.count == 1)
+        let output = try #require(result.files.first)
+        #expect(output.url.pathExtension == "json")
+        let data = try Data(contentsOf: output.url)
+        let rows = try #require(JSONSerialization.jsonObject(with: data) as? [[String: Any]])
+        #expect(rows.first?["Nombre"] as? String == "Reunión")
+        #expect(try FileIntegrity.digest(input) == before)
+        #expect(try FileIntegrity.digest(output.url) == output.digest)
+    }
+
     @Test func legacyRecipesKeepTheirOutputContract() throws {
         let recipe = Recipe(name: "Legacy", steps: [.init(action: "convert.jpg")])
         let data = try JSONEncoder().encode(recipe)

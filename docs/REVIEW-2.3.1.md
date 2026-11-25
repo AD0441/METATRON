@@ -20,7 +20,7 @@ Ajustes → Guardado se aplica a los trabajos nuevos del espacio de trabajo, acc
 
 La carpeta explícita de una receta tiene prioridad. La CLI sin estos campos conserva el comportamiento anterior: subcarpeta Metatron. Simular y ejecutar comparten el mismo plan de destino.
 
-«Guardar comprobante JSON junto al resultado» controla únicamente el recibo adicional. La integridad y los datos para deshacer siguen registrados en Actividad. Los resultados de formato JSON y los archivos propios de paquetes documentales no se eliminan. Las carpetas vigiladas rechazan destinos dentro de otra entrada vigilada, incluida su propia carpeta, para evitar ciclos de procesamiento.
+«Guardar comprobante JSON junto al resultado» controla únicamente el recibo adicional. La integridad y los datos para deshacer siguen registrados en Actividad. Los resultados de formato JSON y los archivos propios de paquetes documentales no se eliminan. Las carpetas vigiladas rechazan destinos que coinciden con otra entrada vigilada, incluida su propia carpeta, para evitar ciclos de procesamiento.
 
 ## Revisión visual
 
@@ -33,3 +33,9 @@ Se generaron 49 vistas nativas de comprobación: ocho secciones y diez paneles d
 ## Validación
 
 La batería completa pasó: 50 XCTest y 86 pruebas Swift Testing, sin fallos ni omisiones. Incluye destinos con/sin recibo, coincidencia entre simulación y ejecución, reversión, cancelación sin salidas parciales, compatibilidad de recetas anteriores y el documento multipágina. Una primera ejecución en la copia temporal falló por no haber copiado el icono usado como fixture por una prueba existente; se añadió el recurso y se repitió correctamente la batería completa. El paquete release pasó `script/verify_package.sh`: firma ad hoc estricta de app y CLI, metadatos 2.3.1/build 9, recursos, tres App Intents y arquitectura arm64. La CLI distribuida convirtió CSV a Markdown, preservó el original y verificó hashes del recibo; la carpeta vigilada convirtió un nuevo CSV y terminó con Ctrl+C. La misma CLI convirtió la reproducción privada del Word a PDF y verificó sus hashes. La distribución conserva firma local ad hoc. No se dispone de Team ID ni notarización; la limitación conocida de ejecución de App Intents en Atajos continúa vigente.
+
+## Seguimiento del cierre, build 10
+
+El usuario confirmó el 25 de noviembre que las seis presentaciones ejecutan una conversión, cambian de categoría y cierran con Escape. El CI en macOS 26 pasó las pruebas y el paquete de la candidata; se omitieron tres pruebas de motores externos ausentes. La build 10 añade únicamente medición de apertura contextual sin contenido ni rutas. La aceptación prolongada y los límites de privacidad/compatibilidad se registran en acceptance/FINAL-2026-11-25.
+
+La batería final de build 10 pasó 50 XCTest + 87 Swift Testing (137), sin fallos ni omisiones. Se comprobó además que omitir recibos conserva una salida de formato JSON. El cierre de 30 minutos verificó 80 trabajos y 160 archivos publicados, con originales y perfil del usuario intactos. Las métricas y el caso Office no ejecutable bajo sandbox anidado se conservan en el informe de cierre.

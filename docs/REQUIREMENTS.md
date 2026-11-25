@@ -1,14 +1,14 @@
 # METATRON — Especificación de requerimientos del producto
 
-**Versión del documento:** 1.0 · **Corte:** 2 de noviembre de 2026.
+**Versión del documento:** 1.1 · **Actualización:** 25 de noviembre de 2026.
 
 **Producto:** METATRON · utilidad nativa de archivos y flujos reutilizables para macOS.
 
 **Autor / identidad editorial:** Sebastián Pastén F.
 
-**Base revisada:** candidato 2.3.0 build 7, commit `0f86ca829eb93a2b40796b01a5788d318d952c68`.
+**Entrega revisada:** 2.3.1 build 10. La base integrada de 2.3 es `1fc48d649e843e17994d876a01357b9b3bd1a74c`; #1 se integró antes de #2. El cierre se reúne en [PR #3](https://github.com/AD0441/METATRON/pull/3).
 
-**Distribución pública al corte:** [2.2.0](https://github.com/AD0441/METATRON/releases/tag/v2.2.0). Las propuestas [#1 — estabilización](https://github.com/AD0441/METATRON/pull/1) y [#2 — versión 2.3](https://github.com/AD0441/METATRON/pull/2) siguen abiertas y sin integrar. La copia instalada revisada declara 2.3.0 build 7.
+La línea base histórica del 6 de noviembre queda en STATUS-2026-11-06.md. El estado vigente está en STATUS.md; no se deduce de las versiones históricas citadas por cada requisito.
 
 > **Propósito:** convertir, transformar, verificar y automatizar archivos locales con la misma sencillez para una operación aislada que para una receta completa.
 
@@ -23,7 +23,7 @@ Esta línea base consolida lo solicitado, lo mejorado y el trabajo pendiente. Ad
 - **Implementado** acredita presencia funcional y evidencia acotada; no significa validación universal. **Parcial** identifica límites de alcance; **Por validar** exige completar aceptación; **Pendiente** indica trabajo no realizado; **Condicionado** depende de un recurso externo aplazado.
 - Los requisitos nuevos de formalización, accesibilidad, medición y compatibilidad se identifican como propuestas; no se atribuyen retroactivamente al usuario. Las prioridades son una organización propuesta para revisión, salvo el orden de estabilización expresamente acordado.
 - Los documentos históricos conservan su fecha. Sus conteos y omisiones no reemplazan el estado del candidato. Referencias de código y pruebas están en el registro de evidencia de STATUS.md.
-- Esta tarea documental no fusiona ramas, publica una release, cambia la app instalada ni instala motores o modelos.
+- La especificación no ejecuta acciones por sí sola. Las integraciones, pruebas y publicaciones se registran con su evidencia; los motores y modelos adicionales requieren un alcance explícito.
 
 ## 1. Decisiones consolidadas
 
@@ -369,6 +369,15 @@ Quedan fuera de la garantía actual la equivalencia universal con Tangerine, fid
   - **Aceptación:** La comparativa distingue heredado, propio y no confirmado, y cada afirmación corresponde a evidencia fechada.
   - **Origen:** Consulta expresa sobre diferenciación. **Introducción / alcance:** 2.0 y posterior.
 
+### Adiciones 2.3.1 · Guardado y comprobantes
+
+- **ORG-07 [P0]** Aplicar a trabajos nuevos el destino de Ajustes: junto al original, subcarpeta o carpeta fija. Una carpeta explícita de receta tiene prioridad; la CLI conserva el contrato anterior si no recibe estos campos.
+  - **Aceptación:** Simulación y ejecución coinciden en los tres destinos, resuelven colisiones, conservan originales y rechazan subcarpetas que escapen de la entrada.
+  - **Origen:** Solicitud expresa del 25 de noviembre de 2026. **Introducción / alcance:** 2.3.1.
+- **INT-07 [P0]** Permitir omitir el comprobante JSON adicional conservando verificación e historial para deshacer.
+  - **Aceptación:** Con/sin comprobante se verifican hashes, reversión y cancelación sin salidas parciales. Se conservan los resultados JSON y los archivos internos de paquetes documentales.
+  - **Origen:** Solicitud expresa del 25 de noviembre de 2026. **Introducción / alcance:** 2.3.1.
+
 ## 4. Criterios medibles de calidad propuestos
 
 Estos objetivos son **provisionales y pendientes de medición**, no garantías ni resultados alcanzados. AC-16 debe confirmarlos o proponer un ajuste documentado con evidencia.
@@ -444,3 +453,7 @@ Para cada ejecución registrar: fecha, commit/build y ruta de la app, macOS/hard
 - Este documento usa Naberius como patrón documental y no modifica ese proyecto. Las propuestas aquí identificadas no suponen adoptar sus dependencias ni copiar instrucciones de proceso ajenas.
 
 **Creado por Sebastián Pastén F.**
+
+## Corte de entrega 2.3.1
+
+La especificación contiene 90 requisitos. STATUS.md registra estados y límites vigentes. Las ejecuciones M1/M2/M3 conservan sus fechas; una release final no convierte en implementadas las ampliaciones P1/P2 ni certifica los entornos no ensayados.
