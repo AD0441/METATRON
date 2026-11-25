@@ -47,6 +47,19 @@ public struct Recipe: Codable, Hashable, Identifiable, Sendable {
     public var documentEnginePath: String? = nil
     /// Optional restriction for workflows with a specific intent, e.g. audio -> Markdown.
     public var inputKinds: Set<FileKind>? = nil
+    /// Nil uses the caller's defaults. Explicit recipe folders take precedence.
+    public var outputLocation: OutputLocation? = nil
+    public var writeReceipt: Bool? = nil
+
+    public func outputDirectory(for input: URL) throws -> URL {
+        if let folderPath { return URL(fileURLWithPath: folderPath, isDirectory: true) }
+        switch outputLocation ?? .subfolder("Metatron") {
+        case .nextToOriginal: return input.deletingLastPathComponent()
+        case .subfolder(let name):
+            return input.deletingLastPathComponent().appendingPathComponent(try FileIntegrity.safeComponent(name), isDirectory: true)
+        case .folder(let url): return url
+        }
+    }
     public init(name: String, steps: [RecipeStep], suffix: String = "-metatron", quality: Double = 0.85, preserveMetadata: Bool = true, folderPath: String? = nil, inputKinds: Set<FileKind>? = nil) {
         id = UUID(); self.name = name; self.steps = steps; self.suffix = suffix
         self.quality = quality; self.preserveMetadata = preserveMetadata; self.folderPath = folderPath

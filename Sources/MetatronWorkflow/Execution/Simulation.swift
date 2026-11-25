@@ -64,7 +64,7 @@ public enum Simulation {
                 if step.action == "targetSize" { warnings.append("El límite se comprueba; el trabajo falla si no puede alcanzarse con calidad mínima.") }
                 if ["normalizeAudio", "monoAudio"].contains(step.action), Engines.current.ffmpeg == nil { warnings.append("Requiere FFmpeg.") }
             }
-            let directory = recipe.folderPath.map { URL(fileURLWithPath: $0, isDirectory: true) } ?? input.deletingLastPathComponent().appendingPathComponent("Metatron", isDirectory: true)
+            let directory = try recipe.outputDirectory(for: recipe.groupsInputs ? inputs[0] : input)
             var proposed = directory.appendingPathComponent(stem + recipe.suffix)
             if !ext.isEmpty { proposed.appendPathExtension(ext) }
             let output = FileIntegrity.unique(proposed, reserved: &reserved)

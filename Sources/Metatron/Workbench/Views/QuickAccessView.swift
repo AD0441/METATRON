@@ -28,9 +28,9 @@ final class QuickAccessController {
     var isVisible: Bool { panel?.isVisible == true }
     func show(model: RingModel, at point: NSPoint, style: QuickAccessStyle, mode: RingModel.Mode) {
         hide()
-        let geometric = false
-        let width: CGFloat = geometric ? 520 : style == .panel ? 540 : 420
-        let height: CGFloat = style == .bubbles ? 430 : geometric ? 610 : style == .compact ? 460 : 500
+        let width: CGFloat = style == .panel ? 620 : style == .commands ? 480 : 420
+        let rows = style == .panel ? model.items.count : model.allPages.reduce(0) { $0 + $1.count }
+        let height = min(600, max(320, CGFloat(rows) * 48 + (style == .compact ? 220 : 170)))
         let p = ActionPanel(contentRect: NSRect(x: 0, y: 0, width: width, height: height), styleMask: [.titled, .closable, .utilityWindow], backing: .buffered, defer: false)
         p.onDismiss = { [weak self] in self?.hide() }
         p.hidesOnDeactivate = false
@@ -69,16 +69,19 @@ struct QuickAccessView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
-                Image(systemName: "doc.on.doc").foregroundStyle(.secondary)
-                Text(model.files.count == 1 ? model.files[0].lastPathComponent : "\(model.files.count) archivos").font(.headline).lineLimit(1)
+                FileIcon(urls: model.files).frame(width: 30, height: 30)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(model.files.count == 1 ? model.files[0].lastPathComponent : "\(model.files.count) archivos").font(.system(size: 13, weight: .semibold)).lineLimit(1).truncationMode(.middle)
+                    Text(style.title).font(.caption).foregroundStyle(.secondary)
+                }
                 Spacer()
                 Button { QuickAccessController.shared.hide(); SettingsWindowController.shared.show(.general) } label: { Image(systemName: "gearshape") }.buttonStyle(.plain).help("Cambiar presentación")
             }.padding(16)
             if style == .panel {
-                Picker("Categoría", selection: $model.page) { ForEach(0..<groups.count,id:\.self) { Text(titles[$0]).tag($0) } }.pickerStyle(.segmented).padding(.horizontal, 16).padding(.bottom, 12)
+                Picker("Categoría", selection: $model.page) { ForEach(0..<groups.count,id:\.self) { Text(titles[$0]).tag($0) } }.pickerStyle(.segmented).labelsHidden().controlSize(.small).padding(.horizontal, 16).padding(.bottom, 14)
             }
             if style == .commands {
-                TextField("Buscar formato, herramienta o destino", text: $query).textFieldStyle(.roundedBorder).focused($searchFocused)
+                TextField("Buscar formato, herramienta o destino", text: $query).textFieldStyle(.roundedBorder).controlSize(.large).focused($searchFocused)
                     .onSubmit { runSelection() }.padding(.horizontal, 16).padding(.bottom, 12)
                     .onKeyPress(.downArrow) { moveSelection(1); return .handled }
                     .onKeyPress(.upArrow) { moveSelection(-1); return .handled }
@@ -101,6 +104,7 @@ struct QuickAccessView: View {
             Text(style == .commands ? "↑↓ elegir · ↩ ejecutar · Esc cerrar" : "Haz clic o suelta los archivos sobre una acción.")
                 .font(.caption).foregroundStyle(.secondary).padding(12)
         }.background(MetatronStyle.canvas)
+            .font(.system(size: 13))
             .onExitCommand { QuickAccessController.shared.hide() }
             .task { if style == .commands { searchFocused = true }; selected = visible.first?.id }
             .onChange(of: query) { _, _ in selected = visible.first?.id }
@@ -108,15 +112,16 @@ struct QuickAccessView: View {
     private func row(_ item: RingItem) -> some View {
         Button { QuickAccessController.perform(item, files: model.files) } label: {
             HStack(spacing: 12) {
-                Image(systemName: item.symbol).foregroundStyle(MetatronStyle.accent).frame(width: 20)
+                Image(systemName: item.symbol).font(.system(size: 15, weight: .medium)).foregroundStyle(MetatronStyle.accent).frame(width: 24)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(item.title).lineLimit(1)
+                    Text(item.title).fontWeight(.medium).lineLimit(1)
                     if let destination = item.destination { Text(destination.folder.path).font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle) }
                 }
                 Spacer()
                 if style == .commands, item.id == selected { Image(systemName: "return").foregroundStyle(.secondary) }
-            }.padding(.vertical, 7).contentShape(Rectangle())
+            }.padding(.vertical, 9).padding(.horizontal, 4).contentShape(Rectangle())
         }.buttonStyle(.plain).id(item.id)
+            .onHover { hovering in if hovering && style == .commands { selected = item.id } }
             .listRowBackground(style == .commands && selected == item.id ? MetatronStyle.accent.opacity(0.12) : Color.clear)
             .dropDestination(for: URL.self) { urls, _ in guard !urls.isEmpty else { return false }; QuickAccessController.perform(item, files: urls); return true }
             .help(item.destination?.folder.path ?? item.title)

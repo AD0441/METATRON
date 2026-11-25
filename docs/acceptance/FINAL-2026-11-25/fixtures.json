@@ -1,0 +1,67 @@
+[
+  {
+    "name": "danado.png",
+    "bytes": 34,
+    "sha256": "bb0016783e2c2603d9bfbdf07148150f6b0918da3fc959dba3887035faef4c63"
+  },
+  {
+    "name": "escaneado.pdf",
+    "bytes": 726172,
+    "sha256": "a998f5be13f02a7f6b3a37f512b408f8f5f41cadbd432ade6f5709d03c6b824b"
+  },
+  {
+    "name": "form.docx",
+    "bytes": 2054,
+    "sha256": "8c6e8ce5ea77cb27240fb175acab77aac346a25da8fa447e627e212b5c63f2fb"
+  },
+  {
+    "name": "imagen.jpg",
+    "bytes": 468017,
+    "sha256": "4c3e1a9f9edbb1f0a0a2f514bba2780d8afba0279ae0dbe37d6b2d991620def8"
+  },
+  {
+    "name": "imagen.png",
+    "bytes": 958508,
+    "sha256": "7ac8e3e9b79520ffef61b397bf6b9f928e88e25a3824d1d1ca7077553b291d6d"
+  },
+  {
+    "name": "notas.txt",
+    "bytes": 67,
+    "sha256": "3f1561b6e20035339aa80d17359c3d45c224ad3dcd1970f94b5e9e7fdb777e9d"
+  },
+  {
+    "name": "salida.wav",
+    "bytes": 75184244,
+    "sha256": "ca92e279407ff7c3d775b73e34068e666f3217db5e7a9dc8f6933e3b184d4e46"
+  },
+  {
+    "name": "tabla.csv",
+    "bytes": 46,
+    "sha256": "30c61f45fbe67fe72601177faf36f8dde6407a1ddcb08e4820c66ab889e2caee"
+  },
+  {
+    "name": "tabla.xlsx",
+    "bytes": 1427,
+    "sha256": "36753fbea623687badf1b322c48ec6c2e8f6e01231d336a88b1994c189298a83"
+  },
+  {
+    "name": "texto.pdf",
+    "bytes": 11941,
+    "sha256": "adc81c36dd5c96c6b8eb11981a5db7ab03363691f81294753b62eb6c621c9fb3"
+  },
+  {
+    "name": "voz-larga.wav",
+    "bytes": 75184244,
+    "sha256": "ca92e279407ff7c3d775b73e34068e666f3217db5e7a9dc8f6933e3b184d4e46"
+  },
+  {
+    "name": "voz.aiff",
+    "bytes": 421786,
+    "sha256": "70efedaefb6a73618b0054b0717875be64becf9ed7f757f3838866b915d509d5"
+  },
+  {
+    "name": "voz.wav",
+    "bytes": 421786,
+    "sha256": "c93802b40a8fcb992646b39eb0388817c2a53be106b77aac75fde36b685e9017"
+  }
+]

@@ -6,9 +6,9 @@
   <p>
     <img alt="macOS 14 o posterior" src="https://img.shields.io/badge/macOS-14%2B-183B4A?style=flat-square&amp;logo=apple&amp;logoColor=white">
     <img alt="Apple Silicon" src="https://img.shields.io/badge/Apple_Silicon-arm64-365D72?style=flat-square">
-    <img alt="Versión 2.2.0" src="https://img.shields.io/badge/versi%C3%B3n-2.2.0-58616B?style=flat-square">
+    <img alt="Versión 2.3.1" src="https://img.shields.io/badge/versi%C3%B3n-2.3.1-58616B?style=flat-square">
   </p>
-  <p><a href="https://github.com/AD0441/METATRON/releases/tag/v2.2.0">Descargar 2.2.0</a> · <a href="#qué-nos-diferencia">Ventajas</a> · <a href="#en-uso">En uso</a> · <a href="#empezar">Empezar</a> · <a href="docs/FEATURES.md">Alcance</a> · <a href="https://ko-fi.com/C0C51WQ1T0">Apoyar</a></p>
+  <p><a href="https://github.com/AD0441/METATRON/releases/tag/v2.3.1">Descargar 2.3.1</a> · <a href="#qué-nos-diferencia">Ventajas</a> · <a href="#en-uso">En uso</a> · <a href="#empezar">Empezar</a> · <a href="docs/FEATURES.md">Alcance</a> · <a href="https://ko-fi.com/C0C51WQ1T0">Apoyar</a></p>
 </div>
 
 ![METATRON: cubo de acciones sobre un archivo del escritorio, logo sobre el nombre y eslogan. Simplicidad con impacto.](docs/assets/promo/photographic-cover.png)
@@ -41,21 +41,27 @@ METATRON amplía la base MIT de Kumquat con un espacio de trabajo, recetas encad
 
 La [comparativa con Kumquat, Tangerine y las versiones anteriores](docs/COMPARISON.md) distingue funciones heredadas, mejoras propias y limitaciones. El procesamiento local, OCR y Markdown no se presentan como novedades exclusivas.
 
-**Versión actual: [METATRON 2.2.0](https://github.com/AD0441/METATRON/releases/tag/v2.2.0), para Apple Silicon.** Incluye recetas contextuales, procesamiento documental y segundo plano. Consulta el [historial de cambios](CHANGELOG.md) y la comparativa; las acciones nativas de Atajos permanecen bloqueadas en esta compilación con firma ad hoc, sin Team ID Apple.
+**Versión final: [METATRON 2.3.1](https://github.com/AD0441/METATRON/releases/tag/v2.3.1), build 10, para Apple Silicon.** Incluye la estabilización de 2.3, transcripción local, el Cubo con estructura reforzada, destino configurable y comprobante JSON opcional. La firma sigue siendo local ad hoc. Consulta las [notas y límites de la entrega](docs/RELEASE-2.3.1.md).
 
-La rama de mantenimiento prepara **2.2.1**. Su alcance, pruebas y pendientes están en el [informe de estabilización](docs/STABILITY-2.2.1.md); la release pública continúa siendo 2.2.0.
+## Audio a texto · Apple local
 
-## Audio a texto · próxima versión 2.3
-
-La rama 2.3 incorpora transcripción de archivos de audio con **Apple Speech local**, a TXT o Markdown. Requiere macOS 26 y un Mac compatible; el idioma se elige en **Ajustes → Documentos → Audio a texto**. La descarga del modelo es explícita; no hay reconocimiento en la nube ni resumen. Conserva el audio original e integra recetas, carpetas vigiladas y CLI. [Guía y validación](docs/AUDIO-TRANSCRIPTION.md).
+Transcribe archivos de audio a **TXT o Markdown** con Apple Speech local. Requiere macOS 26 y un Mac compatible; el idioma se elige en **Ajustes → Documentos → Audio a texto**. La descarga del modelo es explícita. Conserva el audio original e integra recetas, carpetas vigiladas y CLI. No genera resumen. [Guía y validación](docs/AUDIO-TRANSCRIPTION.md).
 
 ## Requerimientos y trabajo pendiente
 
-La [especificación de requerimientos](docs/REQUIREMENTS.md) consolida las decisiones de producto, los criterios de aceptación y las prioridades. La [matriz de estado](docs/STATUS.md) distingue funciones implementadas, mejoras parciales, validaciones pendientes y el orden de trabajo antes de publicar 2.3. También está disponible como [CSV para revisión](docs/REQUIREMENTS_REVIEW.csv).
+La [especificación de requerimientos](docs/REQUIREMENTS.md) consolida las decisiones de producto, los criterios de aceptación y las prioridades. La [matriz de estado](docs/STATUS.md) distingue funciones implementadas, mejoras parciales, validaciones pendientes y el cierre de 2.3.1 y las ampliaciones posteriores. También está disponible como [CSV para revisión](docs/REQUIREMENTS_REVIEW.csv).
+
+## Cubo de Metatrón · 2.3.1
+
+Vistas nativas renderizadas con archivos sintéticos. La estructura principal está reforzada y los espacios entre círculos son transparentes. No son capturas interactivas del escritorio.
+
+| Claro | Oscuro |
+| --- | --- |
+| ![Cubo claro](docs/screenshots/2.3.1-native/cubo-claro.png) | ![Cubo oscuro](docs/screenshots/2.3.1-native/cubo-oscuro.png) |
 
 ## En uso
 
-Las imágenes siguientes son capturas de la aplicación con archivos sintéticos de demostración.
+Las imágenes siguientes documentan la interfaz de 2.2 con archivos sintéticos; la geometría y el destino se actualizaron en 2.3.1. La [revisión visual de 2.3.1](docs/REVIEW-2.3.1.md) distingue los renders nativos de las pruebas interactivas.
 
 ![Ventana de trabajo de METATRON](docs/screenshots/convertir.png)
 
@@ -112,7 +118,7 @@ Ejecuta tus recetas desde los círculos de **Recetas** y **Documentos**, desde l
 
 Las acciones y recetas se filtran según todos los archivos seleccionados y los motores disponibles: por ejemplo, un Excel o texto no ofrece transcripción de audio. El editor también filtra el siguiente paso según el resultado de los anteriores. La ejecución valida la cadena antes de crear salidas; las carpetas vigiladas omiten las entradas incompatibles.
 
-La simulación muestra el peso de entrada, resolución y posibles pérdidas. Actividad muestra los tamaños reales después de verificar las salidas. El procesamiento documental incluye OCR, Markdown con procedencia, imágenes raster incrustadas compatibles y combinación de imágenes, PDF y documentos en un PDF final. MarkItDown y Docling son motores opcionales configurables: consulta [Documentos](docs/DOCUMENTS.md) y los [límites de la versión](docs/PREPUBLICATION.md).
+La simulación muestra el peso de entrada, resolución y posibles pérdidas. Actividad muestra los tamaños reales después de verificar las salidas. La exportación básica de DOC/DOCX/ODT a PDF utiliza la vista previa local de macOS para conservar tablas, colores e imágenes de encabezado. Las fuentes, los saltos y la repetición de encabezados/pies pueden variar; revisa el PDF antes de compartirlo. No requiere instalar LibreOffice. El procesamiento documental incluye OCR, Markdown con procedencia, imágenes raster incrustadas compatibles y combinación de imágenes, PDF y documentos en un PDF final. MarkItDown y Docling son motores opcionales configurables: consulta [Documentos](docs/DOCUMENTS.md) y los [límites de la versión](docs/PREPUBLICATION.md).
 
 ## Barra superior y segundo plano
 
@@ -124,7 +130,7 @@ Pausar detiene los nuevos accesos contextuales y la recepción de carpetas vigil
 
 Cinco paletas sobrias: **Petróleo, Bosque, Grafito, Pizarra y Burdeos**. Las superficies y el texto usan colores semánticos del sistema; el acento se adapta a claro y oscuro.
 
-En **Ajustes → Organización**, añade carpetas, ponles nombre y ordena tus favoritos. Los resultados de una conversión se guardan junto al original en una subcarpeta Metatron, o en el destino de la receta. La publicación verifica salidas, crea hashes y evita reemplazar archivos existentes. Los originales se conservan durante las conversiones; **Mover** es una acción explícita distinta.
+En **Ajustes → Organización**, añade carpetas, ponles nombre y ordena tus favoritos. En **Ajustes → Guardado**, elige si las conversiones nuevas se guardan junto al original, en una subcarpeta con nombre o en una carpeta fija. Un destino explícito de la receta tiene prioridad. Las recetas antiguas ejecutadas directamente desde la CLI mantienen su subcarpeta Metatron si no indican destino. La publicación verifica salidas, crea hashes y evita reemplazar archivos existentes. Puedes desactivar el comprobante JSON en Guardado; Actividad mantiene los datos de verificación y reversión. Esta preferencia no elimina resultados cuyo formato sea JSON ni los archivos de contenido y procedencia de los paquetes documentales. Las carpetas vigiladas requieren un destino fuera de las entradas vigiladas para evitar ciclos. Los originales se conservan durante las conversiones; **Mover** es una acción explícita distinta.
 
 Deshacer una salida comprueba que no haya cambiado y la archiva para recuperación. La limpieza o caducidad de un registro retira su acceso a Deshacer, sin borrar archivos. Los movimientos guardan un registro reversible del último traslado.
 
@@ -132,7 +138,7 @@ Deshacer una salida comprueba que no haya cambiado y la archiva para recuperaci�
 
 [Descargar METATRON para Apple Silicon](https://github.com/AD0441/METATRON/releases/latest) · [Compilar desde el código](#empezar)
 
-Requiere macOS 14+ y Xcode con Swift 6.2 o posterior para compilar. La validación local se realizó en un M1 de 8 GB con Swift 6.4. Las acciones de archivos de Atajos requieren macOS 15+. Apple Intelligence requiere macOS 26+ y disponibilidad del modelo en el sistema.
+El binario declara macOS 14 como mínimo. Esta entrega se ha comprobado en macOS 26 (CI) y macOS 27.3 (M1 de 8 GB); macOS 14–25 conserva compatibilidad declarada, pendiente de ejecución y considerada experimental. Para compilar se requiere Xcode con Swift 6.2 o posterior; la compilación local utilizó Swift 6.4. Las acciones de archivos de Atajos requieren macOS 15+. Apple Intelligence requiere macOS 26+ y disponibilidad del modelo en el sistema.
 
 ```sh
 git clone https://github.com/AD0441/METATRON.git
@@ -188,3 +194,5 @@ MIT. Se mantiene el copyright de Kumquat y se identifican los aportes de METATRO
   <p><strong>Creado por Sebastián Pastén F.</strong></p>
   <p><a href="https://www.sebastianpasten.com/desarrollos-aplicaciones-para-mac-software-sdr">Más aplicaciones para Mac</a> · <a href="https://ko-fi.com/C0C51WQ1T0">Apoyar en Ko-fi</a></p>
 </div>
+
+La [guía de privacidad](docs/PRIVACY.md) explica almacenamiento local, comprobantes, modelos opcionales y las conexiones que solo se abren por petición explícita.

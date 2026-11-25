@@ -1,6 +1,7 @@
 import AppKit
 import MetatronCore
 import SwiftUI
+import OSLog
 
 /// Borderless floating panel that hosts the ring right under the cursor.
 final class RingPanel: NSPanel {
@@ -35,6 +36,7 @@ final class RingController {
     private let glass = RoundBlurView()
     private var hideWork: DispatchWorkItem?
     private var outsideClickMonitor: Any?
+    private let timing = Logger(subsystem: "local.metatron.app", category: "context-timing")
 
     /// Room around the disc for the shadow and the hint pill.
     private var margin: CGFloat { max(60, geometry.diameter * (RingGeometry.canvasScale - 1) / 2 + 10) }
@@ -49,6 +51,7 @@ final class RingController {
     // MARK: Show / hide
 
     func show(files: [URL], at point: NSPoint, mode: RingModel.Mode) {
+        let started = ContinuousClock.now
         hideWork?.cancel()
         presentationID = UUID()
         model.load(files: files)
@@ -60,6 +63,7 @@ final class RingController {
         if ![.ring,.metatron,.bubbles].contains(SettingsStore.shared.quickAccessStyle) {
             panel?.orderOut(nil)
             QuickAccessController.shared.show(model: model, at: point, style: SettingsStore.shared.quickAccessStyle, mode: mode)
+            recordPresentation(started: started, count: files.count)
             return
         }
         QuickAccessController.shared.hide()
@@ -86,11 +90,18 @@ final class RingController {
         } else {
             panel.orderFrontRegardless()
         }
-        DispatchQueue.main.async { self.model.shown = true }
+        DispatchQueue.main.async { self.model.shown = true; self.recordPresentation(started: started, count: files.count) }
         NSAnimationContext.runAnimationGroup { ctx in
             ctx.duration = 0
             glass.animator().alphaValue = 1
         }
+    }
+
+    /// Measures preparation and window presentation, not compositor/display latency.
+    private func recordPresentation(started: ContinuousClock.Instant, count: Int) {
+        let elapsed = started.duration(to: .now).components
+        let milliseconds = Double(elapsed.seconds) * 1_000 + Double(elapsed.attoseconds) / 1e15
+        timing.notice("context-presented style=\(SettingsStore.shared.quickAccessStyle.rawValue, privacy: .public) files=\(count) milliseconds=\(milliseconds)")
     }
 
     func hide(after delay: TimeInterval = 0) {

@@ -71,9 +71,9 @@ struct RecipeEditor: View {
                 Slider(value: binding(\.quality), in: 0.3...1) { Text("Calidad") }
                 Toggle("Conservar metadatos cuando el formato lo permita", isOn: binding(\.preserveMetadata))
                 LabeledContent("Carpeta") {
-                    Text(recipe.folderPath ?? "Subcarpeta Metatron junto al original").lineLimit(1).truncationMode(.middle)
+                    Text(recipe.folderPath ?? "Usar destino de Ajustes → Guardado").lineLimit(1).truncationMode(.middle)
                     Button("Elegir…") { let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; if panel.runModal() == .OK, let url = panel.url { var copy = recipe; copy.folderPath = url.path; save(copy) } }
-                    Button("Restablecer") { var copy = recipe; copy.folderPath = nil; save(copy) }
+                    Button("Restablecer") { var copy = recipe; copy.folderPath = nil; copy.outputLocation = nil; save(copy) }
                 }
             }
         }.formStyle(.grouped)

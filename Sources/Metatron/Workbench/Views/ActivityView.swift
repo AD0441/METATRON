@@ -31,7 +31,7 @@ struct ActivityView: View {
             } else if visibleJobs.isEmpty {
                 ContentUnavailableView.search(text: query)
             } else {
-                List(visibleJobs) { job in JobRow(job: job, store: store) }
+                List(visibleJobs) { job in JobRow(job: job, store: store) }.listStyle(.inset)
             }
         }.navigationTitle("Actividad")
         .searchable(text: $query, prompt: "Buscar archivo o receta")
@@ -69,13 +69,13 @@ struct JobRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Image(systemName: symbol).foregroundStyle(color)
+                Image(systemName: symbol).font(.system(size: 17, weight: .medium)).foregroundStyle(color).frame(width: 24)
                 Text(job.inputs.map(\.lastPathComponent).joined(separator: ", ")).font(.headline).lineLimit(1)
                 Spacer()
                 Text(job.created, format: .dateTime.day().month().hour().minute()).foregroundStyle(.secondary).font(.caption)
             }
-            Text(job.recipe.name).foregroundStyle(.secondary)
-            Text(job.message).font(.caption).textSelection(.enabled)
+            Text(job.recipe.name).font(.callout).foregroundStyle(.secondary)
+            Text(job.message).font(.callout).foregroundStyle(job.state == .failed ? Color.red : Color.secondary).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
             if let bytes=job.sourceBytes {
                 let output=job.outputs.filter {!$0.url.lastPathComponent.hasPrefix("metatron-")}.reduce(Int64(0)) {$0+$1.bytes}
                 Text("Entrada: \(ByteCountFormatter.string(fromByteCount:bytes,countStyle:.file)) · salida: \(ByteCountFormatter.string(fromByteCount:output,countStyle:.file))").font(.caption).foregroundStyle(.secondary)

@@ -26,6 +26,23 @@ import MetatronWorkflow
         #expect(store.compatibleRecipes.contains { $0.id == audio.id } == false)
         #expect(store.canIndexFiles)
     }
+    @Test func recipesUseOutputPreferencesAndKeepTheirExplicitOverrides() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let store = WorkspaceStore(directory: root)
+        var recipe = Recipe(name: "Output", steps: [.init(action: "convert.jpg")])
+        let configured = store.configuredRecipe(recipe)
+        #expect(configured.outputLocation == SettingsStore.shared.outputLocation)
+        #expect(configured.writeReceipt == SettingsStore.shared.writeReceipt)
+        recipe.outputLocation = .subfolder("Own folder")
+        recipe.writeReceipt = false
+        recipe.folderPath = "/tmp/recipe-destination"
+        let overridden = store.configuredRecipe(recipe)
+        #expect(overridden.outputLocation == recipe.outputLocation)
+        #expect(overridden.writeReceipt == false)
+        #expect(try overridden.outputDirectory(for: root.appendingPathComponent("input.png")).path == "/tmp/recipe-destination")
+    }
+
     @Test func rejectingABatchCompletesEveryCallbackWithoutQueueingWork() throws {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }

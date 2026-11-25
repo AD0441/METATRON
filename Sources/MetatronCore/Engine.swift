@@ -151,6 +151,11 @@ public struct Engine: Sendable {
             try await LibreOffice.convert(url, to: target, filter: "pdf")
             return [target]
 
+        case (.document, .pdf) where ["doc", "docx", "odt"].contains(ext):
+            let target = try out()
+            try await OfficePreviewPDF.convert(url, to: target)
+            return [target]
+
         case (.document, .epub):
             let target = try out()
             try await EPUB.fromDocument(url, to: target)

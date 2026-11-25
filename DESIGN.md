@@ -14,7 +14,7 @@ colors:
 typography:
   title:
     fontFamily: "SF Pro, system"
-    fontSize: "25pt"
+    fontSize: "26pt"
     fontWeight: 600
 rounded:
   panel: "12pt"
@@ -35,15 +35,15 @@ Window, inset, label, secondary label and separator use NSColor semantic roles. 
 
 ## Typography
 
-System SF text, native controls and SF Symbols. Workspace title 25pt semibold. Native headline/title3 for sections, caption for metadata. Monospaced digits belong to durations and measurements. Authorship is a quiet footer.
+System SF text, native controls and SF Symbols. Workspace title 26pt semibold with −0.5pt tracking. Workspace and Settings body text use 13pt system text. Native headline/title3 for sections, caption for metadata. Monospaced digits belong to durations and measurements. Authorship is a quiet footer.
 
 ## Layout
 
-Sidebar and workspace use NavigationSplitView. Main inset 30pt, section gap 22pt, input inset 22pt. File collections are bounded lazy lists. Compact and command access panels use a native list; the floating panel uses native segmented categories. The Metatron layout uses a transparent 480pt canvas, 166pt outer radius and 74pt action circles. Bubbles use a radial orbit of the same circular targets. Both share the classic borderless nonactivating panel and native drop surface; there is no title bar, toolbar, opaque canvas or rectangular panel shadow. Each circle has its own native masked material. The hub shows the selected file. Tab/Space cycle categories, Escape closes, and hit testing ignores the gaps.
+Sidebar and workspace use NavigationSplitView. Main inset 30pt, section gap 22pt, input inset 22pt. File collections are bounded lazy lists. Compact and command access panels use a native list; the floating panel uses native segmented categories on a 620pt canvas; commands use 480pt and compact access 420pt. Settings minimum size is 780×600pt. The Metatron layout uses a transparent 480pt canvas, 166pt outer radius and 74pt action circles. Bubbles use a radial orbit of the same circular targets. Both share the classic borderless nonactivating panel and native drop surface; there is no title bar, toolbar, opaque canvas or rectangular panel shadow. Each circle has its own native masked material. The hub shows the selected file. Tab/Space cycle categories, Escape closes, and hit testing ignores the gaps.
 
 ## Elevation & Depth
 
-Native window elevation only. Background geometry uses a thin static path with low opacity. It does not intercept clicks or drops. No decorative idle animation.
+Native window elevation only. The approved cube treatment is “Estructura del cubo”: primary triangles and hexagon use 2.1pt strokes at 0.85 opacity; the full network uses 1pt strokes at 0.16 opacity (0.30 with Increase Contrast). Each circle has a separate offset shadow. Geometry remains static. It does not intercept clicks or drops. No decorative idle animation.
 
 ## Shapes
 

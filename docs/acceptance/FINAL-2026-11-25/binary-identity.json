@@ -1,0 +1,9 @@
+{
+  "version": "2.3.1",
+  "build": "10",
+  "architecture": "arm64",
+  "release_text_sha256": "e8d6c5255406ca36d08d1ae894fe39ef062c10fa2ba30ae16a37272a0d5bcd76",
+  "validation_text_sha256": "e8d6c5255406ca36d08d1ae894fe39ef062c10fa2ba30ae16a37272a0d5bcd76",
+  "machine_instructions_equal": true,
+  "bundle_identifier_modified_for_isolated_preferences": true
+}

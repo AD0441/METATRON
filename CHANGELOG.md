@@ -1,6 +1,15 @@
 # Historial de cambios
 
-## 2.3.0 · en desarrollo
+## 2.3.1 · 25 de noviembre de 2026
+
+- Build 10. PDF de documentos Office mediante la vista previa local de macOS: conserva el logo, los colores y el tamaño de página del formulario reproducido. Prueba sintética multipágina con tablas, encabezado y pie. La sustitución de fuentes y la paginación requieren revisión.
+- Las conversiones nuevas respetan Guardado: junto al original, subcarpeta o carpeta fija; el destino explícito de una receta tiene prioridad. El comprobante JSON es opcional y Actividad conserva la verificación y reversión. Los paquetes documentales mantienen sus archivos propios.
+- Las carpetas vigiladas comprueban el destino efectivo para impedir ciclos, incluido el guardado en la misma carpeta de entrada.
+- Cubo con la opción «Estructura del cubo»: triángulos y hexágono más legibles, trama secundaria tenue y círculos independientes. Revisión de fuentes, contraste, controles y espaciado en ventanas y seis accesos. El espacio de trabajo muestra el destino y la preferencia de comprobante antes de ejecutar.
+- Medición local de apertura contextual sin rutas ni contenido; cierre prolongado en M1 y prueba de red con alcances explícitos. Matriz actualizada a 90 requisitos, con corte histórico conservado.
+- Verificación y limitaciones en [las notas de entrega](docs/RELEASE-2.3.1.md) y [el cierre](docs/acceptance/FINAL-2026-11-25/README.md). Firma local ad hoc, como en 2.3.0.
+
+## 2.3.0 · integrada localmente
 
 - Build 8. Actividad guarda los fallos de conversión con el mismo diagnóstico traducido que el aviso. La cola continúa con el siguiente archivo cuando uno falla.
 - M2 midió la CLI release con PNG, PDF y voz sintética, y la app gráfica en reposo sobre M1/8 GiB. Los resultados, incluida la primera demora de OCR, están en [el informe](docs/M2-RESULTS.md).

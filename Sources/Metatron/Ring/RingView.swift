@@ -95,13 +95,13 @@ struct RingView: View {
                     shape.stroke(.black, style: StrokeStyle(lineWidth: corner * 2, lineJoin: .round))
                 }
             }
-            .shadow(color: isHot ? theme.accent2.opacity(0.45) : .clear, radius: 10 * scale, y: 3 * scale)
+            .shadow(color: isHot ? Color.black.opacity(0.15) : .clear, radius: 6 * scale, y: 3 * scale)
 
             label(item, hot: isHot)
                 .offset(x: CGFloat(sin(mid)) * geo.labelRadius, y: CGFloat(-cos(mid)) * geo.labelRadius)
         }
         .frame(width: geo.diameter, height: geo.diameter)
-        .scaleEffect(isHot ? 1.035 : 1)
+        .scaleEffect(isHot ? 1.015 : 1)
         // While an action runs, everything but the chosen slice steps back.
         .opacity(model.progress != nil && !isHot ? 0.35 : 1)
     }
@@ -115,11 +115,11 @@ struct RingView: View {
                     .font(.system(size: (theme.labels == .icon ? 19 : 13) * scale, weight: .semibold))
             }
             if theme.labels != .icon {
-                Text(item.title.uppercased())
-                    .font(.system(size: 10.5 * scale, weight: .heavy, design: .rounded))
-                    .tracking(0.3)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.6)
+                Text(item.title)
+                    .font(.system(size: 11 * scale, weight: .semibold))
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+                    .multilineTextAlignment(.center)
                     .frame(maxWidth: 62 * scale)
             }
         }
@@ -146,7 +146,7 @@ struct RingView: View {
                         .font(.system(size: 18 * scale, weight: .semibold))
                         .foregroundStyle(theme.gradient)
                     Text(item.title)
-                        .font(.system(size: 12 * scale, weight: .bold, design: .rounded))
+                        .font(.system(size: 12 * scale, weight: .semibold))
                         .lineLimit(1).minimumScaleFactor(0.6)
                         .frame(maxWidth: geo.hubRadius * 1.6)
                 }
@@ -166,8 +166,7 @@ struct RingView: View {
                         }
                     }
                     Text(model.pageTitle)
-                        .font(.system(size: 10 * scale, weight: .heavy, design: .rounded))
-                        .textCase(.uppercase)
+                        .font(.system(size: 10.5 * scale, weight: .semibold))
                         .foregroundStyle(theme.gradient)
                 }
                 .transition(.opacity)

@@ -52,6 +52,8 @@ extension Notification.Name { static let metatronShowWorkbench = Notification.Na
     /// Resolve user-configured engines before availability checks and execution.
     func configuredRecipe(_ recipe: Recipe) -> Recipe {
         var configured = recipe
+        if configured.outputLocation == nil { configured.outputLocation = SettingsStore.shared.outputLocation }
+        if configured.writeReceipt == nil { configured.writeReceipt = SettingsStore.shared.writeReceipt }
         if let step = recipe.steps.first(where: { $0.action == "documentAdvanced" }),
            let engine = DocumentEngineID(rawValue: step.text), engine != .native,
            let path = UserDefaults.standard.string(forKey: "documentEngine." + engine.rawValue), !path.isEmpty {
