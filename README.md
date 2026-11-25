@@ -112,7 +112,7 @@ Ejecuta tus recetas desde los círculos de **Recetas** y **Documentos**, desde l
 
 Las acciones y recetas se filtran según todos los archivos seleccionados y los motores disponibles: por ejemplo, un Excel o texto no ofrece transcripción de audio. El editor también filtra el siguiente paso según el resultado de los anteriores. La ejecución valida la cadena antes de crear salidas; las carpetas vigiladas omiten las entradas incompatibles.
 
-La simulación muestra el peso de entrada, resolución y posibles pérdidas. Actividad muestra los tamaños reales después de verificar las salidas. El procesamiento documental incluye OCR, Markdown con procedencia, imágenes raster incrustadas compatibles y combinación de imágenes, PDF y documentos en un PDF final. MarkItDown y Docling son motores opcionales configurables: consulta [Documentos](docs/DOCUMENTS.md) y los [límites de la versión](docs/PREPUBLICATION.md).
+La simulación muestra el peso de entrada, resolución y posibles pérdidas. Actividad muestra los tamaños reales después de verificar las salidas. La exportación básica de DOC/DOCX/ODT a PDF utiliza la vista previa local de macOS para conservar tablas, colores e imágenes de encabezado. Las fuentes, los saltos y la repetición de encabezados/pies pueden variar; revisa el PDF antes de compartirlo. No requiere instalar LibreOffice. El procesamiento documental incluye OCR, Markdown con procedencia, imágenes raster incrustadas compatibles y combinación de imágenes, PDF y documentos en un PDF final. MarkItDown y Docling son motores opcionales configurables: consulta [Documentos](docs/DOCUMENTS.md) y los [límites de la versión](docs/PREPUBLICATION.md).
 
 ## Barra superior y segundo plano
 
@@ -124,7 +124,7 @@ Pausar detiene los nuevos accesos contextuales y la recepción de carpetas vigil
 
 Cinco paletas sobrias: **Petróleo, Bosque, Grafito, Pizarra y Burdeos**. Las superficies y el texto usan colores semánticos del sistema; el acento se adapta a claro y oscuro.
 
-En **Ajustes → Organización**, añade carpetas, ponles nombre y ordena tus favoritos. Los resultados de una conversión se guardan junto al original en una subcarpeta Metatron, o en el destino de la receta. La publicación verifica salidas, crea hashes y evita reemplazar archivos existentes. Los originales se conservan durante las conversiones; **Mover** es una acción explícita distinta.
+En **Ajustes → Organización**, añade carpetas, ponles nombre y ordena tus favoritos. En **Ajustes → Guardado**, elige si las conversiones nuevas se guardan junto al original, en una subcarpeta con nombre o en una carpeta fija. Un destino explícito de la receta tiene prioridad. Las recetas antiguas ejecutadas directamente desde la CLI mantienen su subcarpeta Metatron si no indican destino. La publicación verifica salidas, crea hashes y evita reemplazar archivos existentes. Puedes desactivar el comprobante JSON en Guardado; Actividad mantiene los datos de verificación y reversión. Esta preferencia no elimina resultados cuyo formato sea JSON ni los archivos de contenido y procedencia de los paquetes documentales. Las carpetas vigiladas requieren un destino fuera de las entradas vigiladas para evitar ciclos. Los originales se conservan durante las conversiones; **Mover** es una acción explícita distinta.
 
 Deshacer una salida comprueba que no haya cambiado y la archiva para recuperación. La limpieza o caducidad de un registro retira su acceso a Deshacer, sin borrar archivos. Los movimientos guardan un registro reversible del último traslado.
 

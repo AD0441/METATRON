@@ -39,7 +39,7 @@ public struct ConversionOptions: Sendable, Equatable, Codable, Hashable {
 }
 
 /// Where results are saved.
-public enum OutputLocation: Sendable, Equatable {
+public enum OutputLocation: Sendable, Equatable, Codable, Hashable {
     case nextToOriginal
     case subfolder(String)
     case folder(URL)

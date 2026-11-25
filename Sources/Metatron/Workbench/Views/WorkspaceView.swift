@@ -47,6 +47,8 @@ struct WorkspaceView: View {
             }
             .safeAreaInset(edge: .bottom) { StatusStrip(store: store) }
         }
+        .font(.system(size: 13))
+        .background(MetatronStyle.canvas)
         .background(WorkbenchWindowCapture().frame(width:0,height:0))
         .toolbar {
             ToolbarItemGroup {
@@ -60,6 +62,10 @@ struct WorkspaceView: View {
             Button("Aceptar", role: .cancel) { store.notice = nil }
         } message: { Text(store.notice ?? "") }
         .onChange(of: preferences.activityRetentionDays) { _, _ in store.applyRetention() }
+        .onChange(of: preferences.saveLocation) { _, _ in store.simulation = [] }
+        .onChange(of: preferences.subfolderName) { _, _ in store.simulation = [] }
+        .onChange(of: preferences.customFolder) { _, _ in store.simulation = [] }
+        .onChange(of: preferences.writeReceipt) { _, _ in store.simulation = [] }
         .onReceive(NotificationCenter.default.publisher(for: .metatronShowWorkbench)) { _ in WorkbenchPresentation.show() }
     }
 }
@@ -81,7 +87,7 @@ struct ConvertWorkspaceView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 22) {
                 VStack(alignment: .leading, spacing: 7) {
-                    Text("Prepara tus archivos").font(.system(size: 25, weight: .semibold))
+                    Text("Prepara tus archivos").font(.system(size: 26, weight: .semibold)).tracking(-0.5)
                     Text("Convierte con una receta o envía tus archivos a un destino guardado.").foregroundStyle(.secondary)
                 }
                 InputFilesView(store: store)
@@ -92,7 +98,7 @@ struct ConvertWorkspaceView: View {
                         if let recipe = store.conversionRecipe {
                             Picker("Receta", selection: Binding(get: { store.conversionRecipe?.id }, set: { store.selectedRecipeID = $0 })) {
                                 ForEach(store.compatibleRecipes) { Text($0.name).tag(Optional($0.id)) }
-                            }.labelsHidden()
+                            }.labelsHidden().controlSize(.large)
                             RecipeStepsSummary(steps: recipe.steps)
                         } else {
                             Text("No hay recetas compatibles con esta selección. Puedes crear una en Recetas.").foregroundStyle(.secondary)
@@ -101,16 +107,23 @@ struct ConvertWorkspaceView: View {
                         HStack {
                             Button("Simular", systemImage: "eye") { store.simulate() }
                             Button("Ejecutar receta", systemImage: "play.fill") { store.enqueue() }.buttonStyle(.borderedProminent)
-                        }.disabled(store.files.isEmpty || store.conversionRecipe == nil)
+                        }.controlSize(.large).disabled(store.files.isEmpty || store.conversionRecipe == nil)
                         Text("⌘↩ ejecutar · ⇧⌘R simular").font(.caption).foregroundStyle(.secondary)
                     }.frame(maxWidth: .infinity, alignment: .leading)
-                    VStack(alignment: .leading, spacing: 12) {
-                        Label("Conserva tus originales", systemImage: "checkmark.shield").font(.headline)
-                        Text("Cada receta trabaja en un espacio temporal. La salida se verifica antes de publicarse y queda registrada en Actividad.").foregroundStyle(.secondary)
-                        Button("Editar esta receta") { store.selectedRecipeID = store.conversionRecipe?.id; store.selectedSection = "recipes" }.disabled(store.conversionRecipe == nil)
-                        Button("Indexar para buscar") { store.indexFiles() }.disabled(!store.canIndexFiles)
-                        Button("Restaurar portapapeles") { store.restoreClipboard() }.disabled(!store.canRestoreClipboard)
-                    }.padding(18).frame(maxWidth: .infinity, alignment: .leading).background(MetatronStyle.panel, in: RoundedRectangle(cornerRadius: 12))
+                    VStack(alignment: .leading, spacing: 18) {
+                        OutputSummaryView(recipe: store.conversionRecipe)
+                        Divider()
+                        Label("Conserva tus originales", systemImage: "checkmark.shield")
+                            .font(.system(size: 13, weight: .medium)).foregroundStyle(.secondary)
+                        Text("La salida se verifica antes de publicarse y queda registrada en Actividad.")
+                            .font(.caption).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                        VStack(alignment: .leading, spacing: 10) {
+                            Button("Editar esta receta") { store.selectedRecipeID = store.conversionRecipe?.id; store.selectedSection = "recipes" }.disabled(store.conversionRecipe == nil)
+                            Button("Indexar para buscar") { store.indexFiles() }.disabled(!store.canIndexFiles)
+                            Button("Restaurar portapapeles") { store.restoreClipboard() }.disabled(!store.canRestoreClipboard)
+                        }.controlSize(.small)
+                    }.padding(20).frame(maxWidth: 300, alignment: .leading)
+                        .background(MetatronStyle.panel, in: RoundedRectangle(cornerRadius: 14))
                 }
                 if !store.simulation.isEmpty { SimulationView(rows: store.simulation) }
             }.padding(30)
@@ -123,10 +136,10 @@ struct InputFilesView: View {
     var body: some View {
         VStack(spacing: 14) {
             if store.files.isEmpty {
-                Image(systemName: "tray.and.arrow.down").font(.system(size: 40)).foregroundStyle(MetatronStyle.accent)
+                Image(systemName: "tray.and.arrow.down").font(.system(size: 34, weight: .light)).foregroundStyle(MetatronStyle.accent)
                 Text("Arrastra tus archivos aquí").font(.title3.bold())
-                Text("Imágenes, PDF, documentos, hojas de cálculo, audio y vídeo").foregroundStyle(.secondary)
-                Button("Elegir archivos…") { store.chooseFiles() }
+                Text("Imágenes, PDF, documentos, hojas de cálculo, audio y vídeo").font(.callout).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                Button("Elegir archivos…") { store.chooseFiles() }.controlSize(.large)
             } else {
                 HStack { Text(store.files.count == 1 ? "1 archivo preparado" : "\(store.files.count) archivos preparados").font(.headline); Spacer(); Button("Quitar todos") { store.files = []; store.simulation = [] } }
                 Menu("Conversión o herramienta rápida") {
@@ -138,7 +151,7 @@ struct InputFilesView: View {
                 ScrollView { LazyVStack(spacing: 12) { ForEach(store.files, id: \.self) { file in
                     HStack {
                         Image(systemName: fileIcon(file)).foregroundStyle(MetatronStyle.accent).frame(width: 24)
-                        VStack(alignment: .leading) { Text(file.lastPathComponent); Text(file.deletingLastPathComponent().path).font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle) }
+                        VStack(alignment: .leading, spacing: 4) { Text(file.lastPathComponent).fontWeight(.medium).lineLimit(1).truncationMode(.middle); Text(file.deletingLastPathComponent().path).font(.caption).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle) }
                         Spacer()
                         Button { store.files.removeAll { $0 == file }; store.simulation = [] } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.plain).accessibilityLabel("Quitar \(file.lastPathComponent)")
                     }
@@ -184,5 +197,34 @@ extension WorkspaceStore {
     func chooseFiles() {
         let panel = NSOpenPanel(); panel.allowsMultipleSelection = true; panel.canChooseDirectories = true; panel.message = "Añade archivos a tu mesa de trabajo"
         if panel.runModal() == .OK { addFiles(panel.urls) }
+    }
+}
+
+private struct OutputSummaryView: View {
+    let recipe: Recipe?
+    @ObservedObject private var settings = SettingsStore.shared
+    private var destination: String {
+        if let path = recipe?.folderPath { return path }
+        switch recipe?.outputLocation ?? settings.outputLocation {
+        case .nextToOriginal: return "Junto al archivo original"
+        case .subfolder(let name): return "Subcarpeta · " + name
+        case .folder(let url): return url.path
+        }
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Destino").font(.headline)
+                Spacer()
+                Button("Cambiar…") { SettingsWindowController.shared.show(.output) }.buttonStyle(.link)
+            }
+            Label {
+                Text(destination).lineLimit(2).truncationMode(.middle)
+            } icon: {
+                Image(systemName: "folder").foregroundStyle(MetatronStyle.accent)
+            }
+            Label((recipe?.writeReceipt ?? settings.writeReceipt) ? "Con comprobante JSON" : "Sin comprobante JSON", systemImage: "doc.text")
+                .font(.caption).foregroundStyle(.secondary)
+        }
     }
 }

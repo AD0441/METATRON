@@ -53,6 +53,7 @@ final class SettingsWindowController {
         if window == nil {
             let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 780, height: 600),
                              styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
+            w.minSize = NSSize(width: 780, height: 600)
             w.titlebarAppearsTransparent = true
             w.titleVisibility = .hidden
             w.isReleasedWhenClosed = false
@@ -106,6 +107,7 @@ struct SettingsView: View {
             .background(SwiftUI.Color(nsColor: .windowBackgroundColor))
         }
         .frame(minWidth: 780, minHeight: 600)
+        .font(.system(size: 13))
         .tint(settings.interfaceAccent)
     }
 
@@ -120,14 +122,14 @@ struct SettingsView: View {
                 Button { selection.pane = pane } label: {
                     HStack(spacing: 9) {
                         Image(systemName: pane.symbol)
-                            .font(.system(size: 11, weight: .semibold)).foregroundStyle(.white)
-                            .frame(width: 22, height: 22)
-                            .background(RoundedRectangle(cornerRadius: 6).fill(pane.color.gradient))
-                        Text(pane.title).font(.system(size: 13))
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundStyle(selection.pane == pane ? settings.interfaceAccent : Color.secondary)
+                            .frame(width: 24, height: 26)
+                        Text(pane.title).font(.system(size: 13, weight: selection.pane == pane ? .semibold : .regular))
                         Spacer()
                     }
                     .padding(.horizontal, 8).padding(.vertical, 5)
-                    .background(RoundedRectangle(cornerRadius: 7).fill(selection.pane == pane ? SwiftUI.Color.primary.opacity(0.1) : .clear))
+                    .background(RoundedRectangle(cornerRadius: 8).fill(selection.pane == pane ? settings.interfaceAccent.opacity(0.11) : .clear))
                     .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -494,6 +496,12 @@ private struct OutputPane: View {
             } footer: {
                 Text(L("Originals are never changed. If a name is taken, Metatron adds a number."))
                     .foregroundStyle(.secondary)
+            }
+
+            Section("Comprobante de conversión") {
+                Toggle("Guardar comprobante JSON junto al resultado", isOn: $settings.writeReceipt)
+                Text("Actividad conserva la verificación y permite deshacer aunque omitas el comprobante. Los paquetes documentales mantienen sus archivos de contenido y procedencia.")
+                    .font(.caption).foregroundStyle(.secondary)
             }
 
             Section(L("After converting")) {

@@ -163,6 +163,7 @@ final class SettingsStore: ObservableObject {
     @Published var saveLocation: SaveLocation = Defaults.load("saveLocation", SaveLocation.nextToOriginal) { didSet { Defaults.save("saveLocation", saveLocation) } }
     @Published var subfolderName: String = Defaults.load("subfolderName", "METATRON") { didSet { Defaults.save("subfolderName", subfolderName) } }
     @Published var customFolder: String = Defaults.load("customFolder", "") { didSet { Defaults.save("customFolder", customFolder) } }
+    @Published var writeReceipt: Bool = Defaults.load("writeReceipt", true) { didSet { Defaults.save("writeReceipt", writeReceipt) } }
     @Published var revealInFinder: Bool = Defaults.load("revealInFinder", false) { didSet { Defaults.save("revealInFinder", revealInFinder) } }
     @Published var playSound: Bool = Defaults.load("playSound", true) { didSet { Defaults.save("playSound", playSound) } }
     @Published var trashOriginal: Bool = Defaults.load("trashOriginal", false) { didSet { Defaults.save("trashOriginal", trashOriginal) } }

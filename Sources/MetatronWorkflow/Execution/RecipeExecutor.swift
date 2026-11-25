@@ -80,8 +80,11 @@ public enum RecipeExecutor {
                 guard let action = KQAction(id: step.action) else { throw WorkflowError.unsupportedStep(step.action) }
                 if step.action == "tool.transcribeAudio", !step.text.isEmpty { options.speechLocale = step.text }
                 let engine = Engine(options: options, planner: OutputPlanner(location: .folder(folder)), speechProgress: progress)
+                let nativeOfficePDF = step.action == "convert.pdf" && current.contains { ["doc", "docx", "odt"].contains($0.pathExtension.lowercased()) }
+                    && !(options.preferLibreOffice && Engines.current.soffice != nil)
                 let result = try await engine.run(action, on: current, parameters: index == 0 ? parameters : .none)
                 current = result.outputs
+                if nativeOfficePDF { warnings.append("PDF generado con la vista previa de macOS. Revisa fuentes y saltos de página antes de compartir.") }
                 if step.action == "tool.transcribeAudio" || (inputs.contains { FileKind.of($0) == .audio } && ["convert.txt", "convert.md"].contains(step.action)) {
                     warnings.append("Transcripción automática local de Apple. Revisa nombres, cifras y puntuación.")
                 }
@@ -92,7 +95,7 @@ public enum RecipeExecutor {
         let password: String? = { if case .password(let value) = parameters { value } else { nil } }()
         for output in current { try FileIntegrity.validate(output, password: password) }
         await progress("Verificando y publicando")
-        let destination = recipe.folderPath.map { URL(fileURLWithPath: $0, isDirectory: true) } ?? inputs[0].deletingLastPathComponent().appendingPathComponent("Metatron", isDirectory: true)
+        let destination = try recipe.outputDirectory(for: inputs[0])
         try fm.createDirectory(at: destination, withIntermediateDirectories: true)
         var published: [PublishedFile] = []
         do {
@@ -113,23 +116,24 @@ public enum RecipeExecutor {
                 published.append(PublishedFile(url: target, digest: hash, bytes: FileIntegrity.bytes(target)))
             }
             try Task.checkCancellation()
-            let receiptName = "metatron-\(id.uuidString).json"
-            let stagedReceipt = staging.appendingPathComponent(receiptName)
-            let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-            try encoder.encode(published).write(to: stagedReceipt, options: .atomic)
-            let receiptHash = try FileIntegrity.digest(stagedReceipt)
-            let receiptBytes = FileIntegrity.bytes(stagedReceipt)
-            var reserved: Set<String> = []
-            let proposed = destination.appendingPathComponent(receiptName)
-            var receipt = FileIntegrity.unique(proposed, reserved: &reserved)
-            while true {
-                try Task.checkCancellation()
-                do { try fm.moveItem(at: stagedReceipt, to: receipt); break }
-                catch where fm.fileExists(atPath: receipt.path) { receipt = FileIntegrity.unique(proposed, reserved: &reserved) }
+            if recipe.writeReceipt ?? true {
+                let receiptName = "metatron-\(id.uuidString).json"
+                let stagedReceipt = staging.appendingPathComponent(receiptName)
+                let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+                try encoder.encode(published).write(to: stagedReceipt, options: .atomic)
+                let receiptHash = try FileIntegrity.digest(stagedReceipt)
+                let receiptBytes = FileIntegrity.bytes(stagedReceipt)
+                var reserved: Set<String> = []
+                let proposed = destination.appendingPathComponent(receiptName)
+                var receipt = FileIntegrity.unique(proposed, reserved: &reserved)
+                while true {
+                    try Task.checkCancellation()
+                    do { try fm.moveItem(at: stagedReceipt, to: receipt); break }
+                    catch where fm.fileExists(atPath: receipt.path) { receipt = FileIntegrity.unique(proposed, reserved: &reserved) }
+                }
+                published.append(PublishedFile(url: receipt, digest: receiptHash, bytes: receiptBytes))
             }
-            // The receipt is the commit point; cancellation after this returns a
-            // completed transaction, never a half-published success.
-            published.append(PublishedFile(url: receipt, digest: receiptHash, bytes: receiptBytes))
+            // Publication is committed here, with or without a separate receipt.
             return RecipeResult(files: published, inputBytes:sourceBytes, elapsed: Date().timeIntervalSince(start), warnings: warnings)
         } catch {
             // Only outputs just created by this transaction are removed on a publication failure.

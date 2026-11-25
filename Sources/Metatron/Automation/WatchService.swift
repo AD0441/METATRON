@@ -50,15 +50,17 @@ final class WatchService {
            let found = WorkspaceStore.shared.recipes.first(where: { $0.id == id }) { recipe = found }
         else if let action = rule.applies(to: url) { recipe = Recipe(name: "Carpeta · " + action.title, steps: [.init(action: action.id)]) }
         else { return }
-        if let path = recipe.folderPath {
-            let output = URL(fileURLWithPath: path).resolvingSymlinksInPath().standardizedFileURL
-            // Reject cycles through any watched input, including symlink aliases.
+        let configured = WorkspaceStore.shared.configuredRecipe(recipe)
+        do {
+            let output = try configured.outputDirectory(for: url).resolvingSymlinksInPath().standardizedFileURL
             if watchers.values.contains(where: { URL(fileURLWithPath: $0.rule.folder).resolvingSymlinksInPath().standardizedFileURL == output }) {
-                WorkspaceStore.shared.notice = "La salida de una regla debe estar fuera de las carpetas de entrada vigiladas para evitar ciclos."
+                WorkspaceStore.shared.notice = "La salida de una regla debe estar fuera de las carpetas de entrada vigiladas para evitar ciclos. Elige una subcarpeta o un destino fijo en Ajustes."
                 return
             }
+        } catch {
+            WorkspaceStore.shared.notice = error.localizedDescription
+            return
         }
-        let configured = WorkspaceStore.shared.configuredRecipe(recipe)
         guard RecipeCompatibility.issue(inputs: [url], recipe: configured) == nil else { return }
         WorkspaceStore.shared.enqueue(inputs: [url], recipe: configured)
     }
